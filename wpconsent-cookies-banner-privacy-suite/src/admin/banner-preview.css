@@ -1,0 +1,33 @@
+.wpconsent-banner-holder {
+	display: none;
+
+	&.wpconsent-banner-preview-visible {
+		display: block;
+	}
+}
+
+:host(.wpconsent-preview-mode) {
+	position: relative;
+	padding: 0;
+
+	.wpconsent-banner-holder {
+		display: block;
+		position: relative;
+		min-height: 385px;
+		zoom: 0.5;
+		background: #f0f0f0;
+
+		&.wpconsent-banner-floating {
+			zoom: 0.6;
+			min-height: 320px;
+		}
+
+		.wpconsent-banner {
+			position: absolute;
+		}
+	}
+
+	.wpconsent-banner-holder {
+		position: relative;
+	}
+}
