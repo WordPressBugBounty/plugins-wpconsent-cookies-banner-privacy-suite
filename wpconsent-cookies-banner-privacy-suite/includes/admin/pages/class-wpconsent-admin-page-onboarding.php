@@ -201,7 +201,15 @@ class WPConsent_Admin_Page_Onboarding extends WPConsent_Admin_Page {
 			<div class="wpconsent-onboarding-buttons">
 				<button type="button" class="wpconsent-button wpconsent-button-extra-large" id="wpconsent-start-scanner"><?php esc_html_e( 'Scan Your Website', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
 				<p class="wpconsent-disclaimer">
-					<?php esc_html_e( 'Please Note: By continuing with the website scan you agree to sending a list of found services to the WPConsent website API. This data is used to provide up-to-date descriptions for services and cookies found on your site.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+					<?php
+					printf(
+							// translators: %1$s is an opening link tag, %2$s is a closing link tag, %3$s is an opening link tag.
+						esc_html__( 'Please Note: By continuing with the website scan, you agree to send website data to our API for processing. This data is utilized to improve scanning accuracy and provide updated service and cookie descriptions. For details, please review our %1$sPrivacy Policy%2$s and %3$sTerms of Service%2$s.', 'wpconsent-cookies-banner-privacy-suite' ),
+						'<a href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/privacy-policy/', 'onboarding', 'privacy-policy' ) ) . '" target="_blank" rel="noopener noreferrer">',
+						'</a>',
+						'<a href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/terms/', 'onboarding', 'terms-of-service' ) ) . '" target="_blank" rel="noopener noreferrer">'
+					);
+					?>
 				</p>
 			</div>
 

@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.0.3.1
+Stable tag: 1.0.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -120,6 +120,18 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+
+= 1.0.4.1 =
+* Fix: Cache class not loaded correctly in some instances.
+
+= 1.0.4 =
+* New: Improved website scanner using our API.
+* New: Improved script blocking with support for remote updates.
+* New: Easily customize all text in the preferences panel from the admin.
+* New: Automatic cookie clearing on consent change.
+* Tweak: Improved script unblocking for blocked scripts.
+* Tweak: Improve compatibility with WP Rocket lazy loading.
 
 = 1.0.3.1 =
 * Fix: The banner was scrolling the page to focus in some scenarios.

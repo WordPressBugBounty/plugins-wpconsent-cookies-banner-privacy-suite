@@ -128,15 +128,19 @@ class WPConsent_Cookies {
 		// Insert a new post with our cookie name as title, cookie description as content and the cookie id as a meta.
 		// Then assign the cookie category taxonomy.
 		if ( $post_id ) {
-			$post_id = wp_update_post(
-				array(
-					'ID'           => $post_id,
-					'post_title'   => $cookie_name,
-					'post_content' => $cookie_description,
-					'post_type'    => $this->post_type,
-					'post_status'  => 'publish',
-				)
-			);
+			$updated = apply_filters( 'wpconsent_update_cookie_post', false, $post_id, $cookie_name, $cookie_description, $cookie_category, $duration );
+
+			if ( false === $updated ) {
+				$post_id = wp_update_post(
+					array(
+						'ID'           => $post_id,
+						'post_title'   => $cookie_name,
+						'post_content' => $cookie_description,
+						'post_type'    => $this->post_type,
+						'post_status'  => 'publish',
+					)
+				);
+			}
 		} else {
 			$post_id = wp_insert_post(
 				array(
@@ -175,15 +179,17 @@ class WPConsent_Cookies {
 		$category_array = $this->get_default_categories();
 
 		foreach ( $categories as $category ) {
-			$category_array[ $category->slug ] = array(
+			$category_data = array(
 				'name'        => $category->name,
 				'description' => $category->description,
 				'required'    => get_term_meta( $category->term_id, 'wpconsent_required', true ),
 				'id'          => $category->term_id,
 			);
 			if ( 'essential' === $category->slug ) {
-				$category_array[ $category->slug ]['required'] = 1;
+				$category_data['required'] = 1;
 			}
+
+			$category_array[ $category->slug ] = apply_filters( 'wpconsent_category_data', $category_data, $category->term_id );
 		}
 
 		// Maybe create default categories in the db if they don't exist.
@@ -271,7 +277,23 @@ class WPConsent_Cookies {
 		return $term['term_id'];
 	}
 
+	/**
+	 * Update a category in the database.
+	 *
+	 * @param int    $category_id The category ID.
+	 * @param string $name The category name.
+	 * @param string $description The category description.
+	 *
+	 * @return bool
+	 */
 	public function update_category( $category_id, $name, $description ) {
+
+		// Filter to allow short-circuiting the category update.
+		$updated = apply_filters( 'wpconsent_update_category', false, $category_id, $name, $description );
+
+		if ( false !== $updated ) {
+			return $updated;
+		}
 		$term = wp_update_term(
 			$category_id,
 			$this->taxonomy,
@@ -286,7 +308,6 @@ class WPConsent_Cookies {
 		}
 
 		return true;
-
 	}
 
 	/**
@@ -366,7 +387,7 @@ class WPConsent_Cookies {
 			$cookie_id       = get_post_meta( $cookie->ID, 'wpconsent_cookie_id', true );
 			$auto_added      = get_post_meta( $cookie->ID, '_wpconsent_auto_added', true );
 			$cookie_category = wp_get_post_terms( $cookie->ID, $this->taxonomy, array( 'fields' => 'ids' ) );
-			$cookie_array[]  = array(
+			$cookie_data     = array(
 				'id'          => $cookie->ID,
 				'name'        => $cookie->post_title,
 				'cookie_id'   => $cookie_id,
@@ -375,6 +396,8 @@ class WPConsent_Cookies {
 				'auto_added'  => ! empty( $auto_added ),
 				'duration'    => get_post_meta( $cookie->ID, 'wpconsent_cookie_duration', true ),
 			);
+
+			$cookie_array[] = apply_filters( 'wpconsent_cookie_data', $cookie_data, $cookie->ID );
 		}
 
 		return $cookie_array;
@@ -428,24 +451,31 @@ class WPConsent_Cookies {
 	 * @return int|false
 	 */
 	public function update_service( $service_id, $service_name, $service_description = '', $service_url = false ) {
-		$term = wp_update_term(
-			$service_id,
-			$this->taxonomy,
-			array(
-				'name'        => $service_name,
-				'description' => $service_description,
-			)
-		);
+
+		$updated = apply_filters( 'wpconsent_update_service', false, $service_id, $service_name, $service_description, $service_url );
+
+		if ( ! $updated ) {
+			$term = wp_update_term(
+				$service_id,
+				$this->taxonomy,
+				array(
+					'name'        => $service_name,
+					'description' => $service_description,
+				)
+			);
+		} else {
+			$term = $updated;
+		}
 
 		// Delete transient wpconsent_needs_google_consent.
 		delete_transient( 'wpconsent_needs_google_consent' );
 
 		if ( ! is_wp_error( $term ) ) {
 			if ( false !== $service_url ) {
-				update_term_meta( $term['term_id'], 'wpconsent_service_url', $service_url );
+				update_term_meta( $service_id, 'wpconsent_service_url', $service_url );
 			}
 
-			return $term['term_id'];
+			return $service_id;
 		}
 
 		return false;
@@ -520,12 +550,13 @@ class WPConsent_Cookies {
 
 		foreach ( $services as $service ) {
 			$service_url     = get_term_meta( $service->term_id, 'wpconsent_service_url', true );
-			$service_array[] = array(
+			$service_data    = array(
 				'id'          => $service->term_id,
 				'name'        => $service->name,
 				'service_url' => $service_url,
 				'description' => $service->description,
 			);
+			$service_array[] = apply_filters( 'wpconsent_service_data', $service_data, $service->term_id );
 		}
 
 		return $service_array;

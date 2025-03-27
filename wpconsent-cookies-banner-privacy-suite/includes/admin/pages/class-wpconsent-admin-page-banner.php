@@ -517,6 +517,73 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 		);
 		$this->metabox_row_separator();
 		$this->metabox_row(
+			esc_html__( 'Preferences Panel Title', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'preferences_panel_title',
+				wpconsent()->settings->get_option( 'preferences_panel_title', 'Cookie Preferences' ),
+				'',
+				'preferences_panel_title'
+			),
+			'preferences_panel_title'
+		);
+		$this->metabox_row(
+			esc_html__( 'Preferences Panel Description', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_textarea(
+				'preferences_panel_description',
+				wpconsent()->settings->get_option( 'preferences_panel_description', 'Manage your cookie preferences below:' ),
+				'',
+				'preferences_panel_description'
+			),
+			'preferences_panel_description'
+		);
+		$this->metabox_row(
+			esc_html__( 'Cookie Policy Title', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_policy_title',
+				wpconsent()->settings->get_option( 'cookie_policy_title', 'Cookie Policy' ),
+				'',
+				'cookie_policy_title'
+			),
+			'cookie_policy_title'
+		);
+		$this->metabox_row(
+			esc_html__( 'Cookie Policy Text', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_textarea(
+				'cookie_policy_text',
+				wpconsent()->settings->get_option( 'cookie_policy_text', 'You can find more information in our {cookie_policy} and {privacy_policy}.' ),
+				sprintf(
+				// Translators: %1$s is the cookie policy placeholder ({cookie_policy}), %2$s is the privacy policy placeholder ({privacy_policy}).
+					esc_html__( 'This text will appear at the bottom of the Preferences panel. We recommend including the %1$s and %2$s placeholders.', 'wpconsent-cookies-banner-privacy-suite' ),
+					'<code>{cookie_policy}</code>',
+					'<code>{privacy_policy}</code>'
+				) . '<br />' .
+				esc_html__( 'The placeholders will be replaced with links to the respective pages as configured in WPConsent and your WordPress Privacy settings.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_policy_text'
+			),
+			'cookie_policy_text'
+		);
+		$this->metabox_row(
+			esc_html__( 'Save Preferences Button Text', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'save_preferences_button_text',
+				wpconsent()->settings->get_option( 'save_preferences_button_text', esc_html__( 'Save Preferences', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				'',
+				'save_preferences_button_text'
+			),
+			'save_preferences_button_text'
+		);
+		$this->metabox_row(
+			esc_html__( 'Close Button Text', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'close_button_text',
+				wpconsent()->settings->get_option( 'close_button_text', esc_html__( 'Close', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				'',
+				'close_button_text'
+			),
+			'close_button_text'
+		);
+		$this->metabox_row_separator();
+		$this->metabox_row(
 			esc_html__( 'Logo/Icon', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->media(
 				'banner_logo',
@@ -664,18 +731,31 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				);
 				$banner_logo         = isset( $_POST['banner_logo'] ) ? sanitize_text_field( wp_unslash( $_POST['banner_logo'] ) ) : '';
 
+				$preferences_panel_title       = isset( $_POST['preferences_panel_title'] ) ? sanitize_text_field( wp_unslash( $_POST['preferences_panel_title'] ) ) : '';
+				$preferences_panel_description = isset( $_POST['preferences_panel_description'] ) ? wp_kses_post( wp_unslash( $_POST['preferences_panel_description'] ) ) : '';
+				$cookie_policy_title           = isset( $_POST['cookie_policy_title'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_policy_title'] ) ) : '';
+				$cookie_policy_text            = isset( $_POST['cookie_policy_text'] ) ? wp_kses_post( wp_unslash( $_POST['cookie_policy_text'] ) ) : '';
+				$save_preferences_button_text  = isset( $_POST['save_preferences_button_text'] ) ? sanitize_text_field( wp_unslash( $_POST['save_preferences_button_text'] ) ) : '';
+				$close_button_text             = isset( $_POST['close_button_text'] ) ? sanitize_text_field( wp_unslash( $_POST['close_button_text'] ) ) : '';
+
 				$settings = array(
-					'banner_message'             => $banner_message,
-					'accept_button_text'         => $accept_button,
-					'cancel_button_text'         => $cancel_button,
-					'preferences_button_text'    => $settings_button,
-					'accept_button_enabled'      => $accept_enabled,
-					'cancel_button_enabled'      => $cancel_enabled,
-					'preferences_button_enabled' => $preferences_enabled,
-					'button_order'               => $button_order,
-					'banner_logo'                => $banner_logo,
-					'enable_consent_banner'      => isset( $_POST['enable_consent_banner'] ),
-					'hide_powered_by'            => isset( $_POST['hide_powered_by'] ),
+					'banner_message'                => $banner_message,
+					'accept_button_text'            => $accept_button,
+					'cancel_button_text'            => $cancel_button,
+					'preferences_button_text'       => $settings_button,
+					'accept_button_enabled'         => $accept_enabled,
+					'cancel_button_enabled'         => $cancel_enabled,
+					'preferences_button_enabled'    => $preferences_enabled,
+					'button_order'                  => $button_order,
+					'banner_logo'                   => $banner_logo,
+					'enable_consent_banner'         => isset( $_POST['enable_consent_banner'] ),
+					'hide_powered_by'               => isset( $_POST['hide_powered_by'] ),
+					'preferences_panel_title'       => $preferences_panel_title,
+					'preferences_panel_description' => $preferences_panel_description,
+					'cookie_policy_title'           => $cookie_policy_title,
+					'cookie_policy_text'            => $cookie_policy_text,
+					'save_preferences_button_text'  => $save_preferences_button_text,
+					'close_button_text'             => $close_button_text,
 				);
 			}
 

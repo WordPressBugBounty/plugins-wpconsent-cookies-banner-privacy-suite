@@ -50,10 +50,11 @@ class WPConsent_File_Cache {
 	 *
 	 * @param string $name The key of the data to save.
 	 * @param int    $ttl For how long since creation should this file be used.
+	 * @param bool   $expired If true, we'll return an array with the data and whether it's expired or not.
 	 *
 	 * @return array|false
 	 */
-	public function get( $name, $ttl = 0 ) {
+	public function get( $name, $ttl = 0, $expired = false ) {
 		$file = $this->get_directory_path( $this->get_cache_filename_by_key( $name ) );
 
 		/**
@@ -72,12 +73,22 @@ class WPConsent_File_Cache {
 			// Let's see if we have it in the database.
 			$option = get_option( 'wpconsent_alt_cache_' . $name, false );
 			if ( false !== $option ) {
+				$data_expired = $ttl > 0 && (int) $option['time'] + $ttl < time();
 				// Let's check if the time since the option was saved is less than the TTL.
-				if ( empty( $option['time'] ) || $ttl > 0 && (int) $option['time'] + $ttl < time() ) {
+				if ( empty( $option['time'] ) || $data_expired && ! $expired ) {
 					// If the option expired let's delete it, so we clean up in case the file will now work.
 					delete_option( 'wpconsent_alt_cache_' . $name );
 
 					return false;
+				}
+
+				if ( $expired ) {
+					// If we want to check if the file is expired, we return the file and true.
+					return array(
+						'data'    => json_decode( $option['data'], true ),
+						// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+						'expired' => $data_expired,
+					);
 				}
 
 				return json_decode( $option['data'], true );
@@ -86,9 +97,20 @@ class WPConsent_File_Cache {
 			return false;
 		}
 
+		$file_expired = (int) filemtime( $file ) + $ttl < time();
+
 		// If TTL is 0, always return the file.
-		if ( $ttl > 0 && (int) filemtime( $file ) + $ttl < time() ) {
+		if ( $ttl > 0 && $file_expired && ! $expired ) {
 			return false;
+		}
+
+		if ( $expired ) {
+			// If we want to check if the file is expired, we return the file and true.
+			return array(
+				'data'    => json_decode( file_get_contents( $file ), true ),
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				'expired' => $file_expired,
+			);
 		}
 
 		return json_decode( file_get_contents( $file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents

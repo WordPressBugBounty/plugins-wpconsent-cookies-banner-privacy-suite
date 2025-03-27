@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin pages abstract class.
  *
@@ -9,6 +10,8 @@
  * Class Admin_Page
  */
 abstract class WPConsent_Admin_Page {
+
+	use WPConsent_Language_Picker;
 
 	/**
 	 * The page slug.
@@ -240,13 +243,17 @@ abstract class WPConsent_Admin_Page {
 				absint( $notifications_count )
 			);
 		}
+		$this->language_picker_button();
 		?>
 		<button
 				type="button"
 				id="wpconsent-notifications-button"
 				class="wpconsent-button-just-icon wpconsent-notifications-inbox wpconsent-open-notifications"
 				data-dismissed="<?php echo esc_attr( $dismissed_count ); ?>"
-			<?php echo $data_count; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+			<?php
+			echo $data_count; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
+		>
 			<?php wpconsent_icon( 'inbox', 15, 16 ); ?>
 		</button>
 		<?php
@@ -533,7 +540,8 @@ abstract class WPConsent_Admin_Page {
 				</div>
 			</div>
 			<div class="wpconsent-metabox-content">
-				<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
 			</div>
 		</div>
 		<?php
@@ -590,7 +598,8 @@ abstract class WPConsent_Admin_Page {
 			$class .= ' wpconsent-form-row-pro';
 		}
 		?>
-		<div class="<?php echo esc_attr( $class ); ?>" <?php echo $show_if_rules; ?> <?php echo $id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
+		<div class="<?php echo esc_attr( $class ); ?>" <?php echo $show_if_rules; ?> <?php echo $id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>>
 			<div class="wpconsent-metabox-form-row-label">
 				<label for="<?php echo esc_attr( $input_id ); ?>">
 					<?php echo esc_html( $label ); ?>
@@ -602,7 +611,8 @@ abstract class WPConsent_Admin_Page {
 				</label>
 			</div>
 			<div class="wpconsent-metabox-form-row-input">
-				<?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
 				<?php if ( ! empty( $description ) ) { ?>
 					<p><?php echo wp_kses_post( $description ); ?></p>
 				<?php } ?>

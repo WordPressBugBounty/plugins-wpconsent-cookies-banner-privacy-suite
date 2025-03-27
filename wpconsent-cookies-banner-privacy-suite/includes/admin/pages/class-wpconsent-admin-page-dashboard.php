@@ -84,7 +84,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 			),
 			array(
 				'title'              => esc_html__( 'Automatic Script Blocking', 'wpconsent-cookies-banner-privacy-suite' ),
-				'description'        => esc_html__( 'Prevent known tracking scripts from adding cookies onx your website before consent is given.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'description'        => esc_html__( 'Prevent known tracking scripts from adding cookies on your website before consent is given.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'checked'            => wpconsent()->settings->get_option( 'enable_script_blocking' ),
 				'url'                => $this->get_page_url( 'wpconsent-cookies' ),
 				'button_text'        => esc_html__( 'Enable', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -135,7 +135,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 	public function scan_results_box() {
 		$scan_data = wpconsent()->scanner->get_scan_data();
 
-		// Calculate stats similar to scanner page
+		// Calculate stats similar to scanner page.
 		$scripts_count = 0;
 		$cookies_count = 0;
 		$date          = __( 'Not yet scanned', 'wpconsent-cookies-banner-privacy-suite' );
@@ -145,10 +145,6 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				foreach ( $services as $service ) {
 					$cookies_count += count( $service['cookies'] );
 				}
-			}
-			foreach ( $scan_data['data']['essential'] as $service ) {
-				$scripts_count ++;
-				$cookies_count += count( $service['cookies'] );
 			}
 
 			$date = date_i18n( get_option( 'date_format' ), strtotime( $scan_data['date'] ) );

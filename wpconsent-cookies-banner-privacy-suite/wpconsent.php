@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPConsent
  * Description: Improve your WordPress website privacy compliance. Custom cookie banner, website scanner, automatic script blocking, and easy cookie configuration.
- * Version:     1.0.3.1
+ * Version:     1.0.4.1
  * Author:      WPConsent
  * Author URI:  https://wpconsent.com
  * License:     GPL v2 or later
@@ -280,8 +280,8 @@ class WPConsent {
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-notifications.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-reminders.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-scanner.php';
-			require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-file-cache.php';
 		}
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-file-cache.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-install.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/icons.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-settings.php';
@@ -294,6 +294,8 @@ class WPConsent {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/helpers.php';
 
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/lite/loader.php';
+		// Load compatibility.
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/compatibility/loader.php';
 	}
 
 	/**
@@ -307,15 +309,15 @@ class WPConsent {
 			$this->services          = WPConsent_Services::get_instance();
 			$this->scanner           = WPConsent_Scanner::get_instance();
 			$this->notice            = new WPConsent_Notice();
-			$this->file_cache        = new WPConsent_File_Cache();
 			$this->notifications     = new WPConsent_Notifications();
 
 			// Load the reminders.
 			new WPConsent_Reminders();
 		}
-		$this->settings = new WPConsent_Settings();
-		$this->banner   = new WPConsent_Banner();
-		$this->cookies  = new WPConsent_Cookies();
+		$this->file_cache = new WPConsent_File_Cache();
+		$this->settings   = new WPConsent_Settings();
+		$this->banner     = new WPConsent_Banner();
+		$this->cookies    = new WPConsent_Cookies();
 
 		$this->script_blocker = new WPConsent_Script_Blocker();
 		// Load the cookie blocking functionality.

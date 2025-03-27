@@ -75,7 +75,7 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 
 		$scan_data = $this->get_scan_results();
 
-		if ( empty( $scan_data['data']['scripts'] ) && empty( $scan_data['data']['essential'] ) ) {
+		if ( empty( $scan_data['data']['scripts'] ) ) {
 			return;
 		}
 
@@ -102,19 +102,7 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 			<p>
 				<?php esc_html_e( 'Below can see a list of scripts and integrations detected on your website that use cookies and that WPConsent can automatically detect. We recommend adding cookie information for all of them. Once added, you can edit the details on the settings page.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 			</p>
-			<?php if ( ! empty( $previous_data['essential'] ) ) { ?>
-				<div id="wpconsent-scanner-essential">
-					<h3><?php echo esc_html( $categories['essential']['name'] ); ?></h3>
-					<div class="wpconsent-onboarding-selectable-list">
-						<?php
-						foreach ( $previous_data['essential'] as $service ) {
-							$this->get_scan_service_template( $service );
-						}
-						?>
-					</div>
-				</div>
-				<?php
-			}
+			<?php
 			if ( ! empty( $previous_data['scripts'] ) ) {
 				foreach ( $previous_data['scripts'] as $category => $services ) {
 					?>
@@ -225,10 +213,6 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 					$cookies_count += count( $service['cookies'] );
 				}
 			}
-			foreach ( $scan_results['data']['essential'] as $service ) {
-				$scripts_count ++;
-				$cookies_count += count( $service['cookies'] );
-			}
 			$next_scheduled_scan = esc_html__( 'Not Scheduled', 'wpconsent-cookies-banner-privacy-suite' );
 			if ( wpconsent()->settings->get_option( 'auto_scanner', 0 ) ) {
 				$interval            = wpconsent()->settings->get_option( 'auto_scanner_interval', 1 );
@@ -280,7 +264,15 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 			<button id="wpconsent-start-scanner" class="wpconsent-button wpconsent-button-primary" type="button" data-action="reload"><?php esc_html_e( 'Scan Your Website', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
 		</div>
 		<p class="wpconsent-disclaimer">
-			<?php esc_html_e( 'Please Note: By performing a website scan you agree to sending a list of found services to the WPConsent website API. This data is used to provide up-to-date descriptions for services and cookies found on your site.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+			<?php
+			printf(
+			// translators: %1$s is an opening link tag, %2$s is a closing link tag, %3$s is an opening link tag.
+				esc_html__( 'Please Note: By continuing with the website scan, you agree to send website data to our API for processing. This data is utilized to improve scanning accuracy and provide updated service and cookie descriptions. For details, please review our %1$sPrivacy Policy%2$s and %3$sTerms of Service%2$s.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'<a href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/privacy-policy/', 'onboarding', 'privacy-policy' ) ) . '" target="_blank" rel="noopener noreferrer">',
+				'</a>',
+				'<a href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/terms/', 'onboarding', 'terms-of-service' ) ) . '" target="_blank" rel="noopener noreferrer">'
+			);
+			?>
 		</p>
 		<?php
 		return ob_get_clean();

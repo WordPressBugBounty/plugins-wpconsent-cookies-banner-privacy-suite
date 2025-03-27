@@ -11,6 +11,13 @@
 class WPConsent_Script_Blocker {
 
 	/**
+	 * The URL to fetch the known scripts data from.
+	 *
+	 * @var string
+	 */
+	private $api_url = 'https://plugin.wpconsent.com/wp-content/script-blocking-data.json';
+
+	/**
 	 * Known scripts categorized by cookie type.
 	 *
 	 * @var array
@@ -29,113 +36,50 @@ class WPConsent_Script_Blocker {
 	}
 
 	/**
+	 * Get the data from our server.
+	 *
+	 * @return array
+	 */
+	public function get_data_remotely() {
+		$request = wp_remote_get( $this->api_url );
+
+		if ( is_wp_error( $request ) ) {
+			return array();
+		}
+
+		$body = wp_remote_retrieve_body( $request );
+
+		if ( empty( $body ) ) {
+			return array();
+		}
+
+		$data = json_decode( $body, true );
+
+		if ( empty( $data ) ) {
+			return array();
+		}
+
+		return $data;
+	}
+
+	/**
 	 * Load the known scripts data.
 	 */
 	public function load_data() {
-		$this->categorized_scripts = array(
-			'essential'  => array(
-				'google-tag-manager' => array(
-					'label'   => 'Google Tag Manager',
-					'scripts' => array(
-						'googletagmanager.com/gtm.js',
-					),
-				),
-				'stripe'             => array(
-					'label'   => 'Stripe',
-					'scripts' => array(
-						'js.stripe.com/v3',
-					),
-				),
-			),
-			'statistics' => array(
-				'google-analytics' => array(
-					'label'   => 'Google Analytics',
-					'scripts' => array(
-						'google-analytics.com/analytics.js',
-						'googletagmanager.com/gtag/js',
-						'google-analytics.com/ga.js',
-					),
-				),
-				'matomo'           => array(
-					'label'   => 'Matomo',
-					'scripts' => array(
-						'matomo.php',
-					),
-				),
-				'clarity'          => array(
-					'label'   => 'Clarity',
-					'scripts' => array(
-						'clarity.ms',
-					),
-				),
-				'clicky'           => array(
-					'label'   => 'Clicky',
-					'scripts' => array(
-						'static.getclicky.com',
-					),
-				),
-				'convert-insights' => array(
-					'label'   => 'Convert Insights',
-					'scripts' => array(
-						'convertexperiments.com/v1/js',
-					),
-				),
-			),
-			'marketing'  => array(
-				'facebook-pixel'   => array(
-					'label'   => 'Facebook Pixel',
-					'scripts' => array(
-						'connect.facebook.net/en_US/fbevents.js',
-					),
-				),
-				'google-ads'       => array(
-					'label'   => 'Google Ads',
-					'scripts' => array(
-						'googleads.g.doubleclick.net',
-					),
-				),
-				'linkedin-insight' => array(
-					'label'   => 'LinkedIn Insight',
-					'scripts' => array(
-						'snap.licdn.com/li.lms-analytics/insight.min.js',
-					),
-				),
-				'twitter-pixel'    => array(
-					'label'   => 'X (formerly Twitter) Pixel',
-					'scripts' => array(
-						'static.ads-twitter.com/uwt.js',
-						'platform.twitter.com/widgets.js',
-						'analytics.twitter.com/i/adsct',
-						'static.ads-x.com/uwt.js',
-					),
-				),
-				'pinterest-tag'    => array(
-					'label'   => 'Pinterest Tag',
-					'scripts' => array(
-						'assets.pinterest.com/js/pinit.js',
-						's.pinimg.com/ct/core.js',
-					),
-				),
-				'snapchat-pixel'   => array(
-					'label'   => 'Snapchat Pixel',
-					'scripts' => array(
-						'sc-static.net/scevent.min.js',
-					),
-				),
-				'tiktok-pixel'     => array(
-					'label'   => 'TikTok Pixel',
-					'scripts' => array(
-						'analytics.tiktok.com/i18n/pixel/events.js',
-					),
-				),
-				'optinmonster'     => array(
-					'label'   => 'OptinMonster',
-					'scripts' => array(
-						'omappapi.com/app/js/api.min.js',
-					),
-				),
-			),
-		);
+		$script_data_cache = wpconsent()->file_cache->get( 'script-blocking-data', DAY_IN_SECONDS, true );
+
+		if ( ! empty( $script_data_cache['expired'] ) || empty( $script_data_cache['data'] ) ) {
+			$script_data = $this->get_data_remotely();
+			if ( ! empty( $script_data ) ) {
+				wpconsent()->file_cache->set( 'script-blocking-data', $script_data );
+			} else {
+				$script_data = $script_data_cache['data'];
+			}
+		} else {
+			$script_data = $script_data_cache['data'];
+		}
+
+		$this->categorized_scripts = $script_data;
 	}
 
 	/**

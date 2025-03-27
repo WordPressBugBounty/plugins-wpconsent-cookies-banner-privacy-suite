@@ -53,12 +53,18 @@ window.WPConsentScanner = window.WPConsentScanner || (
 			handle_response: function ( response ) {
 				WPConsentConfirm.close();
 				if ( response.success ) {
+					// Determine if this was an error response from the scanner
+					const hasError = response.data.error && response.data.error === true;
+					const messageType = hasError ? 'red' : 'blue';
+					const icon = hasError ? 'fa fa-exclamation-circle' : 'fa fa-check-circle';
+					const title = hasError ? wpconsent.scan_error : wpconsent.scan_complete;
+
 					$.confirm(
 						{
-							title: wpconsent.scan_complete,
+							title: title,
 							content: response.data.message,
-							type: 'blue',
-							icon: 'fa fa-check-circle',
+							type: messageType,
+							icon: icon,
 							animateFromElement: false,
 							buttons: {
 								confirm: {
@@ -69,7 +75,10 @@ window.WPConsentScanner = window.WPConsentScanner || (
 							},
 							onAction: function ( action ) {
 								if ( action === 'confirm' ) {
-									app.do_after_scan_action( response );
+									// Only proceed with after scan action if there was no error
+									if (!hasError) {
+										app.do_after_scan_action( response );
+									}
 								}
 							}
 						},
@@ -108,17 +117,20 @@ window.WPConsentScanner = window.WPConsentScanner || (
 					onAction: function ( action ) {
 						if ( action === 'confirm' ) {
 							const data = app.form.serialize();
+							WPConsentConfirm.show_please_wait();
 							$.post(
 								ajaxurl,
 								data
 							).done(
 								function ( response ) {
+									WPConsentConfirm.close();
 									if ( response.success ) {
 										// Display success message and reload after ok.
 										$.alert( {
 											title: '',
 											content: response.data.message,
 											onAction: function () {
+												WPConsentConfirm.show_please_wait();
 												location.reload();
 											}
 										} );

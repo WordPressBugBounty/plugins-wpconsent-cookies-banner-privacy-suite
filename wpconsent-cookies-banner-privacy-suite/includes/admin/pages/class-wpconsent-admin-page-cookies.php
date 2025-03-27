@@ -52,8 +52,9 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		add_filter( 'wpconsent_admin_js_data', array( $this, 'add_connect_strings' ) );
 
 		$this->views = array(
-			'settings' => __( 'Settings', 'wpconsent-cookies-banner-privacy-suite' ),
-			'cookies'  => __( 'Cookies', 'wpconsent-cookies-banner-privacy-suite' ),
+			'settings'  => __( 'Settings', 'wpconsent-cookies-banner-privacy-suite' ),
+			'cookies'   => __( 'Cookies', 'wpconsent-cookies-banner-privacy-suite' ),
+			'languages' => __( 'Languages', 'wpconsent-cookies-banner-privacy-suite' ),
 		);
 	}
 
@@ -894,6 +895,214 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			?>
 		</div>
 		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Output an interface where users can configure the languages they want to have in the banner.
+	 *
+	 * @return void
+	 */
+	public function output_view_languages() {
+
+		?>
+		<div class="wpconsent-blur-area">
+			<?php
+			$this->metabox(
+				esc_html__( 'Language Settings', 'wpconsent-cookies-banner-privacy-suite' ),
+				$this->get_language_settings_content()
+			);
+			wp_nonce_field(
+				'wpconsent_save_language_settings',
+				'wpconsent_save_language_settings_nonce'
+			);
+			?>
+		</div>
+		<?php
+		echo WPConsent_Admin_page::get_upsell_box( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			esc_html__( 'Multilanguage is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+			'<p>' . esc_html__( 'Upgrade to WPConsent PRO today and easily manage content in multiple languages. Easily switch languages for the banner or directly integrate with popular translation plugins.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
+			array(
+				'text' => esc_html__( 'Upgrade to PRO and Unlock Languages', 'wpconsent-cookies-banner-privacy-suite' ),
+				'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'languages-page', 'main' ) ),
+			),
+			array(
+				'text' => esc_html__( 'Learn more about all the features', 'wpconsent-cookies-banner-privacy-suite' ),
+				'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'languages-page', 'features' ) ),
+			)
+		);
+		?>
+		<?php
+	}
+
+	/**
+	 * Output a single language item in the language selector.
+	 *
+	 * @param string $locale The locale code.
+	 * @param array  $language The language data array.
+	 * @param bool   $is_default Whether this is the default language.
+	 * @param bool   $is_enabled Whether this language is enabled.
+	 *
+	 * @return void
+	 */
+	protected function output_language_item( $locale, $language, $is_default, $is_enabled ) {
+		$classes = array( 'wpconsent-language-item' );
+		if ( $is_default ) {
+			$classes[] = 'wpconsent-language-default';
+		}
+		if ( $is_enabled ) {
+			$classes[] = 'wpconsent-language-enabled';
+		}
+		?>
+		<div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" data-locale="<?php echo esc_attr( $locale ); ?>" data-search="<?php echo esc_attr( strtolower( $language['english_name'] . ' ' . $language['native_name'] . ' ' . $locale ) ); ?>">
+			<label class="wpconsent-checkbox-label">
+				<input type="checkbox" name="enabled_languages[]" value="<?php echo esc_attr( $locale ); ?>"
+					<?php checked( $is_enabled ); ?>
+					<?php disabled( $is_default ); ?>>
+				<span class="wpconsent-checkbox-text">
+					<?php echo esc_html( $language['english_name'] ); ?>
+					<span class="wpconsent-language-locale">(<?php echo esc_html( $locale ); ?>)</span>
+					<?php if ( $language['native_name'] !== $language['english_name'] ) : ?>
+						<span class="wpconsent-language-native-name">
+							(<?php echo esc_html( $language['native_name'] ); ?>)
+						</span>
+					<?php endif; ?>
+					<?php if ( $is_default ) : ?>
+						<span class="wpconsent-language-default-badge">
+							<?php esc_html_e( 'Default', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+						</span>
+					<?php endif; ?>
+				</span>
+			</label>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Get the language settings content.
+	 *
+	 * @return string
+	 */
+	public function get_language_settings_content() {
+		require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+
+		ob_start();
+		// Get all available languages.
+		$available_languages = wp_get_available_translations();
+		if ( ! $available_languages ) {
+			$available_languages = array();
+		}
+
+		// Add English as it's not in the translations list.
+		$available_languages['en_US'] = array(
+			'language'     => 'en_US',
+			'english_name' => 'English (United States)',
+			'native_name'  => 'English (United States)',
+		);
+
+		// Get WordPress default language.
+		$default_language  = get_locale();
+		$enabled_languages = array( $default_language );
+
+		// Sort languages into selected and unselected.
+		$selected_languages   = array();
+		$unselected_languages = array();
+
+		foreach ( $available_languages as $locale => $language ) {
+			if ( in_array( $locale, $enabled_languages, true ) ) {
+				$selected_languages[ $locale ] = $language;
+			} else {
+				$unselected_languages[ $locale ] = $language;
+			}
+		}
+
+		// Sort both arrays alphabetically by English name.
+		uasort( $selected_languages, function ( $a, $b ) {
+			return strcmp( $a['english_name'], $b['english_name'] );
+		} );
+		uasort( $unselected_languages, function ( $a, $b ) {
+			return strcmp( $a['english_name'], $b['english_name'] );
+		} );
+		?>
+		<div class="wpconsent-language-settings">
+			<div class="wpconsent-input-area-description">
+				<p>
+					<?php
+					printf(
+					// Translators: %s is the current WordPress language name.
+						esc_html__( 'Select the languages you want to make available for your content. The default language (%s) will be used for the current settings until you configure translations.', 'wpconsent-cookies-banner-privacy-suite' ),
+						esc_html( isset( $available_languages[ $default_language ]['english_name'] ) ? $available_languages[ $default_language ]['english_name'] : 'English (United States)' )
+					);
+					?>
+				</p>
+				<p>
+					<?php
+					printf(
+					// Translators: %s is the icon for the language switcher.
+						esc_html__(
+							'Easily switch between languages using the globe icon (%s) in the header of any WPConsent admin page.',
+							'wpconsent-cookies-banner-privacy-suite'
+						),
+						wp_kses(
+							wpconsent_get_icon( 'globe', 16, 16, '0 -960 960 960' ),
+							wpconsent_get_icon_allowed_tags()
+						)
+					);
+					?>
+				</p>
+			</div>
+			<div class="wpconsent-language-selector">
+				<div class="wpconsent-language-search">
+					<input type="text"
+					       class="wpconsent-input-text"
+					       id="wpconsent-language-search"
+					       placeholder="<?php esc_attr_e( 'Search languages...', 'wpconsent-cookies-banner-privacy-suite' ); ?>"
+					>
+				</div>
+				<div class="wpconsent-language-setting-list" id="wpconsent-language-list">
+					<?php
+					// Output selected languages first.
+					if ( ! empty( $selected_languages ) ) : ?>
+						<div class="wpconsent-language-section">
+							<div class="wpconsent-language-section-title">
+								<?php esc_html_e( 'Selected Languages', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+							</div>
+							<?php foreach ( $selected_languages as $locale => $language ) :
+								$is_default = $locale === $default_language;
+								$this->output_language_item( $locale, $language, $is_default, true );
+							endforeach; ?>
+						</div>
+					<?php endif;
+
+					// Output unselected languages.
+					if ( ! empty( $unselected_languages ) ) : ?>
+						<div class="wpconsent-language-section">
+							<div class="wpconsent-language-section-title">
+								<?php esc_html_e( 'Available Languages', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+							</div>
+							<?php foreach ( $unselected_languages as $locale => $language ) :
+								$is_default = $locale === $default_language;
+								$this->output_language_item( $locale, $language, $is_default, false );
+							endforeach; ?>
+						</div>
+					<?php endif; ?>
+				</div>
+			</div>
+		</div>
+		<?php
+		$this->metabox_row(
+			esc_html__( 'Language Picker', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				true,
+				'show_language_picker',
+				esc_html__( 'Show a language picker in the consent banner', 'wpconsent-cookies-banner-privacy-suite' )
+			),
+			'show_language_picker',
+			'',
+			'',
+			esc_html__( 'This will show a globe icon in the header of the consent banner, allowing users to switch between languages just for the banner/preferences panel even if you do not use a translation plugin. If you are using a translation plugin the banner should automatically display the content in the selected language, if available.', 'wpconsent-cookies-banner-privacy-suite' )
+		);
+
 		return ob_get_clean();
 	}
 }

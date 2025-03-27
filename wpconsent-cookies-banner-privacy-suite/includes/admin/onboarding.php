@@ -1,4 +1,13 @@
 <?php
+/**
+ * WP Consent onboarding.
+ *
+ * @package WPConsent
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 add_action( 'admin_init', 'wpconsent_maybe_redirect_onboarding', 9999 );
 

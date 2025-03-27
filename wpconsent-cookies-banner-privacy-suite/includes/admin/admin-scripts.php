@@ -54,6 +54,7 @@ function wpconsent_admin_scripts() {
 				'ok'                        => esc_html__( 'OK', 'wpconsent-cookies-banner-privacy-suite' ),
 				'please_wait'               => esc_html__( 'Please wait...', 'wpconsent-cookies-banner-privacy-suite' ),
 				'scan_complete'             => esc_html__( 'Scan completed', 'wpconsent-cookies-banner-privacy-suite' ),
+				'scan_error'                => esc_html__( 'Scan error', 'wpconsent-cookies-banner-privacy-suite' ),
 				'scanning_title'            => esc_html__( 'Scanning website...', 'wpconsent-cookies-banner-privacy-suite' ),
 				'lock_icon'                 => wpconsent_get_icon( 'lock', 22, 28 ),
 				'purchased_link'            => wpconsent_utm_url( 'https://wpconsent.com/already-purchased/' ),
@@ -67,6 +68,11 @@ function wpconsent_admin_scripts() {
 					'</strong>'
 				),
 				'upgrade_button'            => esc_html__( 'Upgrade to PRO', 'wpconsent-cookies-banner-privacy-suite' ),
+				'languages_upsell'          => array(
+					'title' => esc_html__( 'Multilanguage is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+					'text'  => esc_html__( 'Upgrade to WPConsent PRO today and unlock the ability to show your cookie banner in multiple languages.', 'wpconsent-cookies-banner-privacy-suite' ),
+					'url'   => wpconsent_utm_url( 'https://wpconsent.com/lite/', 'language-switcher', $current_screen->id ),
+				),
 			)
 		)
 	);

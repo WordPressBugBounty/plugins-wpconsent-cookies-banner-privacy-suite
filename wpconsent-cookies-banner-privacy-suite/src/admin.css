@@ -17,6 +17,8 @@
 @import './admin/export.css';
 @import './admin/script-blocking.css';
 @import './admin/tooltips.css';
+@import './admin/languages.css';
+@import './admin/language-picker.css';
 
 /** Import for preview **/
 @import './frontend/banner.css';

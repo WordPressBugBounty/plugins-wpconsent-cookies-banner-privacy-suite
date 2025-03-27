@@ -12,6 +12,7 @@
 	--wpconsent-focus-outline-color: #007cba;
 	--wpconsent-focus-outline-width: 2px;
 	--wpconsent-focus-outline-offset: 2px;
+	--wpconsent-border: var(--wpconsent-text);
 	all: initial;
 	font-family: inherit;
 }

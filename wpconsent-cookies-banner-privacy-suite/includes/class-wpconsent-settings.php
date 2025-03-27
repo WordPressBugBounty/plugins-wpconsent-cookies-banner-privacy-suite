@@ -41,7 +41,7 @@ class WPConsent_Settings {
 			$value = $options[ $option_name ];
 		}
 
-		$value = apply_filters( 'wpconsent_get_option', $value, $option_name );
+		$value = apply_filters( 'wpconsent_get_option', $value, $option_name, $options );
 
 		return apply_filters( "wpconsent_get_option_{$option_name}", $value, $option_name );
 	}
@@ -144,7 +144,9 @@ class WPConsent_Settings {
 	 * @return void
 	 */
 	protected function save_options() {
-		update_option( $this->settings_key, (array) $this->options );
+		$options = apply_filters( 'wpconsent_save_options', $this->options, $this->load_options() );
+
+		update_option( $this->settings_key, (array) $options );
 	}
 
 	/**
