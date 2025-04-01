@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.0.4.1
+Stable tag: 1.0.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -121,6 +121,9 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 == Changelog ==
 
+
+= 1.0.4.2 =
+* Fix: Onboarding wizard scan results not loading correctly.
 
 = 1.0.4.1 =
 * Fix: Cache class not loaded correctly in some instances.

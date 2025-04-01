@@ -76,9 +76,6 @@ window.WPConsentOnboarding = window.WPConsentOnboarding || (
 					const list = app.servicesForm.querySelector( '.wpconsent-onboarding-selectable-list' );
 					// Let's empty the target list first.
 					list.innerHTML = '';
-					response.data.essential.forEach( function ( item ) {
-						app.addItem( item, list );
-					} );
 					Object.values( response.data.scripts ).forEach( function ( category ) {
 						category.forEach( function ( item ) {
 							app.addItem( item, list );
