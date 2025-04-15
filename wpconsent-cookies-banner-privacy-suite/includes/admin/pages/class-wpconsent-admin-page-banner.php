@@ -520,7 +520,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			esc_html__( 'Preferences Panel Title', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->get_input_text(
 				'preferences_panel_title',
-				wpconsent()->settings->get_option( 'preferences_panel_title', 'Cookie Preferences' ),
+				wpconsent()->settings->get_option( 'preferences_panel_title', 'This website uses cookies' ),
 				'',
 				'preferences_panel_title'
 			),
@@ -530,7 +530,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			esc_html__( 'Preferences Panel Description', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->get_input_textarea(
 				'preferences_panel_description',
-				wpconsent()->settings->get_option( 'preferences_panel_description', 'Manage your cookie preferences below:' ),
+				wpconsent()->settings->get_option( 'preferences_panel_description', 'Websites store cookies to enhance functionality and personalise your experience. You can manage your preferences, but blocking some cookies may impact site performance and services.' ),
 				'',
 				'preferences_panel_description'
 			),
@@ -566,7 +566,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			esc_html__( 'Save Preferences Button Text', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->get_input_text(
 				'save_preferences_button_text',
-				wpconsent()->settings->get_option( 'save_preferences_button_text', esc_html__( 'Save Preferences', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				wpconsent()->settings->get_option( 'save_preferences_button_text', esc_html__( 'Save and Close', 'wpconsent-cookies-banner-privacy-suite' ) ),
 				'',
 				'save_preferences_button_text'
 			),
@@ -843,7 +843,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 		$buttons = array(
 			'accept'      => array(
 				'label'   => esc_html__( 'Accept Button', 'wpconsent-cookies-banner-privacy-suite' ),
-				'text'    => wpconsent()->settings->get_option( 'accept_button_text', esc_html__( 'Accept', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				'text'    => wpconsent()->settings->get_option( 'accept_button_text', esc_html__( 'Accept All', 'wpconsent-cookies-banner-privacy-suite' ) ),
 				'enabled' => wpconsent()->settings->get_option( 'accept_button_enabled', true ),
 			),
 			'cancel'      => array(

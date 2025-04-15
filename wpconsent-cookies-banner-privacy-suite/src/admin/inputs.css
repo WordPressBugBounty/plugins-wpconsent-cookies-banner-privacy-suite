@@ -882,3 +882,30 @@ label {
 .wpconsent-license-key-container {
 	padding-top: 10px;
 }
+
+.wpconsent-content-blocking-list {
+	max-height: 200px;
+	overflow-y: auto;
+	background-color: var(--wpconsent-background-white);
+	border: 1px solid var(--wpconsent-border-color);
+	border-radius: 4px;
+	padding: 8px;
+	
+	&::-webkit-scrollbar {
+		width: 8px;
+	}
+	
+	&::-webkit-scrollbar-track {
+		background: var(--wpconsent-background-white);
+		border-radius: 4px;
+	}
+	
+	&::-webkit-scrollbar-thumb {
+		background: #ccc;
+		border-radius: 4px;
+		
+		&:hover {
+			background: #999;
+		}
+	}
+}

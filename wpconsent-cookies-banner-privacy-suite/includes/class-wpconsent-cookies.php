@@ -59,41 +59,10 @@ class WPConsent_Cookies {
 	public function register_taxonomy() {
 		$args = array(
 			'hierarchical' => true,
+			'public'       => false,
 		);
 
 		register_taxonomy( $this->taxonomy, $this->post_type, $args );
-	}
-
-	/**
-	 * Grab an array of cookies split up by category.
-	 *
-	 * @return array
-	 */
-	public function get_cookies() {
-		// Let's do a query and load all of our cookies in an array with all the details including the custom cookie id from the meta "wpconsent_cookie_id" and the taxonomy assigned.
-
-		$cookies = get_posts(
-			array(
-				'post_type'      => $this->post_type,
-				'posts_per_page' => - 1,
-			)
-		);
-
-		$cookie_array = array();
-
-		foreach ( $cookies as $cookie ) {
-			$cookie_id       = get_post_meta( $cookie->ID, 'wpconsent_cookie_id', true );
-			$cookie_category = wp_get_post_terms( $cookie->ID, $this->taxonomy, array( 'fields' => 'ids' ) );
-			$cookie_array[]  = array(
-				'id'          => $cookie->ID,
-				'name'        => $cookie->post_title,
-				'cookie_id'   => $cookie_id,
-				'description' => $cookie->post_content,
-				'categories'  => $cookie_category,
-			);
-		}
-
-		return $cookie_array;
 	}
 
 	/**
@@ -157,6 +126,8 @@ class WPConsent_Cookies {
 			update_post_meta( $post_id, 'wpconsent_cookie_id', $cookie_id );
 			update_post_meta( $post_id, 'wpconsent_cookie_duration', $duration );
 		}
+
+		$this->clear_cookies_cache();
 
 		// Return the new id.
 		return $post_id;
@@ -363,30 +334,18 @@ class WPConsent_Cookies {
 		);
 
 		$cookie_array = array();
-
-		if ( ! is_admin() ) {
-			$categories = $this->get_categories();
-			// Let's check if the id requested is for the essential cookies category.
-			if ( $category === $categories['essential']['id'] ) {
-				// If it is, we'll add the preferences cookie to the array.
-				$cookie_array = array(
-					array(
-						'id'          => 0,
-						'name'        => __( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ),
-						'cookie_id'   => 'wpconsent_preferences',
-						'description' => __( 'This cookie is used to store the user\'s cookie consent preferences.', 'wpconsent-cookies-banner-privacy-suite' ),
-						'categories'  => array( $category ),
-						'auto_added'  => true,
-						'duration'    => '30 days',
-					),
-				);
-			}
-		}
-
+		$categories = $this->get_categories();
+		$preferences_cookie_exists = false;
+		
 		foreach ( $cookies as $cookie ) {
 			$cookie_id       = get_post_meta( $cookie->ID, 'wpconsent_cookie_id', true );
 			$auto_added      = get_post_meta( $cookie->ID, '_wpconsent_auto_added', true );
 			$cookie_category = wp_get_post_terms( $cookie->ID, $this->taxonomy, array( 'fields' => 'ids' ) );
+			
+			if ($category === $categories['essential']['id'] && 'wpconsent_preferences' === $cookie_id) {
+				$preferences_cookie_exists = true;
+			}
+			
 			$cookie_data     = array(
 				'id'          => $cookie->ID,
 				'name'        => $cookie->post_title,
@@ -400,8 +359,32 @@ class WPConsent_Cookies {
 			$cookie_array[] = apply_filters( 'wpconsent_cookie_data', $cookie_data, $cookie->ID );
 		}
 
-		return $cookie_array;
+		// Create preferences cookie if it doesn't exist and we're in essential category
+		if ( $category === $categories['essential']['id'] && ! $preferences_cookie_exists ) {
+			$post_id = $this->add_cookie(
+				'wpconsent_preferences',
+				__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ),
+				__( 'This cookie is used to store the user\'s cookie consent preferences.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'essential',
+				'30 days'
+			);
 
+			if ( ! is_wp_error( $post_id ) ) {
+				$cookie = get_post($post_id);
+				$cookie_data = array(
+					'id'          => $cookie->ID,
+					'name'        => $cookie->post_title,
+					'cookie_id'   => get_post_meta( $cookie->ID, 'wpconsent_cookie_id', true ),
+					'description' => $cookie->post_content,
+					'categories'  => wp_get_post_terms( $cookie->ID, $this->taxonomy, array( 'fields' => 'ids' ) ),
+					'auto_added'  => false,
+					'duration'    => get_post_meta( $cookie->ID, 'wpconsent_cookie_duration', true ),
+				);
+				array_unshift($cookie_array, apply_filters( 'wpconsent_cookie_data', $cookie_data, $cookie->ID ));
+			}
+		}
+
+		return $cookie_array;
 	}
 
 	/**
@@ -435,6 +418,8 @@ class WPConsent_Cookies {
 		}
 
 		$result = wp_delete_post( $cookie_id, true );
+
+		$this->clear_cookies_cache();
 
 		return ! is_wp_error( $result );
 	}
@@ -637,5 +622,14 @@ class WPConsent_Cookies {
 		set_transient( 'wpconsent_needs_google_consent', 'no', DAY_IN_SECONDS );
 
 		return false;
+	}
+
+	/**
+	 * Clear cookies cache for a category for prefernces modal.
+	 *
+	 * @return void
+	 */
+	public function clear_cookies_cache() {
+		delete_transient( 'wpconsent_preference_cookies' );
 	}
 }

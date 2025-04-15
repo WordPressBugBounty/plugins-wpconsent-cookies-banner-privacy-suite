@@ -202,7 +202,7 @@ class WPConsent_Scanner {
 
 		$data = json_decode( $body, true );
 
-		if ( empty( $data ) || empty( $data['services'] ) || empty( $data['scripts'] ) ) {
+		if ( ! isset( $data['services'] ) && ! isset( $data['scripts'] ) ) {
 			$result['error']         = true;
 			$result['error_message'] = __( 'The scanner endpoint returned an invalid response format.', 'wpconsent-cookies-banner-privacy-suite' );
 

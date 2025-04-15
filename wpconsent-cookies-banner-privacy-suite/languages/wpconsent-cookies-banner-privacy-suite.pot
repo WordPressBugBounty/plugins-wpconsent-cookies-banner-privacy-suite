@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPConsent 1.0.4.2\n"
+"Project-Id-Version: WPConsent 1.0.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpconsent-cookies-banner-privacy-suite\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-04-01T13:57:08+00:00\n"
+"POT-Creation-Date: 2025-04-15T03:51:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: wpconsent-cookies-banner-privacy-suite\n"
@@ -109,7 +109,7 @@ msgid "Failed to delete service."
 msgstr ""
 
 #: includes/admin/admin-ajax.php:318
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:829
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:867
 msgid "No service"
 msgstr ""
 
@@ -138,11 +138,11 @@ msgid "This page provides comprehensive information about how we use cookies on 
 msgstr ""
 
 #: includes/admin/admin-ajax.php:541
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:300
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:303
 #: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:94
-#: includes/class-wpconsent-banner.php:241
-#: includes/class-wpconsent-banner.php:286
-#: includes/class-wpconsent-banner.php:293
+#: includes/class-wpconsent-banner.php:268
+#: includes/class-wpconsent-banner.php:343
+#: includes/class-wpconsent-banner.php:350
 msgid "Cookie Policy"
 msgstr ""
 
@@ -163,7 +163,7 @@ msgid "Your new cookie policy page has been created and configured. The new page
 msgstr ""
 
 #: includes/admin/admin-ajax.php:570
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:875
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:913
 msgid "View Page"
 msgstr ""
 
@@ -219,12 +219,25 @@ msgid "Upgrade to PRO"
 msgstr ""
 
 #: includes/admin/admin-scripts.php:72
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:923
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:961
 msgid "Multilanguage is a PRO feature"
 msgstr ""
 
 #: includes/admin/admin-scripts.php:73
 msgid "Upgrade to WPConsent PRO today and unlock the ability to show your cookie banner in multiple languages."
+msgstr ""
+
+#: includes/admin/class-wpconsent-admin-page-loader.php:186
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:26
+msgid "Dashboard"
+msgstr ""
+
+#: includes/admin/class-wpconsent-admin-page-loader.php:201
+msgid "Upgrade to WPConsent Pro"
+msgstr ""
+
+#: includes/admin/class-wpconsent-admin-page-loader.php:202
+msgid "Get WPConsent Pro"
 msgstr ""
 
 #. Translators: Human-Readable time to display.
@@ -326,9 +339,9 @@ msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:141
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:829
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:699
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:756
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:806
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:737
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:794
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:844
 msgid "Save"
 msgstr ""
 
@@ -566,8 +579,8 @@ msgid "Save Preferences Button Text"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:569
-#: includes/class-wpconsent-banner.php:303
-msgid "Save Preferences"
+#: includes/class-wpconsent-banner.php:362
+msgid "Save and Close"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:576
@@ -575,8 +588,9 @@ msgid "Close Button Text"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:579
-#: includes/class-wpconsent-banner.php:207
-#: includes/class-wpconsent-banner.php:304
+#: includes/class-wpconsent-banner.php:234
+#: includes/class-wpconsent-banner.php:284
+#: includes/class-wpconsent-banner.php:363
 msgid "Close"
 msgstr ""
 
@@ -602,7 +616,7 @@ msgid "Accept Button"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:846
-msgid "Accept"
+msgid "Accept All"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:850
@@ -614,7 +628,7 @@ msgid "Reject"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:855
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:284
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:287
 msgid "Settings Button"
 msgstr ""
 
@@ -627,7 +641,7 @@ msgid "Customize the banner buttons output and order."
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:870
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:396
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:434
 msgid "Title"
 msgstr ""
 
@@ -641,7 +655,7 @@ msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-consent-logs.php:38
 #: includes/admin/pages/class-wpconsent-admin-page-consent-logs.php:49
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:333
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:371
 msgid "Consent Logs"
 msgstr ""
 
@@ -663,7 +677,7 @@ msgid "Upgrade to PRO and Unlock \"Consent Logs\""
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-consent-logs.php:78
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:930
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:968
 #: includes/admin/pages/class-wpconsent-admin-page-geolocation.php:51
 msgid "Learn more about all the features"
 msgstr ""
@@ -731,8 +745,8 @@ msgid "Processing..."
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:40
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:163
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:652
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:166
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:690
 msgid "Cookies Configuration"
 msgstr ""
 
@@ -781,292 +795,315 @@ msgstr ""
 msgid "Upgrade to PRO today and schedule automatic website scanning to stay up to date with your website's consent needs."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:159
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:162
 msgid "License"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:173
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:176
 #: includes/admin/pages/class-wpconsent-admin-page-geolocation.php:74
 msgid "Save Changes"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:190
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:193
 msgid "You're using WPConsent Lite - no license needed. Enjoy!"
 msgstr ""
 
 #. Translators: %1$s - Opening anchor tag, do not translate. %2$s - Closing anchor tag, do not translate.
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:197
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:200
 msgid "To unlock more features consider %1$supgrading to PRO%2$s."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:204
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:207
 msgid "Already purchased? Simply enter your license key below to enable WPConsent PRO!"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:206
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:209
 msgid "Paste license key here"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:208
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:211
 msgid "Verify Key"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:226
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:229
 msgid "License Key"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:244
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:247
 #: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:198
 msgid "Consent Banner"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:248
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:251
 msgid "Enable displaying the consent banner on your website."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:254
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:257
 msgid "Script Blocking"
 msgstr ""
 
 #. translators: %1$s is an opening link tag, %2$s is a closing link tag.
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:260
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:263
 #: includes/admin/pages/class-wpconsent-admin-page-onboarding.php:271
 #: includes/admin/pages/class-wpconsent-admin-page-scanner.php:130
 msgid "Prevent known scripts from adding cookies before consent is given. %1$sLearn More%2$s"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:264
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:267
 msgid "Script blocking is not available without displaying the banner"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:269
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:272
 msgid "Google Consent Mode"
 msgstr ""
 
 #. translators: %1$s is an opening link tag, %2$s is a closing link tag.
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:275
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:278
 msgid "Use services like Google Analytics and Google ads without cookies until consent is given. %1$sLearn More%2$s"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:279
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:282
 msgid "Google Consent Mode will not be loaded if the banner is disabled."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:288
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:291
 msgid "Show a floating button to manage consent after the banner is dismissed."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:295
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:298
 msgid "Cookie Categories"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:311
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:314
+msgid "Content Blocking"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:318
+msgid "Block 3rd party services that use iframes from being loaded before consent is given."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:323
+msgid "Content to Block"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:328
+msgid "Choose which content providers to automatically block."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:333
+msgid "Placeholder Button"
+msgstr ""
+
+#. Translators: %s is the {category} tag wrapped in a code tag.
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:343
+msgid "Customize the text shown on the placeholder button. Use %s to insert the cookie category name."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:349
 msgid "Consent Duration"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:316
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:354
 msgid "The duration of the consent given by the user (in days)."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:337
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:375
 msgid "Enable keeping records of consent for all visitors that give consent."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:354
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:392
 msgid "Auto Scanning"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:358
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:396
 msgid "Enable automatic scanning of consent compliance in the background."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:367
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:405
 msgid "Scan Interval"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:371
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:409
 msgid "Daily"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:372
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:410
 msgid "Weekly"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:373
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:411
 msgid "Monthly"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:379
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:417
 msgid "Choose how often to automatically scan your website for compliance."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:399
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:493
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:547
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:634
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:693
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:746
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:796
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:437
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:531
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:585
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:672
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:731
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:784
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:834
+#: includes/class-wpconsent-banner.php:453
 msgid "Description"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:402
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:440
 msgid "Action"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:433
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:471
 msgid "+ Add New Category"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:438
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:476
 msgid "Customize the information for cookie categories."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:491
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:545
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:632
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:738
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:529
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:583
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:670
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:776
 msgid "Cookie Name"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:492
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:546
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:633
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:742
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:530
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:584
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:671
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:780
 #: includes/cookie-policy-shortcode.php:50
 #: includes/cookie-policy-shortcode.php:77
 msgid "Cookie ID"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:494
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:548
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:750
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:532
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:586
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:788
+#: includes/class-wpconsent-banner.php:454
 #: includes/cookie-policy-shortcode.php:50
 #: includes/cookie-policy-shortcode.php:77
 msgid "Duration"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:495
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:549
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:635
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:533
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:587
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:673
 msgid "Actions"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:588
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:626
 msgid "Add A Cookie"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:592
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:630
 msgid "Add A Service"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:681
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:719
 msgid "Add New Category"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:689
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:727
 msgid "Category Name"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:702
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:759
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:809
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:740
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:797
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:847
 msgid "Cancel"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:726
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:764
 msgid "Add New Cookie"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:734
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:772
 msgid "Service"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:774
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:812
 msgid "Add New Service"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:788
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:826
 msgid "Category"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:792
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:830
 msgid "Service Name"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:800
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:838
 msgid "Privacy Policy URL"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:854
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:892
 msgid "Search for a page..."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:860
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:898
 msgid "Choose Page"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:884
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:922
 msgid "Generate Cookie Policy Page"
 msgstr ""
 
 #. Translators: %s is the wpconsent_cookie_policy shortcode wrapped in code tags.
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:892
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:930
 msgid "Please select the page that serves as your cookie policy. Ensure that this page includes the %s shortcode. This shortcode is essential for automatically listing all the cookies configured in WPConsent."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:912
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:950
 msgid "Language Settings"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:924
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:962
 msgid "Upgrade to WPConsent PRO today and easily manage content in multiple languages. Easily switch languages for the banner or directly integrate with popular translation plugins."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:926
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:964
 msgid "Upgrade to PRO and Unlock Languages"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:972
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1010
 msgid "Default"
 msgstr ""
 
 #. Translators: %s is the current WordPress language name.
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1033
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1071
 msgid "Select the languages you want to make available for your content. The default language (%s) will be used for the current settings until you configure translations."
 msgstr ""
 
 #. Translators: %s is the icon for the language switcher.
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1042
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1080
 msgid "Easily switch between languages using the globe icon (%s) in the header of any WPConsent admin page."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1059
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1097
 msgid "Search languages..."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1068
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1106
 msgid "Selected Languages"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1081
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1119
 msgid "Available Languages"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1094
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1132
 msgid "Language Picker"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1098
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1136
 msgid "Show a language picker in the consent banner"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1103
+#: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1141
 msgid "This will show a globe icon in the header of the consent banner, allowing users to switch between languages just for the banner/preferences panel even if you do not use a translation plugin. If you are using a translation plugin the banner should automatically display the content in the selected language, if available."
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:26
-msgid "Dashboard"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:70
@@ -1347,6 +1384,7 @@ msgid "Automatically Configure Cookies"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-scanner.php:165
+#: includes/class-wpconsent-banner.php:455
 msgid "Service URL"
 msgstr ""
 
@@ -1448,68 +1486,76 @@ msgstr ""
 msgid "Upgrade to Pro"
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:174
+#: includes/class-wpconsent-banner.php:201
 msgid "This website uses cookies to ensure you get the best experience on our website."
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:177
+#: includes/class-wpconsent-banner.php:204
 msgid "Cookie Consent"
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:242
-#: includes/class-wpconsent-banner.php:356
-#: includes/class-wpconsent-cookies.php:375
+#: includes/class-wpconsent-banner.php:269
+#: includes/class-wpconsent-banner.php:516
+#: includes/class-wpconsent-cookies.php:366
 msgid "Cookie Preferences"
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:257
+#: includes/class-wpconsent-banner.php:288
 msgid "Manage your cookie preferences below:"
 msgstr ""
 
+#: includes/class-wpconsent-banner.php:302
+msgid "Always Active"
+msgstr ""
+
 #. translators: 1: Cookie policy URL, 2: Privacy policy URL
-#: includes/class-wpconsent-banner.php:285
+#: includes/class-wpconsent-banner.php:342
 msgid "You can find more information about our %1$s and %2$s."
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:287
+#: includes/class-wpconsent-banner.php:344
 msgid "Privacy Policy"
 msgstr ""
 
 #. translators: %s: Cookie policy URL
-#: includes/class-wpconsent-banner.php:292
+#: includes/class-wpconsent-banner.php:349
 msgid "You can find more information in our %s."
 msgstr ""
 
+#: includes/class-wpconsent-banner.php:452
+msgid "Name"
+msgstr ""
+
 #. translators: %1$s and %2$s add a tag used for hiding the text on small screens and %3$s is the WPConsent logo svg
-#: includes/class-wpconsent-banner.php:334
+#: includes/class-wpconsent-banner.php:494
 msgid "%1$sPowered by%2$s %3$s"
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:214
+#: includes/class-wpconsent-cookies.php:185
 msgid "Essential"
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:215
+#: includes/class-wpconsent-cookies.php:186
 msgid "Essential cookies enable basic functions and are necessary for the proper function of the website."
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:220
+#: includes/class-wpconsent-cookies.php:191
 msgid "Statistics"
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:221
+#: includes/class-wpconsent-cookies.php:192
 msgid "Statistics cookies collect information anonymously. This information helps us understand how visitors use our website."
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:226
+#: includes/class-wpconsent-cookies.php:197
 msgid "Marketing"
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:227
+#: includes/class-wpconsent-cookies.php:198
 msgid "Marketing cookies are used to follow visitors to websites. The intention is to show ads that are relevant and engaging to the individual user."
 msgstr ""
 
-#: includes/class-wpconsent-cookies.php:377
+#: includes/class-wpconsent-cookies.php:367
 msgid "This cookie is used to store the user's cookie consent preferences."
 msgstr ""
 

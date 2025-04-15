@@ -67,6 +67,9 @@ class WPConsent_Admin_Page_Loader {
 
 		// Hide submenus.
 		add_filter( 'parent_file', array( $this, 'hide_menus' ), 1020 );
+
+		// Add plugin action links.
+		add_filter( 'plugin_action_links_' . WPCONSENT_PLUGIN_BASENAME, array( $this, 'add_plugin_action_links' ) );
 	}
 
 	/**
@@ -163,5 +166,48 @@ class WPConsent_Admin_Page_Loader {
 		}
 
 		return $parent_file;
+	}
+
+
+	/**
+	 * Add links in the plugins list for easy navigation.
+	 *
+	 * @param $links
+	 *
+	 * @return array
+	 */
+	public function add_plugin_action_links( $links ) {
+		$url  = add_query_arg(
+			array(
+				'page' => 'wpconsent',
+			),
+			admin_url( 'admin.php' )
+		);
+		$text = esc_html__( 'Dashboard', 'wpconsent-cookies-banner-privacy-suite' );
+
+		$custom = array();
+
+		$custom['wpconsentpro'] = sprintf(
+			'<a href="%1$s" aria-label="%2$s" target="_blank" rel="noopener noreferrer" 
+				style="color: #00a32a; font-weight: 700;" 
+				onmouseover="this.style.color=\'#008a20\';" 
+				onmouseout="this.style.color=\'#00a32a\';"
+				>%3$s</a>',
+			wpconsent_utm_url(
+				'https://wpconsent.com/lite/',
+				'all-plugins',
+				'get-wpconsent-pro'
+			),
+			esc_attr__( 'Upgrade to WPConsent Pro', 'wpconsent-cookies-banner-privacy-suite' ),
+			esc_html__( 'Get WPConsent Pro', 'wpconsent-cookies-banner-privacy-suite' )
+		);
+
+		$custom['settings'] = sprintf(
+			'<a href="%1$s">%2$s</a>',
+			$url,
+			$text
+		);
+
+		return array_merge( $custom, $links );
 	}
 }

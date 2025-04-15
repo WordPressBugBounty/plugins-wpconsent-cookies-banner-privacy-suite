@@ -83,7 +83,7 @@ class WPConsent_Settings {
 				'banner_preferences_bg'      => '#ffffff',
 				'banner_preferences_color'   => '#000000',
 				'banner_message'             => 'We use cookies to improve your experience on our site. By using our site, you consent to cookies.',
-				'accept_button_text'         => 'Accept',
+				'accept_button_text'         => 'Accept All',
 				'accept_button_enabled'      => 1,
 				'button_order'               => array(
 					0 => 'preferences',

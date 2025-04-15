@@ -132,12 +132,15 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 
 		// Save the settings.
 		$settings = array(
-			'enable_consent_banner'   => isset( $_POST['enable_consent_banner'] ) ? 1 : 0,
-			'cookie_policy_page'      => isset( $_POST['cookie_policy_page'] ) ? intval( $_POST['cookie_policy_page'] ) : 0,
-			'enable_script_blocking'  => ( isset( $_POST['enable_script_blocking'] ) && isset( $_POST['enable_consent_banner'] ) ) ? 1 : 0,
-			'google_consent_mode'     => ( isset( $_POST['google_consent_mode'] ) && isset( $_POST['google_consent_mode'] ) ) ? 1 : 0,
-			'enable_consent_floating' => isset( $_POST['enable_consent_floating'] ) ? 1 : 0,
-			'consent_duration'        => isset( $_POST['consent_duration'] ) ? intval( $_POST['consent_duration'] ) : 30,
+			'enable_consent_banner'             => isset( $_POST['enable_consent_banner'] ) ? 1 : 0,
+			'cookie_policy_page'                => isset( $_POST['cookie_policy_page'] ) ? intval( $_POST['cookie_policy_page'] ) : 0,
+			'enable_script_blocking'            => ( isset( $_POST['enable_script_blocking'] ) && isset( $_POST['enable_consent_banner'] ) ) ? 1 : 0,
+			'google_consent_mode'               => ( isset( $_POST['google_consent_mode'] ) && isset( $_POST['google_consent_mode'] ) ) ? 1 : 0,
+			'enable_consent_floating'           => isset( $_POST['enable_consent_floating'] ) ? 1 : 0,
+			'consent_duration'                  => isset( $_POST['consent_duration'] ) ? intval( $_POST['consent_duration'] ) : 30,
+			'enable_content_blocking'           => isset( $_POST['enable_content_blocking'] ) ? 1 : 0,
+			'content_blocking_services'         => isset( $_POST['content_blocking_services'] ) ? array_map( 'sanitize_text_field', $_POST['content_blocking_services'] ) : array(),
+			'content_blocking_placeholder_text' => isset( $_POST['content_blocking_placeholder_text'] ) ? sanitize_text_field( wp_unslash( $_POST['content_blocking_placeholder_text'] ) ) : 'Click here to accept {category} cookies and load this content',
 		);
 
 		wpconsent()->settings->bulk_update_options( $settings );
@@ -305,6 +308,41 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'',
 			false,
 			'cookie-policy-input'
+		);
+		$this->metabox_row_separator();
+		$this->metabox_row(
+			esc_html__( 'Content Blocking', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'enable_content_blocking' ),
+				'enable_content_blocking',
+				esc_html__( 'Block 3rd party services that use iframes from being loaded before consent is given.', 'wpconsent-cookies-banner-privacy-suite' )
+			),
+			'enable_content_blocking'
+		);
+		$this->metabox_row(
+			esc_html__( 'Content to Block', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_content_blocking_input(),
+			'',
+			'#enable_content_blocking',
+			'1',
+			esc_html__( 'Choose which content providers to automatically block.', 'wpconsent-cookies-banner-privacy-suite' ),
+			false,
+			'content_blocking'
+		);
+		$this->metabox_row(
+			esc_html__( 'Placeholder Button', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'content_blocking_placeholder_text',
+				wpconsent()->settings->get_option( 'content_blocking_placeholder_text', 'Click here to accept {category} cookies and load this content' )
+			),
+			'content_blocking_placeholder_text',
+			'#enable_content_blocking',
+			'1',
+			// Translators: %s is the {category} tag wrapped in a code tag.
+			sprintf(
+				esc_html__( 'Customize the text shown on the placeholder button. Use %s to insert the cookie category name.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'<code>{category}</code>'
+			)
 		);
 		$this->metabox_row_separator();
 		$this->metabox_row(
@@ -1102,6 +1140,39 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'',
 			esc_html__( 'This will show a globe icon in the header of the consent banner, allowing users to switch between languages just for the banner/preferences panel even if you do not use a translation plugin. If you are using a translation plugin the banner should automatically display the content in the selected language, if available.', 'wpconsent-cookies-banner-privacy-suite' )
 		);
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * The input to choose which content to be blocked.
+	 *
+	 * @return string
+	 */
+	public function get_content_blocking_input() {
+		$content_blocking_services = wpconsent()->script_blocker->get_content_blocking_providers();
+		$currently_blocking        = wpconsent()->settings->get_option( 'content_blocking_services', array() );
+
+		ob_start();
+		?>
+		<div class="wpconsent-content-blocking-list">
+			<?php
+			foreach ( $content_blocking_services as $service_id => $service ) {
+				$is_enabled = empty( $currently_blocking ) || in_array( $service_id, $currently_blocking, true );
+				$this->metabox_row(
+					esc_html( $service ),
+					$this->get_checkbox_toggle(
+						$is_enabled,
+						'content_blocking_services[]',
+						'',
+						$service_id
+					),
+					'content_blocking_services_' . $service_id
+				);
+			}
+			?>
+		</div>
+		<?php
 
 		return ob_get_clean();
 	}

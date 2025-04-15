@@ -67,10 +67,24 @@ class WPConsent_Install {
 			$activated['version'] = '1.0.0';
 		}
 
+		if ( isset( $activated['version'] ) && version_compare( $activated['version'], '1.0.5', '<' ) ) {
+			$this->update_1_0_5();
+		}
+
 		do_action( 'wpconsent_before_version_update', $activated );
 
 		$activated['version'] = WPCONSENT_VERSION;
 		update_option( 'wpconsent_activated', $activated );
+	}
+
+	/**
+	 * Upgrade routine for version 1.0.5.
+	 *
+	 * @return void
+	 */
+	private function update_1_0_5() {
+		// Clear the cache for script blocking.
+		wpconsent()->file_cache->delete( 'script-blocking-data' );
 	}
 }
 

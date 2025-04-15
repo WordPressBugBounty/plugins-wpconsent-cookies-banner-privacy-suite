@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.7
 Requires PHP: 7.0
-Stable tag: 1.0.4.2
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -61,6 +61,15 @@ These are the details included with each service:
 * Service Category
 * Service Privacy/Data URL (if 3rd party)
 * List of Cookies with description and duration
+
+= Smart Content Blocking =
+
+Prevent 3rd party content from being loaded before consent is given.
+WPConsent can automatically block content like YouTube, Vimeo, DailyMotion, Google Maps, reCAPTCHA and more until the user gives consent.
+
+Dynamic placeholders are displayed for YouTube, Vimeo and DailyMotion for a better user experience. The placeholder images are loaded from your website for improved privacy.
+
+You can easily customize which content is blocked from the admin area.
 
 = Supports Key Global Privacy Regulations =
 
@@ -121,6 +130,11 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 == Changelog ==
 
+= 1.0.5 =
+* New: Prevent content like YouTube, Vimeo, DailyMotion, Google Maps, reCAPTCHA from adding cookies before consent. Dynamic placeholders are displayed where available using local images for improved compliance. Automatic detection for more services coming soon.
+* New: Improved preferences panel design with full cookies information for each category.
+* New: Added easy CSS customization support using “part” syntax.
+* Tweak: We adjusted the way our script blocker is loaded for improved compatibility with other plugins.
 
 = 1.0.4.2 =
 * Fix: Onboarding wizard scan results not loading correctly.

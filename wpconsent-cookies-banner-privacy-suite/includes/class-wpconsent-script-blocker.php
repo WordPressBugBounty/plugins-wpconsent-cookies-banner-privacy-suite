@@ -94,4 +94,26 @@ class WPConsent_Script_Blocker {
 
 		return apply_filters( 'wpconsent_blocked_scripts', $this->categorized_scripts );
 	}
+
+	/**
+	 * Get a list of services for which we can block content. These are all the services that have an "iframes" or
+	 * "blocked_elements" key in the categorized scripts.
+	 *
+	 * @return array
+	 */
+	public function get_content_blocking_providers() {
+		$categorized_scripts = $this->get_all_scripts();
+
+		$providers = array();
+
+		foreach ( $categorized_scripts as $category => $scripts ) {
+			foreach ( $scripts as $script_id => $data ) {
+				if ( ! empty( $data['iframes'] ) || ! empty( $data['blocked_elements'] ) ) {
+					$providers[ $script_id ] = $data['label'];
+				}
+			}
+		}
+
+		return $providers;
+	}
 }
