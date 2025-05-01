@@ -22,6 +22,11 @@ With the automatic script blocking feature, WPConsent will detect and block comm
 
 All cookie consent data is self-hosted on your website like it should be, making WPConsent the most privacy conscious solution.
 
+> <strong>WPConsent Pro</strong><br />
+> This plugin is the Lite version of WPConsent Pro, which comes with geolocation options, modal layout, records of consent, multilanguage and more plugins automatically detected. [Click here to purchase the best premium WordPress consent plugin now!](https://wpconsent.com/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin)
+
+https://www.youtube.com/watch?v=7fcP9QO8bKQ&rel=0
+
 = Fully Customizable Cookie Banner =
 
 The cookie banner should match your website's branding and be easy to use. We give you many options in order to improve the consent rates on your website:
