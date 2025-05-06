@@ -16,8 +16,8 @@ window.WPConsent = {
 		const existingPreferences = this.getCookie( 'wpconsent_preferences' );
 		let reload = false;
 
-		// Clear cookies if the preferences changed.
-		if ( existingPreferences && JSON.stringify( existingPreferences ) !== JSON.stringify( preferences ) ) {
+		// Clear cookies if the preferences changed OR if wpconsent.default_allow is true and not all settings are true.
+		if ( existingPreferences && JSON.stringify( existingPreferences ) !== JSON.stringify( preferences ) || ( wpconsent.default_allow && ( !preferences.essential || !preferences.statistics || !preferences.marketing ) ) ) {
 			this.clearCookies();
 			reload = true;
 		}
@@ -43,7 +43,7 @@ window.WPConsent = {
 			floatingButton.style.display = 'block';
 		}
 
-		// Trigger events
+		// Trigger events.
 		window.dispatchEvent( new CustomEvent( 'wpconsent_consent_saved', {detail: preferences} ) );
 
 		if ( existingPreferences ) {
@@ -276,6 +276,12 @@ window.WPConsent = {
 			}
 		} else {
 			this.showBanner();
+
+			// If default_allow is true, let's unlock scripts until the user accepts or declines.
+			if ( wpconsent.default_allow ) {
+				this.unlockScripts( {essential: true, statistics: true, marketing: true} );
+				this.unlockIframes( {essential: true, statistics: true, marketing: true} );
+			}
 		}
 	},
 
@@ -357,6 +363,23 @@ window.WPConsent = {
 			} );
 		} );
 		this.shadowRoot.querySelector( '.wpconsent-close-preferences' )?.addEventListener( 'click', () => this.closePreferences() );
+
+		window.addEventListener( 'wpconsent_consent_saved', function( event ) {
+			// Fire this only if gtag exists.
+			if ( typeof gtag !== 'function' ) {
+				return;
+			}
+			// Passed detail is preferences.
+			const preferences = event.detail;
+			gtag('consent', 'update', {
+				'ad_storage': preferences.marketing ? 'granted' : 'denied',
+				'analytics_storage': preferences.statistics ? 'granted' : 'denied',
+				'ad_user_data': preferences.marketing ? 'granted' : 'denied',
+				'ad_personalization': preferences.marketing ? 'granted' : 'denied',
+				'security_storage': 'granted',
+				'functionality_storage': 'granted'
+			});
+		});
 	},
 
 	initializeAccordions() {

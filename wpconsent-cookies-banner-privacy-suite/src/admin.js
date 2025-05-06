@@ -21,3 +21,4 @@ import './admin/spinner.js';
 import './admin/generate-cookie-policy.js';
 import './admin/script-blocking.js';
 import './admin/upsells.js';
+import './admin/manual-scan-input.js';

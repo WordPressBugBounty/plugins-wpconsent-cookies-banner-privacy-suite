@@ -289,6 +289,13 @@ class WPConsent_Banner {
 
 		$html .= '<div class="wpconsent-preference-cookies wpconsent-preferences-accordion">';
 		foreach ( $categories as $category_slug => $category ) {
+			$all_cookies = $this->get_cookies_from_cache();
+			$cookies     = isset( $all_cookies[ $category['id'] ] ) ? $all_cookies[ $category['id'] ] : array();
+
+			if ( empty( $cookies ) ) {
+				continue;
+			}
+
 			$html .= '<div class="wpconsent-preferences-accordion-item wpconsent-cookie-category wpconsent-cookie-category-' . esc_attr( $category_slug ) . '">';
 			$html .= '<div class="wpconsent-preferences-accordion-header">';
 			$html .= '<div class="wpconsent-cookie-category-text">';
@@ -299,7 +306,9 @@ class WPConsent_Banner {
 			$html .= '</div>'; // .wpconsent-cookie-category-text
 			$html .= '<div class="wpconsent-cookie-category-checkbox">';
 			if ( 'essential' === $category_slug ) {
-				$html .= '<span class="wpconsent-always-active">' . esc_html__( 'Always Active', 'wpconsent-cookies-banner-privacy-suite' ) . '</span>';
+				$html .= '<label class="wpconsent-preferences-checkbox-toggle wpconsent-preferences-checkbox-toggle-disabled">';
+				$html .= '<input type="checkbox" id="cookie-category-' . esc_attr( $category_slug ) . '" checked disabled>';
+				$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
 			} else {
 				$html .= '<label class="wpconsent-preferences-checkbox-toggle">';
 				$html .= '<input type="checkbox" id="cookie-category-' . esc_attr( $category_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $category_slug ) . '" ' . ( $category['required'] ? 'checked disabled' : '' ) . '>';
@@ -311,7 +320,7 @@ class WPConsent_Banner {
 
 			$html .= '<div class="wpconsent-preferences-accordion-content">';
 			$html .= '<p tabindex="0">' . wp_kses_post( $category['description'] ) . '</p>';
-			$html .= $this->get_cookies_table_by_category( $category['id'] );
+			$html .= $this->get_cookies_table_by_category( $cookies );
 			$html .= '</div>'; // .wpconsent-preferences-accordion-content
 
 			$html .= '</div>'; // .wpconsent-cookie-category
@@ -435,19 +444,17 @@ class WPConsent_Banner {
 	/**
 	 * Generate the cookies table for a category
 	 *
-	 * @param int $category_id The category ID.
+	 * @param array $cookies The cookies to display.
 	 *
 	 * @return string
 	 */
-	private function get_cookies_table_by_category( $category_id ) {
-		$all_cookies = $this->get_cookies_from_cache();
-		$cookies     = isset( $all_cookies[ $category_id ] ) ? $all_cookies[ $category_id ] : array();
-
+	private function get_cookies_table_by_category( $cookies ) {
 		if ( empty( $cookies ) ) {
 			return '';
 		}
 
 		$html = '<div class="wpconsent-preferences-cookies-list">';
+
 		$html .= '<div class="wpconsent-preferences-list-header">';
 		$html .= '<div class="cookie-name">' . esc_html__( 'Name', 'wpconsent-cookies-banner-privacy-suite' ) . '</div>';
 		$html .= '<div class="cookie-desc">' . esc_html__( 'Description', 'wpconsent-cookies-banner-privacy-suite' ) . '</div>';

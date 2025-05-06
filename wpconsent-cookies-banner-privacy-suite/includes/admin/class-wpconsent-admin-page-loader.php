@@ -47,6 +47,7 @@ class WPConsent_Admin_Page_Loader {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-input-image-radio.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-banner-preview.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-services-upsell.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-scan-pages.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-dashboard.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-banner.php';

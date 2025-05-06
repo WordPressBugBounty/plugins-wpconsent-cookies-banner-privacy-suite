@@ -96,6 +96,7 @@ class WPConsent_Settings {
 				'cancel_button_enabled'      => 1,
 				'preferences_button_enabled' => 1,
 				'enable_consent_banner'      => 0,
+				'manual_scan_pages'          => array(),
 			)
 		);
 	}

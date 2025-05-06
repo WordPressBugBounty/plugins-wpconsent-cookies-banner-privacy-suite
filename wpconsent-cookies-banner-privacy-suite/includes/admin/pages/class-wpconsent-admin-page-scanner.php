@@ -11,6 +11,7 @@
 class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 
 	use WPConsent_Services_Upsell;
+	use WPConsent_Scan_Pages;
 
 	/**
 	 * Page slug.
@@ -100,7 +101,7 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 		?>
 		<form action="" id="wpconsent-scanner-form">
 			<p>
-				<?php esc_html_e( 'Below can see a list of scripts and integrations detected on your website that use cookies and that WPConsent can automatically detect. We recommend adding cookie information for all of them. Once added, you can edit the details on the settings page.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+				<?php esc_html_e( 'Below you can see a list of scripts and integrations detected on your website that use cookies and that WPConsent can automatically detect. We recommend adding cookie information for all of them. Once added, you can edit the details on the settings page.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 			</p>
 			<?php
 			if ( ! empty( $previous_data['scripts'] ) ) {
@@ -121,8 +122,8 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 			<div class="<?php echo empty( $previous_data ) ? 'wpconsent-hidden' : ''; ?>" id="wpconsent-after-scan">
 				<?php $this->services_upsell_box( 'scanner' ); ?>
 				<label class="wpconsent-inline-styled-checkbox">
-						<span class="wpconsent-styled-checkbox checked">
-							<input type="checkbox" name="script_blocking" checked/>
+						<span class="wpconsent-styled-checkbox <?php echo wpconsent()->settings->get_option( 'enable_script_blocking', 1 ) ? 'checked' : ''; ?>">
+							<input type="checkbox" name="script_blocking" <?php checked( wpconsent()->settings->get_option( 'enable_script_blocking', 1 ) ); ?>/>
 						</span>
 					<?php
 					printf(
@@ -260,6 +261,12 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 				<?php } ?>
 			</div>
 		<?php } ?>
+
+		<?php
+		$this->metabox_row_separator();
+		echo $this->get_manual_scan_input();  // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+
 		<div class="wpconsent-metabox-form-row">
 			<button id="wpconsent-start-scanner" class="wpconsent-button wpconsent-button-primary" type="button" data-action="reload"><?php esc_html_e( 'Scan Your Website', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
 		</div>
@@ -278,4 +285,83 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Get the markup for the manual scan input.
+	 *
+	 * @return string
+	 */
+	public function get_manual_scan_input() {
+		// Auto-populate important pages.
+		$this->auto_populate_important_pages();
+
+		ob_start();
+		$selected_content_ids = wpconsent()->settings->get_option( 'manual_scan_pages', array() );
+
+		$pages_args = array(
+			'number'  => 20,
+			'orderby' => 'title',
+			'order'   => 'ASC',
+		);
+		if ( ! empty( $selected_content_ids ) ) {
+			$pages_args['exclude'] = $selected_content_ids;
+		}
+		// Let's pre-load 20 pages.
+		$pages = get_pages( $pages_args );
+		?>
+		<div class="wpconsent-manual-scan-description">
+			<h3><?php esc_html_e( 'Select content to scan:', 'wpconsent-cookies-banner-privacy-suite' ); ?></h3>
+		</div>
+		<div class="wpconsent-manual-scan-row">
+			<div class="wpconsent-inline-select-group">
+				<select id="manual-scanner-page" name="manual_scanner_page" class="wpconsent-choices wpconsent-page-search" data-placeholder="<?php esc_attr_e( 'Search for a post/page...', 'wpconsent-cookies-banner-privacy-suite' ); ?>" data-search="true" data-ajax-action="wpconsent_search_content" data-ajax="true">
+					<option value="0"><?php esc_html_e( 'Choose Page', 'wpconsent-cookies-banner-privacy-suite' ); ?></option>
+					<?php
+					foreach ( $pages as $page ) {
+						?>
+						<option value="<?php echo esc_attr( $page->ID ); ?>" data-url="<?php echo esc_url( get_permalink( $page->ID ) ); ?>">
+							<?php printf( '%1$s (#%2$d)', esc_html( $page->post_title ), esc_attr( $page->ID ) ); ?>
+						</option>
+						<?php
+					}
+					?>
+				</select>
+			</div>
+			<div class="wpconsent-scanner-selected-items-container">
+				<!-- Homepage always scanned -->
+				<div class="wpconsent-scanner-selected-item homepage" id="scanner-item-home">
+					<div class="wpconsent-scanner-selected-item-info">
+						<h3><?php esc_html_e( 'Home Page', 'wpconsent-cookies-banner-privacy-suite' ); ?></h3>
+						<p><?php esc_html_e( 'Always Scanned', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+					</div>
+				</div>
+				<?php
+				// Load saved selections.
+				if ( ! empty( $selected_content_ids ) ) {
+					foreach ( $selected_content_ids as $page_id ) {
+						$page = get_post( $page_id );
+						if ( $page ) {
+							?>
+							<div class="wpconsent-scanner-selected-item" id="scanner-item-<?php echo esc_attr( $page->ID ); ?>">
+								<div class="wpconsent-scanner-selected-item-info">
+									<h3><?php printf( '%1$s (#%2$d)', esc_html( $page->post_title ), esc_attr( $page->ID ) ); ?></h3>
+									<a href="<?php echo esc_url( get_permalink( $page->ID ) ); ?>" target="_blank" rel="noopener noreferrer">
+										<?php echo esc_html( wp_parse_url( get_permalink( $page->ID ), PHP_URL_PATH ) ); ?>
+									</a>
+								</div>
+								<button type="button" class="wpconsent-remove-item" data-id="<?php echo esc_attr( $page->ID ); ?>">
+									<span class="dashicons dashicons-no-alt"></span>
+								</button>
+								<input type="hidden" name="scanner_items[]" value="<?php echo esc_attr( $page->ID ); ?>">
+							</div>
+							<?php
+						}
+					}
+				}
+				?>
+			</div>
+		</div>
+
+		<?php
+		return ob_get_clean();
+	}
 }

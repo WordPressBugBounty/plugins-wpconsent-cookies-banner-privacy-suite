@@ -2,9 +2,9 @@
 Contributors: WPbeginner, smub, gripgrip, wpcodeteam
 Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,13 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+= 1.0.6 =
+* New: You can now choose which pages to scan for services that use cookies in the Scanner settings.
+* New: We added the option to allow scripts to be loaded by default and only block them after cookies are rejected.
+* New: We added a setting to remove all plugin data when the plugin is uninstalled.
+* Tweak: We improved the way we Google Consent Mode is loaded for improved compatibility with other plugins.
+* Fix: Categories with no cookies are no longer displayed in the preferences panel.
 
 = 1.0.5 =
 * New: Prevent content like YouTube, Vimeo, DailyMotion, Google Maps, reCAPTCHA from adding cookies before consent. Dynamic placeholders are displayed where available using local images for improved compliance. Automatic detection for more services coming soon.

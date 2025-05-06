@@ -57,6 +57,20 @@ class WPConsent_Scanner {
 	protected $scan_endpoint = 'https://cookies.wpconsent.com/api/v1/scanner';
 
 	/**
+	 * Aggregated scripts from all scanned pages.
+	 *
+	 * @var array
+	 */
+	protected $aggregated_scripts = array();
+
+	/**
+	 * Aggregated services from all scanned pages.
+	 *
+	 * @var array
+	 */
+	protected $aggregated_services = array();
+
+	/**
 	 * Constructor.
 	 */
 	private function __construct() {
@@ -84,15 +98,16 @@ class WPConsent_Scanner {
 	 */
 	protected function hooks() {
 		add_action( 'wp_ajax_wpconsent_scan_website', array( $this, 'ajax_scan_website' ) );
+		add_action( 'wp_ajax_wpconsent_scan_page', array( $this, 'ajax_scan_page' ) );
 	}
 
 	/**
 	 * Scans the website and suggests a cookie configuration.
+	 * This is the legacy endpoint that scans only the homepage.
 	 *
 	 * @return void
 	 */
 	public function ajax_scan_website() {
-
 		check_ajax_referer( 'wpconsent_admin', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -101,16 +116,18 @@ class WPConsent_Scanner {
 
 		$email = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
 
-		$response = $this->perform_scan();
+		// Reset aggregated results.
+		$this->aggregated_scripts  = array();
+		$this->aggregated_services = array();
+
+		// Scan homepage.
+		$response = $this->perform_scan( home_url( '/' ) );
 
 		// Check if we have an error from the scanner.
 		if ( isset( $response['error'] ) && $response['error'] ) {
-			// Use the error message directly if available.
 			$response['message'] = $response['error_message'];
 		} else {
-			// Only save scan data if there were no errors.
 			$response['message'] = $this->get_message( $response );
-
 			$this->save_scan_data( $response );
 
 			if ( ! empty( $email ) ) {
@@ -122,12 +139,207 @@ class WPConsent_Scanner {
 	}
 
 	/**
-	 * Scans the website and returns the results.
+	 * Gets the URLs to scan from the manual_scan_pages.
 	 *
 	 * @return array
 	 */
-	public function perform_scan() {
-		$scan_result = $this->remote_scan();
+	public function get_scan_urls() {
+		$urls = array();
+
+		// Check if a static page is set as homepage.
+		$show_on_front = get_option( 'show_on_front' );
+		$page_on_front = get_option( 'page_on_front' );
+
+		// Keep track of this to prevent duplication.
+		$homepage_added = false;
+
+		if ( 'page' === $show_on_front && $page_on_front ) {
+			// Add the static homepage URL.
+			$homepage_url = get_permalink( $page_on_front );
+			if ( $homepage_url && ! is_wp_error( $homepage_url ) ) {
+				$urls[]         = $homepage_url;
+				$homepage_added = true;
+			}
+		} else {
+			// Add the default homepage URL.
+			$urls[] = home_url( '/' );
+		}
+
+		// Get manually selected page/post IDs from settings.
+		$selected_content_ids = wpconsent()->settings->get_option( 'manual_scan_pages', array() );
+
+		if ( ! empty( $selected_content_ids ) && is_array( $selected_content_ids ) ) {
+			foreach ( $selected_content_ids as $post_id ) {
+				$post_id = absint( $post_id );
+				if ( $post_id > 0 ) {
+					if ( ! $homepage_added || $post_id != $page_on_front ) {
+						// Only add if it's not the homepage that has already been added.
+						$permalink = get_permalink( $post_id );
+						if ( $permalink && ! is_wp_error( $permalink ) ) {
+							$urls[] = $permalink;
+						}
+					}
+				}
+			}
+		}
+
+		// Ensure URLs are unique.
+		return array_unique( $urls );
+	}
+
+	/**
+	 * Scans a single page and returns the results.
+	 *
+	 * @return void
+	 */
+	public function ajax_scan_page() {
+		check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error();
+		}
+
+		$page_id    = isset( $_POST['page_id'] ) ? absint( $_POST['page_id'] ) : 0;
+		$email      = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$request_id = isset( $_POST['request_id'] ) ? sanitize_text_field( wp_unslash( $_POST['request_id'] ) ) : '';
+		$is_final   = isset( $_POST['is_final'] ) ? (bool) $_POST['is_final'] : false;
+
+		if ( empty( $request_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'No request ID provided for scanning.', 'wpconsent-cookies-banner-privacy-suite' ) ) );
+		}
+
+		// Get the URL to scan - either homepage or page permalink
+		$url = '';
+		if ( $page_id === 0 ) {
+			// If page_id is 0, scan the homepage
+			$url = home_url( '/' );
+		} else {
+			// Get the permalink for the page ID
+			$url = get_permalink( $page_id );
+			if ( ! $url || is_wp_error( $url ) ) {
+				wp_send_json_error( array( 'message' => __( 'Could not get permalink for the provided page ID.', 'wpconsent-cookies-banner-privacy-suite' ) ) );
+			}
+		}
+
+		$current_scan = get_option(
+			'wpconsent_scanner_' . $request_id,
+			array(
+				'scripts'         => array(),
+				'services_needed' => array(),
+			)
+		);
+
+		$this->aggregated_scripts  = $current_scan['scripts'];
+		$this->aggregated_services = $current_scan['services_needed'];
+
+		$response = $this->perform_scan( $url );
+
+		// Check if we have an error from the scanner.
+		if ( isset( $response['error'] ) && $response['error'] ) {
+			$response['message'] = $response['error_message'];
+		} else {
+			// Aggregate results.
+			$this->aggregate_scan_results( $response );
+
+			// Save the aggregated results to temp option.
+			update_option(
+				'wpconsent_scanner_' . $request_id,
+				array(
+					'scripts'         => $this->aggregated_scripts,
+					'services_needed' => $this->aggregated_services,
+				)
+			);
+
+			// If this is the final scan, save the aggregated results.
+			if ( $is_final ) {
+				$final_results       = $this->get_aggregated_results();
+				$response['message'] = $this->get_message( $final_results );
+
+				$scanned_pages = isset( $_POST['scanned_pages'] ) ? absint( $_POST['scanned_pages'] ) : 0;
+				$total_pages   = isset( $_POST['total_pages'] ) ? absint( $_POST['total_pages'] ) : 0;
+
+				// Add page count information to the message.
+				$response['message'] .= ' ' . sprintf(
+					/* translators: %1$d: number of scanned pages, %2$d: total number of pages */
+					__( '(%1$d of %2$d pages scanned)', 'wpconsent-cookies-banner-privacy-suite' ),
+					$scanned_pages,
+					$total_pages
+				);
+
+				$this->save_scan_data( $final_results );
+				// Delete the temp option.
+				delete_option( 'wpconsent_scanner_' . $request_id );
+			} else {
+				$response['message'] = $this->get_message( $response );
+			}
+
+			// Save email if provided.
+			if ( ! empty( $email ) ) {
+				$this->save_email( $email );
+			}
+		}
+
+		wp_send_json_success( $response );
+	}
+
+	/**
+	 * Aggregates results from multiple page scans.
+	 *
+	 * @param array $current_scan Current scan results.
+	 * @return void
+	 */
+	protected function aggregate_scan_results( $current_scan ) {
+		// Merge scripts by category.
+		foreach ( $current_scan['scripts'] as $category => $scripts ) {
+			if ( ! isset( $this->aggregated_scripts[ $category ] ) ) {
+				$this->aggregated_scripts[ $category ] = array();
+			}
+
+			// Merge scripts while avoiding duplicates.
+			foreach ( $scripts as $script ) {
+				// Use the service name as the key to avoid duplicates across pages
+				$script_key = $script['name'];
+				if ( ! isset( $this->aggregated_scripts[ $category ][ $script_key ] ) ) {
+					$this->aggregated_scripts[ $category ][ $script_key ] = $script;
+				}
+			}
+		}
+
+		// Merge services needed.
+		$this->aggregated_services = array_unique(
+			array_merge( $this->aggregated_services, $current_scan['services_needed'] )
+		);
+	}
+
+	/**
+	 * Gets the final aggregated results from all scans.
+	 *
+	 * @return array
+	 */
+	public function get_aggregated_results() {
+		// Convert aggregated scripts back to sequential array.
+		$formatted_scripts = array();
+		foreach ( $this->aggregated_scripts as $category => $scripts ) {
+			$formatted_scripts[ $category ] = array_values( $scripts );
+		}
+
+		return array(
+			'error'           => false,
+			'scripts'         => $formatted_scripts,
+			'categories'      => wpconsent()->cookies->get_categories(),
+			'services_needed' => $this->aggregated_services,
+		);
+	}
+
+	/**
+	 * Scans the website and returns the results.
+	 *
+	 * @param string $url The URL to scan.
+	 *
+	 * @return array
+	 */
+	public function perform_scan( $url = '' ) {
+		$scan_result = $this->remote_scan( $url );
 
 		// If we got an error from the scanner, return early with the error.
 		if ( $scan_result['error'] ) {
@@ -151,9 +363,11 @@ class WPConsent_Scanner {
 	/**
 	 * Does a remote scan of the website.
 	 *
+	 * @param string $url The URL to scan.
+	 *
 	 * @return array An array containing error status and message if applicable
 	 */
-	protected function remote_scan() {
+	protected function remote_scan( $url = '' ) {
 		$result = array(
 			'error'         => false,
 			'error_message' => '',
@@ -162,7 +376,7 @@ class WPConsent_Scanner {
 		$request = wp_remote_post(
 			$this->scan_endpoint,
 			array(
-				'body'    => wp_json_encode( $this->scan_request_body() ),
+				'body'    => wp_json_encode( $this->scan_request_body( $url ) ),
 				'headers' => $this->scan_request_headers(),
 				'timeout' => 30, // Increase timeout to handle slower responses.
 			)
@@ -230,12 +444,14 @@ class WPConsent_Scanner {
 	/**
 	 * The body of the request to the scanner.
 	 *
+	 * @param string $url The URL to scan.
+	 *
 	 * @return array
 	 */
-	protected function scan_request_body() {
+	protected function scan_request_body( $url = '' ) {
 		return array(
-			'html'              => $this->get_website_html(),
-			'home_url'          => home_url( '/' ),
+			'html'              => $this->get_website_html( $url ),
+			'home_url'          => $url,
 			'wp_content_url'    => content_url( '/' ),
 			'comments'          => $this->has_comments(),
 			'wp_version'        => get_bloginfo( 'version' ),
@@ -258,6 +474,7 @@ class WPConsent_Scanner {
 		// Some services add multiple scripts legitimately, but we don't need to show them on the scanner page like we do for multiple Google Analytics scripts, for example.
 		$ignore_duplicates = array(
 			'optinmonster',
+			'youtube',
 		);
 		$used              = array();
 
@@ -345,10 +562,12 @@ class WPConsent_Scanner {
 	/**
 	 * Does a request to the website and returns the HTML.
 	 *
+	 * @param string $url The URL to scan.
+	 *
 	 * @return string
 	 */
-	public function get_website_html() {
-		$request = $this->self_request();
+	public function get_website_html( $url = '' ) {
+		$request = $this->self_request( $url );
 
 		if ( is_wp_error( $request ) ) {
 			return '';
@@ -360,9 +579,11 @@ class WPConsent_Scanner {
 	/**
 	 * Does a request to the website and returns the request object.
 	 *
+	 * @param string $url The URL to scan.
+	 *
 	 * @return WP_Error|array
 	 */
-	protected function self_request() {
+	protected function self_request( $url = '' ) {
 		$user_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 
 		// Let's pass forward the basic auth header if present.
@@ -381,7 +602,7 @@ class WPConsent_Scanner {
 				array(
 					'wpconsent_debug' => 'true',
 				),
-				home_url( '/' )
+				$url
 			),
 			array(
 				'sslverify' => false,

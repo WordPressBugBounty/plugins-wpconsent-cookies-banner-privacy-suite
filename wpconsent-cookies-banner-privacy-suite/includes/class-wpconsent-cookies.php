@@ -274,6 +274,8 @@ class WPConsent_Cookies {
 			)
 		);
 
+		$this->clear_cookies_cache();
+
 		if ( is_wp_error( $term ) ) {
 			return false;
 		}
@@ -309,6 +311,8 @@ class WPConsent_Cookies {
 
 		$result = wp_delete_term( $category_id, $this->taxonomy );
 
+		$this->clear_cookies_cache();
+
 		return ! is_wp_error( $result );
 	}
 
@@ -333,20 +337,20 @@ class WPConsent_Cookies {
 			)
 		);
 
-		$cookie_array = array();
-		$categories = $this->get_categories();
+		$cookie_array              = array();
+		$categories                = $this->get_categories();
 		$preferences_cookie_exists = false;
-		
+
 		foreach ( $cookies as $cookie ) {
 			$cookie_id       = get_post_meta( $cookie->ID, 'wpconsent_cookie_id', true );
 			$auto_added      = get_post_meta( $cookie->ID, '_wpconsent_auto_added', true );
 			$cookie_category = wp_get_post_terms( $cookie->ID, $this->taxonomy, array( 'fields' => 'ids' ) );
-			
-			if ($category === $categories['essential']['id'] && 'wpconsent_preferences' === $cookie_id) {
+
+			if ( $category === $categories['essential']['id'] && 'wpconsent_preferences' === $cookie_id ) {
 				$preferences_cookie_exists = true;
 			}
-			
-			$cookie_data     = array(
+
+			$cookie_data = array(
 				'id'          => $cookie->ID,
 				'name'        => $cookie->post_title,
 				'cookie_id'   => $cookie_id,
@@ -370,7 +374,7 @@ class WPConsent_Cookies {
 			);
 
 			if ( ! is_wp_error( $post_id ) ) {
-				$cookie = get_post($post_id);
+				$cookie      = get_post( $post_id );
 				$cookie_data = array(
 					'id'          => $cookie->ID,
 					'name'        => $cookie->post_title,
@@ -380,7 +384,7 @@ class WPConsent_Cookies {
 					'auto_added'  => false,
 					'duration'    => get_post_meta( $cookie->ID, 'wpconsent_cookie_duration', true ),
 				);
-				array_unshift($cookie_array, apply_filters( 'wpconsent_cookie_data', $cookie_data, $cookie->ID ));
+				array_unshift( $cookie_array, apply_filters( 'wpconsent_cookie_data', $cookie_data, $cookie->ID ) );
 			}
 		}
 
@@ -452,8 +456,7 @@ class WPConsent_Cookies {
 			$term = $updated;
 		}
 
-		// Delete transient wpconsent_needs_google_consent.
-		delete_transient( 'wpconsent_needs_google_consent' );
+		$this->clear_cookies_cache();
 
 		if ( ! is_wp_error( $term ) ) {
 			if ( false !== $service_url ) {
@@ -492,8 +495,7 @@ class WPConsent_Cookies {
 			return $term['term_id'];
 		}
 
-		// Delete transient wpconsent_needs_google_consent.
-		delete_transient( 'wpconsent_needs_google_consent' );
+		$this->clear_cookies_cache();
 
 		return false;
 	}
@@ -508,8 +510,7 @@ class WPConsent_Cookies {
 	public function delete_service( $service_id ) {
 		$result = wp_delete_term( $service_id, $this->taxonomy );
 
-		// Delete transient wpconsent_needs_google_consent.
-		delete_transient( 'wpconsent_needs_google_consent' );
+		$this->clear_cookies_cache();
 
 		return ! is_wp_error( $result );
 	}
@@ -630,6 +631,9 @@ class WPConsent_Cookies {
 	 * @return void
 	 */
 	public function clear_cookies_cache() {
+		// Delete transient wpconsent_needs_google_consent.
+		delete_transient( 'wpconsent_needs_google_consent' );
+		// Delete transient wpconsent_cookies.
 		delete_transient( 'wpconsent_preference_cookies' );
 	}
 }

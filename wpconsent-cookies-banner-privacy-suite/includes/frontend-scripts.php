@@ -43,13 +43,17 @@ function wpconsent_frontend_scripts() {
 				'consent_duration' => wpconsent()->settings->get_option( 'consent_duration', 30 ),
 				'css_url'          => WPCONSENT_PLUGIN_URL . 'build/frontend.css',
 				'css_version'      => $asset['version'],
+				'default_allow'    => boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) ),
 			)
 		)
 	);
 }
 
 /**
- * Load the Google consent script.
+ * Outputs the Google consent script for managing user preferences on Google-related services.
+ *
+ * This function does not execute if the banner display is disabled or if no Google services are enabled
+ * in the cookie data. It ensures the Google consent script is loaded early enough for it to take effect correctly.
  *
  * @return void
  */
@@ -64,19 +68,37 @@ function wpconsent_google_consent_script() {
 		return;
 	}
 
-	$consent_asset_file = WPCONSENT_PLUGIN_PATH . 'build/google-consent.asset.php';
-
-	if ( ! file_exists( $consent_asset_file ) ) {
-		return;
-	}
-
-	$asset = require $consent_asset_file;
-	$src   = add_query_arg(
-		'v',
-		$asset['version'],
-		WPCONSENT_PLUGIN_URL . 'build/google-consent.js'
-	);
+	$default = intval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
 
 	// We need to load the Google consent script earlier than other tracking scripts for it to take effect correctly.
-	echo '<script src="' . esc_url( $src ) . '"></script>'; // phpcs:ignore
+	echo "<script data-cfasync=\"false\" data-wpfc-render=\"false\">
+		(function () {
+			window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+			
+			let preferences = {
+				marketing: {$default},
+				statistics: {$default},
+			}
+			
+			// Get preferences directly from cookie
+			const value = `; ` + document.cookie;
+			const parts = value.split(`; wpconsent_preferences=`);
+			if (parts.length === 2) {
+				try {
+					preferences = JSON.parse(parts.pop().split(';').shift());
+				} catch (e) {
+					console.error('Error parsing WPConsent preferences:', e);
+				}
+			}
+			
+			gtag('consent', 'default', {
+				'ad_storage': preferences.marketing ? 'granted' : 'denied',
+				'analytics_storage': preferences.statistics ? 'granted' : 'denied',
+				'ad_user_data': preferences.marketing ? 'granted' : 'denied',
+				'ad_personalization': preferences.marketing ? 'granted' : 'denied',
+				'security_storage': 'granted',
+				'functionality_storage': 'granted'
+			});
+		})();
+	</script>"; // phpcs:ignore
 }

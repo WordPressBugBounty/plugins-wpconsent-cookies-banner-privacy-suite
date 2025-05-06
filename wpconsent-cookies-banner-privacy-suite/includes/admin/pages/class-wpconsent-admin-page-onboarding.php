@@ -13,6 +13,7 @@ class WPConsent_Admin_Page_Onboarding extends WPConsent_Admin_Page {
 	use WPConsent_Input_Image_Radio;
 	use WPConsent_Banner_Preview;
 	use WPConsent_Services_Upsell;
+	use WPConsent_Scan_Pages;
 
 	/**
 	 * Page slug.
@@ -191,6 +192,7 @@ class WPConsent_Admin_Page_Onboarding extends WPConsent_Admin_Page {
 	 * @return void
 	 */
 	public function step_scan() {
+		$this->auto_populate_important_pages();
 		?>
 		<div class="wpconsent-onboarding-step wpconsent-step-<?php echo esc_attr( $this->current_step ); ?>">
 			<div class="wpconsent-onboarding-text">
@@ -203,7 +205,7 @@ class WPConsent_Admin_Page_Onboarding extends WPConsent_Admin_Page {
 				<p class="wpconsent-disclaimer">
 					<?php
 					printf(
-							// translators: %1$s is an opening link tag, %2$s is a closing link tag, %3$s is an opening link tag.
+					// translators: %1$s is an opening link tag, %2$s is a closing link tag, %3$s is an opening link tag.
 						esc_html__( 'Please Note: By continuing with the website scan, you agree to send website data to our API for processing. This data is utilized to improve scanning accuracy and provide updated service and cookie descriptions. For details, please review our %1$sPrivacy Policy%2$s and %3$sTerms of Service%2$s.', 'wpconsent-cookies-banner-privacy-suite' ),
 						'<a href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/privacy-policy/', 'onboarding', 'privacy-policy' ) ) . '" target="_blank" rel="noopener noreferrer">',
 						'</a>',
@@ -218,6 +220,17 @@ class WPConsent_Admin_Page_Onboarding extends WPConsent_Admin_Page {
 			</div>
 		</div>
 		<?php
+		$selected_content_ids = wpconsent()->settings->get_option( 'manual_scan_pages', array() );
+		if ( ! empty( $selected_content_ids ) ) {
+			foreach ( $selected_content_ids as $page_id ) {
+				$page = get_post( $page_id );
+				if ( $page ) {
+					?>
+					<input type="hidden" name="scanner_items[]" value="<?php echo esc_attr( $page->ID ); ?>">
+					<?php
+				}
+			}
+		}
 	}
 
 	/**

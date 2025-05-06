@@ -137,10 +137,12 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'enable_script_blocking'            => ( isset( $_POST['enable_script_blocking'] ) && isset( $_POST['enable_consent_banner'] ) ) ? 1 : 0,
 			'google_consent_mode'               => ( isset( $_POST['google_consent_mode'] ) && isset( $_POST['google_consent_mode'] ) ) ? 1 : 0,
 			'enable_consent_floating'           => isset( $_POST['enable_consent_floating'] ) ? 1 : 0,
+			'default_allow'                     => isset( $_POST['default_allow'] ) ? 1 : 0,
 			'consent_duration'                  => isset( $_POST['consent_duration'] ) ? intval( $_POST['consent_duration'] ) : 30,
 			'enable_content_blocking'           => isset( $_POST['enable_content_blocking'] ) ? 1 : 0,
-			'content_blocking_services'         => isset( $_POST['content_blocking_services'] ) ? array_map( 'sanitize_text_field', $_POST['content_blocking_services'] ) : array(),
+			'content_blocking_services'         => isset( $_POST['content_blocking_services'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['content_blocking_services'] ) ) : array(),
 			'content_blocking_placeholder_text' => isset( $_POST['content_blocking_placeholder_text'] ) ? sanitize_text_field( wp_unslash( $_POST['content_blocking_placeholder_text'] ) ) : 'Click here to accept {category} cookies and load this content',
+			'uninstall_data'                    => isset( $_POST['uninstall_data'] ) ? 1 : 0,
 		);
 
 		wpconsent()->settings->bulk_update_options( $settings );
@@ -293,6 +295,21 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'enable_consent_floating'
 		);
 
+		$this->metabox_row(
+			esc_html__( 'Default Allow', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'default_allow' ),
+				'default_allow',
+				sprintf(
+				// translators: %1$s is an opening link tag, %2$s is a closing link tag.
+					esc_html__( 'Enable this to only block scripts/cookies if the user rejects them. %1$sLearn More%2$s', 'wpconsent-cookies-banner-privacy-suite' ),
+					'<a target="_blank" rel="noopener noreferrer" href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/docs/default-allow', 'settings', 'default-allow' ) ) . '">',
+					'</a>'
+				)
+			),
+			'default_allow'
+		);
+
 		$this->metabox_row_separator();
 		$this->metabox_row(
 			esc_html__( 'Cookie Categories', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -357,6 +374,16 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		$this->records_of_consent_input();
 		$this->metabox_row_separator();
 		$this->automatic_scanning_input();
+		$this->metabox_row_separator();
+		$this->metabox_row(
+			esc_html__( 'Remove all data', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'uninstall_data', false ),
+				'uninstall_data',
+				esc_html__( 'Remove all data when uninstalling the plugin.', 'wpconsent-cookies-banner-privacy-suite' )
+			) . $this->help_icon( __( 'All cookie data and configuration will be unrecoverable.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
+			'uninstall_data'
+		);
 
 		return ob_get_clean();
 	}

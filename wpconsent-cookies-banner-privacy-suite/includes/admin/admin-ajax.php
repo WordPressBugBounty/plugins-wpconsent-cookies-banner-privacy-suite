@@ -21,6 +21,9 @@ add_action( 'wp_ajax_wpconsent_complete_onboarding', 'wpconsent_ajax_complete_on
 
 add_action( 'wp_ajax_wpconsent_generate_cookie_policy', 'wpconsent_ajax_generate_cookie_policy' );
 
+add_action( 'wp_ajax_wpconsent_search_content', 'wpconsent_ajax_search_content' );
+add_action( 'wp_ajax_wpconsent_save_scanner_items', 'wpconsent_ajax_save_scanner_items' );
+
 /**
  * Add a new category via AJAX.
  *
@@ -568,6 +571,64 @@ function wpconsent_ajax_generate_cookie_policy() {
 			'message'    => esc_html__( 'Your new cookie policy page has been created and configured. The new page uses a default cookie policy text and the WPConsent shortcode to list out the cookie information as configured in the WPConsent settings. Please review the page.', 'wpconsent-cookies-banner-privacy-suite' ),
 			'link'       => get_permalink( $page_id ),
 			'view_page'  => esc_html__( 'View Page', 'wpconsent-cookies-banner-privacy-suite' ),
+		)
+	);
+}
+
+/**
+ * Search both posts and pages via AJAX.
+ *
+ * @return void
+ */
+function wpconsent_ajax_search_content() {
+	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	$search = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+
+	// Query both posts and pages with search term and order by relevance.
+	$posts = get_posts(
+		array(
+			's'              => $search,
+			'post_type'      => array( 'post', 'page' ),
+			'posts_per_page' => 10,
+			'post_status'    => 'publish',
+			'orderby'        => 'relevance',
+		)
+	);
+
+	// Format the results to match the choices.js format.
+	$results = array();
+	foreach ( $posts as $post ) {
+		$results[] = array(
+			'value' => $post->ID,
+			'label' => sprintf( '%1$s (#%2$d)', $post->post_title, $post->ID ),
+			'url'   => get_permalink( $post->ID ),
+		);
+	}
+
+	wp_send_json_success( $results );
+}
+
+/**
+ * Save post IDs from the manual scanner.
+ *
+ * @return void
+ */
+function wpconsent_ajax_save_scanner_items() {
+	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	$items = isset( $_POST['items'] ) ? array_map( 'intval', $_POST['items'] ) : array();
+
+	// Remove duplicates and ensure all values are integers.
+	$unique_items = array_unique( $items );
+
+	// Save the items using WPConsent settings API.
+	wpconsent()->settings->update_option( 'manual_scan_pages', $unique_items );
+
+	wp_send_json_success(
+		array(
+			'message' => esc_html__( 'Items saved successfully.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'items'   => $unique_items,
 		)
 	);
 }
