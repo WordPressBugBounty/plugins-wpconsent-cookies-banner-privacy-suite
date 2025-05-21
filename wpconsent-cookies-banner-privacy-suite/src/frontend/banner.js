@@ -17,7 +17,11 @@ window.WPConsent = {
 		let reload = false;
 
 		// Clear cookies if the preferences changed OR if wpconsent.default_allow is true and not all settings are true.
-		if ( existingPreferences && JSON.stringify( existingPreferences ) !== JSON.stringify( preferences ) || ( wpconsent.default_allow && ( !preferences.essential || !preferences.statistics || !preferences.marketing ) ) ) {
+		if ( existingPreferences && JSON.stringify( existingPreferences ) !== JSON.stringify( preferences ) || (
+			wpconsent.default_allow && (
+				!preferences.essential || !preferences.statistics || !preferences.marketing
+			)
+		) ) {
 			this.clearCookies();
 			reload = true;
 		}
@@ -35,13 +39,15 @@ window.WPConsent = {
 		this.unlockScripts( preferences );
 
 		// Unlock iframes based on the new preferences
-		this.unlockIframes(preferences);
+		this.unlockIframes( preferences );
 
 		// Show the floating button
 		const floatingButton = this.shadowRoot?.querySelector( '#wpconsent-consent-floating' );
 		if ( floatingButton ) {
 			floatingButton.style.display = 'block';
 		}
+
+		this.updateWordPressConsent( preferences );
 
 		// Trigger events.
 		window.dispatchEvent( new CustomEvent( 'wpconsent_consent_saved', {detail: preferences} ) );
@@ -52,10 +58,13 @@ window.WPConsent = {
 
 		if ( reload ) {
 			// Override document.cookie to prevent new cookies from being set before we reload the page.
-			Object.defineProperty(document, 'cookie', {
-				get: function() {return '';},
-				set: function(value) {}
-			});
+			Object.defineProperty( document, 'cookie', {
+				get: function () {
+					return '';
+				},
+				set: function ( value ) {
+				}
+			} );
 			// Reload the page if we cleared cookies to ensure the new preferences are applied.
 			window.location.reload();
 		}
@@ -204,42 +213,48 @@ window.WPConsent = {
 		document.dispatchEvent( new CustomEvent( 'wpconsent_consent_processed', {detail: preferences} ) );
 	},
 
-	unlockIframes: function(preferences) {
-		const iframes = document.querySelectorAll('iframe[data-wpconsent-src]');
-		iframes.forEach(iframe => {
-			const category = iframe.getAttribute('data-wpconsent-category');
-			if (preferences[category]) {
+	unlockIframes: function ( preferences ) {
+		const iframes = document.querySelectorAll( 'iframe[data-wpconsent-src]' );
+		iframes.forEach( iframe => {
+			const category = iframe.getAttribute( 'data-wpconsent-category' );
+			if ( preferences[category] ) {
 				// Get the src from the data attribute
-				const src = iframe.getAttribute('data-wpconsent-src');
-				if (src) {
+				const src = iframe.getAttribute( 'data-wpconsent-src' );
+				if ( src ) {
 					iframe.src = src;
 				}
 
 				// Remove the data attributes
-				iframe.removeAttribute('data-wpconsent-src');
-				iframe.removeAttribute('data-wpconsent-name');
-				iframe.removeAttribute('data-wpconsent-category');
+				iframe.removeAttribute( 'data-wpconsent-src' );
+				iframe.removeAttribute( 'data-wpconsent-name' );
+				iframe.removeAttribute( 'data-wpconsent-category' );
 			}
-		});
+		} );
 
 		// Let's loop through all .wpconsent-iframe-placeholder and remove thumbnail and overlay based on data-wpconsent-category.
-		const placeholders = document.querySelectorAll('.wpconsent-iframe-placeholder');
-		placeholders.forEach(placeholder => {
-			const category = placeholder.getAttribute('data-wpconsent-category');
-			if (preferences[category]) {
-				const thumbnail = placeholder.querySelector('.wpconsent-iframe-thumbnail');
-				const overlay = placeholder.querySelector('.wpconsent-iframe-overlay-content');
-				if (thumbnail) thumbnail.remove();
-				if (overlay) overlay.remove();
+		const placeholders = document.querySelectorAll( '.wpconsent-iframe-placeholder' );
+		placeholders.forEach( placeholder => {
+			const category = placeholder.getAttribute( 'data-wpconsent-category' );
+			if ( preferences[category] ) {
+				const thumbnail = placeholder.querySelector( '.wpconsent-iframe-thumbnail' );
+				const overlay = placeholder.querySelector( '.wpconsent-iframe-overlay-content' );
+				if ( thumbnail ) {
+					thumbnail.remove();
+				}
+				if ( overlay ) {
+					overlay.remove();
+				}
 				// Remove wpconsent-iframe-placeholder class.
-				placeholder.classList.remove('wpconsent-iframe-placeholder');
+				placeholder.classList.remove( 'wpconsent-iframe-placeholder' );
 			}
-		});
+		} );
 	},
 
 	// Initialize the banner
 	init: function () {
-		const root = document.getElementById( 'wpconsent-root' );
+
+		this.initWordPress();
+
 		const container = document.getElementById( 'wpconsent-container' );
 		const template = document.getElementById( 'wpconsent-template' );
 
@@ -251,7 +266,7 @@ window.WPConsent = {
 			this.shadowRoot.appendChild( content );
 			template.remove();
 
-			this.loadExternalCSS();
+			this.loadExternalCSS( container );
 			this.initializeEventListeners();
 			this.initializeAccordions();
 			this.initializeKeyboardHandlers();
@@ -260,7 +275,7 @@ window.WPConsent = {
 		// Check for existing preferences.
 		const existingPreferences = this.getCookie( 'wpconsent_preferences' );
 		if ( existingPreferences ) {
-			let preferences = {}
+			let preferences = {};
 			try {
 				// Check if the preferences are valid JSON.
 				preferences = JSON.parse( existingPreferences );
@@ -286,7 +301,7 @@ window.WPConsent = {
 	},
 
 	// Load external CSS
-	loadExternalCSS: async function () {
+	loadExternalCSS: async function ( container ) {
 		try {
 			const cssUrl = `${wpconsent.css_url}?ver=${wpconsent.css_version}`;
 			const response = await fetch( cssUrl );
@@ -294,6 +309,8 @@ window.WPConsent = {
 			const style = document.createElement( 'style' );
 			style.textContent = css;
 			this.shadowRoot.appendChild( style );
+			container.style.display = 'block';
+
 		} catch ( error ) {
 			console.error( 'Failed to load WPConsent styles:', error );
 		}
@@ -322,17 +339,17 @@ window.WPConsent = {
 		}
 
 		// Iframe placeholder buttons
-		document.addEventListener('click', (e) => {
-			const iframeButton = e.target.closest('.wpconsent-iframe-accept-button');
-			if (iframeButton) {
-				const category = iframeButton.getAttribute('data-category');
-				if (category) {
+		document.addEventListener( 'click', ( e ) => {
+			const iframeButton = e.target.closest( '.wpconsent-iframe-accept-button' );
+			if ( iframeButton ) {
+				const category = iframeButton.getAttribute( 'data-category' );
+				if ( category ) {
 					// Get current preferences.
 					let currentPreferences = {};
 					try {
-						currentPreferences = JSON.parse(this.getCookie('wpconsent_preferences') || '{}');
-					} catch (error) {
-						console.error('Failed to parse wpconsent_preferences cookie:', error);
+						currentPreferences = JSON.parse( this.getCookie( 'wpconsent_preferences' ) || '{}' );
+					} catch ( error ) {
+						console.error( 'Failed to parse wpconsent_preferences cookie:', error );
 					}
 
 					// Update preferences for this category
@@ -343,10 +360,10 @@ window.WPConsent = {
 					};
 
 					// Save preferences and trigger unlock
-					this.savePreferences(newPreferences);
+					this.savePreferences( newPreferences );
 				}
 			}
-		});
+		} );
 
 		// Preferences modal buttons
 		this.shadowRoot.querySelector( '.wpconsent-preferences-header-close' )?.addEventListener( 'click', () => this.closePreferences() );
@@ -364,61 +381,61 @@ window.WPConsent = {
 		} );
 		this.shadowRoot.querySelector( '.wpconsent-close-preferences' )?.addEventListener( 'click', () => this.closePreferences() );
 
-		window.addEventListener( 'wpconsent_consent_saved', function( event ) {
+		window.addEventListener( 'wpconsent_consent_saved', function ( event ) {
 			// Fire this only if gtag exists.
 			if ( typeof gtag !== 'function' ) {
 				return;
 			}
 			// Passed detail is preferences.
 			const preferences = event.detail;
-			gtag('consent', 'update', {
+			gtag( 'consent', 'update', {
 				'ad_storage': preferences.marketing ? 'granted' : 'denied',
 				'analytics_storage': preferences.statistics ? 'granted' : 'denied',
 				'ad_user_data': preferences.marketing ? 'granted' : 'denied',
 				'ad_personalization': preferences.marketing ? 'granted' : 'denied',
 				'security_storage': 'granted',
 				'functionality_storage': 'granted'
-			});
-		});
+			} );
+		} );
 	},
 
 	initializeAccordions() {
-		const accordions = this.shadowRoot.querySelectorAll('.wpconsent-preferences-accordion-item');
-		accordions.forEach((accordion) => {
-			const header = accordion.querySelector('.wpconsent-preferences-accordion-header');
-			const content = accordion.querySelector('.wpconsent-preferences-accordion-content');
+		const accordions = this.shadowRoot.querySelectorAll( '.wpconsent-preferences-accordion-item' );
+		accordions.forEach( ( accordion ) => {
+			const header = accordion.querySelector( '.wpconsent-preferences-accordion-header' );
+			const content = accordion.querySelector( '.wpconsent-preferences-accordion-content' );
 
-			if (header && content) {
+			if ( header && content ) {
 
-				header.addEventListener('click', (e) => {
+				header.addEventListener( 'click', ( e ) => {
 					// Don't toggle if clicking checkbox
-					if (e.target.closest('.wpconsent-preferences-checkbox-toggle')) {
+					if ( e.target.closest( '.wpconsent-preferences-checkbox-toggle' ) ) {
 						return;
 					}
 
-					const isActive = accordion.classList.contains('active');
+					const isActive = accordion.classList.contains( 'active' );
 
 					// Close all other accordions
-					accordions.forEach((otherAccordion) => {
-						if (otherAccordion !== accordion) {
-							otherAccordion.classList.remove('active');
-							const otherContent = otherAccordion.querySelector('.wpconsent-preferences-accordion-content');
-							if (otherContent) {
+					accordions.forEach( ( otherAccordion ) => {
+						if ( otherAccordion !== accordion ) {
+							otherAccordion.classList.remove( 'active' );
+							const otherContent = otherAccordion.querySelector( '.wpconsent-preferences-accordion-content' );
+							if ( otherContent ) {
 								otherContent.style.maxHeight = null;
 							}
 						}
-					});
+					} );
 
 					// Toggle current accordion
-					accordion.classList.toggle('active');
-					if (!isActive) {
+					accordion.classList.toggle( 'active' );
+					if ( !isActive ) {
 						content.style.maxHeight = content.scrollHeight + 'px';
 					} else {
 						content.style.maxHeight = null;
 					}
-				});
+				} );
 			}
-		});
+		} );
 	},
 
 	// Initialize keyboard handlers for accessibility
@@ -553,22 +570,22 @@ window.WPConsent = {
 		// Query all focusable elements within the container
 		const elements = Array.from( container.querySelectorAll( focusableSelectors ) )
 			// Filter out hidden elements
-			.filter( el => {
-				// Check if element and all its ancestors are visible
-				let currentElement = el;
-				while (currentElement && currentElement !== container) {
-					const style = window.getComputedStyle(currentElement);
-					if (style.display === 'none' ||
-						style.visibility === 'hidden' ||
-						style.opacity === '0' ||
-						currentElement.disabled ||
-						currentElement.getAttribute('aria-hidden') === 'true') {
-						return false;
-					}
-					currentElement = currentElement.parentElement;
-				}
-				return true;
-			});
+			                  .filter( el => {
+				                  // Check if element and all its ancestors are visible
+				                  let currentElement = el;
+				                  while ( currentElement && currentElement !== container ) {
+					                  const style = window.getComputedStyle( currentElement );
+					                  if ( style.display === 'none' ||
+					                       style.visibility === 'hidden' ||
+					                       style.opacity === '0' ||
+					                       currentElement.disabled ||
+					                       currentElement.getAttribute( 'aria-hidden' ) === 'true' ) {
+						                  return false;
+					                  }
+					                  currentElement = currentElement.parentElement;
+				                  }
+				                  return true;
+			                  } );
 
 		return elements;
 	},
@@ -606,7 +623,38 @@ window.WPConsent = {
 			}
 		}
 	},
+
+	// Initialize WordPress consent.
+	initWordPress: function () {
+		window.wp_consent_type = wpconsent.consent_type;
+
+		let event = new CustomEvent( 'wp_consent_type_defined' );
+		document.dispatchEvent( event );
+	},
+
+	// Update using wp_set_consent if it exists.
+	updateWordPressConsent: function ( preferences ) {
+		// Check if WP Consent API is available.
+		if ( typeof wp_set_consent === 'function' ) {
+			// Map our preference categories to WP Consent API categories.
+
+			// Essential/functional cookies are always allowed.
+			wp_set_consent( 'functional', 'allow' );
+
+			// Preferences category - map to essential as we don't have a separate category for this
+			// These are typically cookies that store user interface preferences.
+			wp_set_consent( 'preferences', 'allow' );
+
+			// Statistics categories.
+			wp_set_consent( 'statistics', preferences.statistics ? 'allow' : 'deny' );
+			// For anonymous statistics, we'll use the same preference as regular statistics.
+			wp_set_consent( 'statistics-anonymous', preferences.statistics ? 'allow' : 'deny' );
+
+			// Marketing category.
+			wp_set_consent( 'marketing', preferences.marketing ? 'allow' : 'deny' );
+		}
+	}
 };
 
-// Initialize when DOM is ready
+// Initialize when DOM is ready.
 document.addEventListener( 'DOMContentLoaded', () => WPConsent.init() );

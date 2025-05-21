@@ -200,3 +200,32 @@
 	border-bottom: 1px solid transparent;
 	padding: 10px 0;
 }
+
+/* Preferences Panel Section Title */
+.wpconsent-preferences-section-title {
+	margin-top: 20px;
+	margin-bottom: 15px;
+	font-size: 16px;
+	font-weight: 600;
+	color: #23282d;
+}
+
+/* Improve spacing in preferences panel accordion content */
+.wpconsent-preferences-panel-accordion .wpconsent-accordion-item.active .wpconsent-accordion-content {
+	padding: 15px;
+}
+
+/* Improve spacing for form elements inside preferences panel accordion */
+.wpconsent-preferences-panel-accordion .wpconsent-accordion-content .wpconsent-metabox-row {
+	margin-bottom: 20px;
+}
+
+.wpconsent-preferences-panel-accordion .wpconsent-accordion-content .wpconsent-input-text,
+.wpconsent-preferences-panel-accordion .wpconsent-accordion-content .wpconsent-input-textarea {
+	margin-top: 8px;
+	width: 100%;
+}
+
+.wpconsent-preferences-panel-accordion .wpconsent-accordion-content .wpconsent-input-area-description {
+	margin-bottom: 10px;
+}

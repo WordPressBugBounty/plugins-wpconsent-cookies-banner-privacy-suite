@@ -3,6 +3,10 @@
 	pointer-events: none;
 }
 
+.wpconsent-add-service-from-library-lite {
+	opacity: 0.7;
+}
+
 #poststuff .wpconsent-upsell-box,
 .wpconsent-upsell-box {
 	position: absolute;
@@ -59,7 +63,7 @@
 		}
 	}
 
-	.wpconsent-upsell-features {
+.wpconsent-upsell-features {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
@@ -90,4 +94,3 @@
 		}
 	}
 }
-

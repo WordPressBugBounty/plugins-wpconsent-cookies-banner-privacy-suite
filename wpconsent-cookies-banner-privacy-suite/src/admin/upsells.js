@@ -20,7 +20,11 @@ jQuery( function ( $ ) {
 		WPConsentAdminNotices.show_pro_notice( wpconsent.scanner.title, wpconsent.scanner.text, wpconsent.scanner.url );
 	}
 
-	$( '.wpconsent-languages-button-lite' ).on( 'click', function () {
-		WPConsentAdminNotices.show_pro_notice( wpconsent.languages_upsell.title, wpconsent.languages_upsell.text, wpconsent.languages_upsell.url );
-	} );
+ $( '.wpconsent-languages-button-lite' ).on( 'click', function () {
+ 	WPConsentAdminNotices.show_pro_notice( wpconsent.languages_upsell.title, wpconsent.languages_upsell.text, wpconsent.languages_upsell.url );
+ } );
+
+ $( '.wpconsent-add-service-from-library-lite' ).on( 'click', function () {
+ 	WPConsentAdminNotices.show_pro_notice( wpconsent.service_library_upsell.title, wpconsent.service_library_upsell.text, wpconsent.service_library_upsell.url );
+ } );
 } );

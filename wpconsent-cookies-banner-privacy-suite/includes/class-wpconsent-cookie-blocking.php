@@ -44,6 +44,7 @@ class WPConsent_Cookie_Blocking {
 		add_action( 'template_redirect', array( $this, 'maybe_buffer_start' ) );
 		add_action( 'shutdown', array( $this, 'buffer_end' ) );
 		add_filter( 'wpconsent_skip_script_blocking', array( $this, 'maybe_skip_for_google_consent' ), 10, 5 );
+		add_filter( 'wpconsent_skip_script_blocking', array( $this, 'maybe_skip_for_wp_consent_api' ), 10, 5 );
 	}
 
 	/**
@@ -267,6 +268,26 @@ class WPConsent_Cookie_Blocking {
 			'google-ads',
 		);
 		if ( in_array( $name, $scripts_to_skip, true ) && $this->get_google_consent_mode() ) {
+			return true;
+		}
+
+		return $skip;
+	}
+
+	/**
+	 * Maybe skip script blocking for WooCommerce Sourcebuster when WP Consent API is loaded.
+	 *
+	 * @param bool   $skip Whether to skip the script blocking.
+	 * @param string $src The script source.
+	 * @param string $name The name of the known script.
+	 * @param string $category The category of the known script.
+	 * @param string $script The script element.
+	 *
+	 * @return bool
+	 */
+	public function maybe_skip_for_wp_consent_api( $skip, $src, $name, $category, $script ) {
+		// Check if WP Consent API is loaded.
+		if ( function_exists( 'wp_has_consent' ) && 'woocommerce-sourcebuster' === $name ) {
 			return true;
 		}
 

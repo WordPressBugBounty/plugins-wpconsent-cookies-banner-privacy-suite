@@ -87,7 +87,7 @@ class WPConsent_Banner {
 
 		// Create the Shadow DOM container with CSS variables.
 		echo '<div id="wpconsent-root" style="' . esc_attr( $css_vars ) . '">';
-		echo '<div id="wpconsent-container"></div>';
+		echo '<div id="wpconsent-container" style="display: none;"></div>';
 
 		// Create a template that contains both styles and HTML.
 		echo '<template id="wpconsent-template">';
@@ -142,7 +142,7 @@ class WPConsent_Banner {
 		$hex = str_replace( '#', '', $hex );
 
 		// Convert shorthand hex to full hex.
-		if ( strlen( $hex ) == 3 ) {
+		if ( strlen( $hex ) === 3 ) {
 			$hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
 		}
 
@@ -205,7 +205,7 @@ class WPConsent_Banner {
 		$html .= '<div class="wpconsent-banner-message" tabindex="0">' . wp_kses_post( wpautop( $text ) ) . '</div>';
 		$html .= '</div>';
 
-		$html .= '<div class="wpconsent-banner-footer wpconsent-button-size-' . esc_attr( $button_size ) . ' wpconsent-button-corner-' . esc_attr( $button_corner ) . ' wpconsent-button-type-' . esc_attr( $button_type ) . '">';
+		$html .= '<div class="wpconsent-banner-footer wpconsent-button-size-' . esc_attr( $button_size ) . ' wpconsent-button-corner-' . esc_attr( $button_corner ) . ' wpconsent-button-type-' . esc_attr( $button_type ) . '" part="wpconsent-banner-footer">';
 
 		foreach ( $button_order as $button_id ) {
 			$enabled = wpconsent()->settings->get_option( $button_id . '_button_enabled', true );
@@ -231,6 +231,11 @@ class WPConsent_Banner {
 	 * @return string
 	 */
 	public function get_banner_top_buttons() {
+		// Check if close button is disabled in settings
+		if ( wpconsent()->settings->get_option( 'disable_close_button' ) ) {
+			return '';
+		}
+
 		$close_text = esc_attr__( 'Close', 'wpconsent-cookies-banner-privacy-suite' );
 
 		return '<button class="wpconsent-banner-close" id="wpconsent-banner-close" aria-label="' . esc_attr( $close_text ) . '">' . wpconsent_get_icon( 'close', 12, 12 ) . '</button>';
@@ -359,9 +364,9 @@ class WPConsent_Banner {
 					'<a href="' . esc_url( $cookie_policy_page_url ) . '">' . esc_html__( 'Cookie Policy', 'wpconsent-cookies-banner-privacy-suite' ) . '</a>'
 				);
 			}
-			$html .= '<div class="cookie-url">';
+			$html .= '<span class="cookie-url">';
 			$html .= wp_kses_post( $this->maybe_replace_smart_tags( wpconsent()->settings->get_option( 'cookie_policy_text', $default_cookie_policy_text ) ) );
-			$html .= '</div>'; // .cookie-url
+			$html .= '</span>'; // .cookie-url
 			$html .= '</p>';
 			$html .= '</div>'; // .wpconsent-preferences-accordion-content
 			$html .= '</div>'; // .wpconsent-cookie-category
@@ -456,10 +461,10 @@ class WPConsent_Banner {
 		$html = '<div class="wpconsent-preferences-cookies-list">';
 
 		$html .= '<div class="wpconsent-preferences-list-header">';
-		$html .= '<div class="cookie-name">' . esc_html__( 'Name', 'wpconsent-cookies-banner-privacy-suite' ) . '</div>';
-		$html .= '<div class="cookie-desc">' . esc_html__( 'Description', 'wpconsent-cookies-banner-privacy-suite' ) . '</div>';
-		$html .= '<div class="cookie-duration">' . esc_html__( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ) . '</div>';
-		$html .= '<div class="cookie-url">' . esc_html__( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) . '</div>';
+		$html .= '<div class="cookie-name">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_name', __( 'Name', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
+		$html .= '<div class="cookie-desc">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_description', __( 'Description', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
+		$html .= '<div class="cookie-duration">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_duration', __( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
+		$html .= '<div class="cookie-url">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_service_url', __( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
 		$html .= '</div>'; // .wpconsent-preferences-list-header
 
 		foreach ( $cookies as $cookie ) {
@@ -535,20 +540,30 @@ class WPConsent_Banner {
 	 * Replace smart tags for the cookie policy text.
 	 *
 	 * @param string $text The text to replace smart tags in.
+	 * @param string $locale The locale to use for the replacement.
 	 *
 	 * @return string
 	 */
-	public function maybe_replace_smart_tags( $text ) {
-		$cookie_policy_page_id  = wpconsent()->settings->get_option( 'cookie_policy_page', 0 );
-		$cookie_policy_page_url = get_permalink( $cookie_policy_page_id );
-		$privacy_policy         = get_privacy_policy_url();
+	public function maybe_replace_smart_tags( $text, $locale = '' ) {
+		$cookie_policy_page_id  = apply_filters( 'wpconsent_get_cookie_policy_id', wpconsent()->settings->get_option( 'cookie_policy_page', 0 ), $locale );
+		$privacy_policy_page_id = apply_filters( 'wpconsent_get_privacy_policy_id', get_option( 'wp_page_for_privacy_policy' ), $locale );
+
+		// Get the URLs and titles.
+		$cookie_policy_page_url    = $cookie_policy_page_id ? get_permalink( $cookie_policy_page_id ) : '';
+		$cookie_policy_page_title  = $cookie_policy_page_id ? get_the_title( $cookie_policy_page_id ) : '';
+		$privacy_policy_url        = $privacy_policy_page_id ? get_permalink( $privacy_policy_page_id ) : '';
+		$privacy_policy_page_title = $privacy_policy_page_id ? get_the_title( $privacy_policy_page_id ) : '';
 
 		// Replace {cookie_policy} with a link to the cookie policy where the text of the link is the page title.
-		$text = str_replace( '{cookie_policy}', '<a href="' . esc_url( $cookie_policy_page_url ) . '">' . esc_html( get_the_title( $cookie_policy_page_id ) ) . '</a>', $text );
+		if ( $cookie_policy_page_url && $cookie_policy_page_title ) {
+			$text = str_replace( '{cookie_policy}', '<a href="' . esc_url( $cookie_policy_page_url ) . '">' . esc_html( $cookie_policy_page_title ) . '</a>', $text );
+		} else {
+			$text = str_replace( '{cookie_policy}', '', $text );
+		}
 
-		if ( $privacy_policy ) {
-			// Replace {privacy_policy} with a link to the privacy policy where the text of the link is the page title.
-			$text = str_replace( '{privacy_policy}', '<a href="' . esc_url( $privacy_policy ) . '">' . esc_html( get_the_title( get_option( 'wp_page_for_privacy_policy' ) ) ) . '</a>', $text );
+		// Replace {privacy_policy} with a link to the privacy policy where the text of the link is the page title.
+		if ( $privacy_policy_url && $privacy_policy_page_title ) {
+			$text = str_replace( '{privacy_policy}', '<a href="' . esc_url( $privacy_policy_url ) . '">' . esc_html( $privacy_policy_page_title ) . '</a>', $text );
 		} else {
 			// If there is no privacy policy page, remove the {privacy_policy} tag.
 			$text = str_replace( '{privacy_policy}', '', $text );

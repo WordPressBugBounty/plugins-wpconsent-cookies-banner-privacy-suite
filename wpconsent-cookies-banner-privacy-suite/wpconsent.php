@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPConsent
  * Description: Improve your WordPress website privacy compliance. Custom cookie banner, website scanner, automatic script blocking, and easy cookie configuration.
- * Version:     1.0.6
+ * Version:     1.0.7
  * Author:      WPConsent
  * Author URI:  https://wpconsent.com
  * License:     GPL v2 or later
@@ -260,6 +260,9 @@ class WPConsent {
 		define( 'WPCONSENT_PLUGIN_BASENAME', plugin_basename( WPCONSENT_FILE ) );
 		define( 'WPCONSENT_PLUGIN_URL', plugin_dir_url( WPCONSENT_FILE ) );
 		define( 'WPCONSENT_PLUGIN_PATH', plugin_dir_path( WPCONSENT_FILE ) );
+
+		// Declare WP Consent API support.
+		add_filter( 'wp_consent_api_registered_' . WPCONSENT_PLUGIN_BASENAME, '__return_true' );
 
 		$this->version = WPCONSENT_VERSION;
 	}

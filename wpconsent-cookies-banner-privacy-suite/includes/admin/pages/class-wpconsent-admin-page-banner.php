@@ -515,7 +515,31 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			esc_html__( 'Buttons', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->buttons_content_fields()
 		);
+		$this->metabox_row(
+			esc_html__( 'Disable Close Button', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'disable_close_button' ),
+				'disable_close_button',
+				esc_html__( 'Disable the close (x) button in the banner to prevent users from dismissing it without making a choice.', 'wpconsent-cookies-banner-privacy-suite' )
+			),
+			'disable_close_button'
+		);
 		$this->metabox_row_separator();
+
+		// Add a title for the preferences panel section
+		echo '<h2 class="wpconsent-preferences-section-title">' . esc_html__( 'Preferences Panel Settings', 'wpconsent-cookies-banner-privacy-suite' ) . '</h2>';
+
+		// Preferences Panel Settings - Accordion.
+		echo '<div class="wpconsent-accordion wpconsent-preferences-panel-accordion">';
+		echo '<div class="wpconsent-accordion-item">';
+		echo '<div class="wpconsent-accordion-header">';
+		echo '<h3>' . esc_html__( 'Preferences Panel', 'wpconsent-cookies-banner-privacy-suite' ) . '</h3>';
+		echo '<button class="wpconsent-accordion-toggle">';
+		echo '<span class="dashicons dashicons-arrow-down-alt2"></span>';
+		echo '</button>';
+		echo '</div>'; // .wpconsent-accordion-header.
+		echo '<div class="wpconsent-accordion-content">'; // Not collapsed by default.
+
 		$this->metabox_row(
 			esc_html__( 'Preferences Panel Title', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->get_input_text(
@@ -582,6 +606,68 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			),
 			'close_button_text'
 		);
+
+		echo '</div>'; // .wpconsent-accordion-content
+		echo '</div>'; // .wpconsent-accordion-item
+
+		// Cookie Table Headers Section - Separate accordion item.
+		echo '<div class="wpconsent-accordion-item">';
+		echo '<div class="wpconsent-accordion-header">';
+		echo '<h3>' . esc_html__( 'Cookie Table Headers', 'wpconsent-cookies-banner-privacy-suite' ) . '</h3>';
+		echo '<button class="wpconsent-accordion-toggle">';
+		echo '<span class="dashicons dashicons-arrow-down-alt2"></span>';
+		echo '</button>';
+		echo '</div>'; // .wpconsent-accordion-header.
+		echo '<div class="wpconsent-accordion-content">'; // Not collapsed by default.
+
+		$this->metabox_row(
+			esc_html__( 'Name Header', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_table_header_name',
+				wpconsent()->settings->get_option( 'cookie_table_header_name', esc_html__( 'Name', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				esc_html__( 'The header text for the Name column in the cookie table.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_table_header_name'
+			),
+			'cookie_table_header_name'
+		);
+
+		$this->metabox_row(
+			esc_html__( 'Description Header', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_table_header_description',
+				wpconsent()->settings->get_option( 'cookie_table_header_description', esc_html__( 'Description', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				esc_html__( 'The header text for the Description column in the cookie table.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_table_header_description'
+			),
+			'cookie_table_header_description'
+		);
+
+		$this->metabox_row(
+			esc_html__( 'Duration Header', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_table_header_duration',
+				wpconsent()->settings->get_option( 'cookie_table_header_duration', esc_html__( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				esc_html__( 'The header text for the Duration column in the cookie table.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_table_header_duration'
+			),
+			'cookie_table_header_duration'
+		);
+
+		$this->metabox_row(
+			esc_html__( 'Service URL Header', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_table_header_service_url',
+				wpconsent()->settings->get_option( 'cookie_table_header_service_url', esc_html__( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				esc_html__( 'The header text for the Service URL column in the cookie table.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_table_header_service_url'
+			),
+			'cookie_table_header_service_url'
+		);
+
+		echo '</div>'; // .wpconsent-accordion-content
+		echo '</div>'; // .wpconsent-accordion-item
+		echo '</div>'; // .wpconsent-accordion
+
 		$this->metabox_row_separator();
 		$this->metabox_row(
 			esc_html__( 'Logo/Icon', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -633,7 +719,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 	 */
 	public function get_next_view( $current_view ) {
 		$views = array_keys( $this->views );
-		$index = array_search( $current_view, $views );
+		$index = array_search( $current_view, $views, true );
 		$next  = isset( $views[ $index + 1 ] ) ? $views[ $index + 1 ] : $views[0];
 
 		return $next;
@@ -646,7 +732,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 	 */
 	public function get_previous_view_link() {
 		$views = array_keys( $this->views );
-		$index = array_search( $this->view, $views );
+		$index = array_search( $this->view, $views, true );
 		$prev  = isset( $views[ $index - 1 ] ) ? $views[ $index - 1 ] : $views[ count( $views ) - 1 ];
 
 		return add_query_arg( 'view', $prev, $this->get_page_action_url() );
@@ -738,24 +824,36 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				$save_preferences_button_text  = isset( $_POST['save_preferences_button_text'] ) ? sanitize_text_field( wp_unslash( $_POST['save_preferences_button_text'] ) ) : '';
 				$close_button_text             = isset( $_POST['close_button_text'] ) ? sanitize_text_field( wp_unslash( $_POST['close_button_text'] ) ) : '';
 
+				// Cookie table headers.
+				$cookie_table_header_name        = isset( $_POST['cookie_table_header_name'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_name'] ) ) : '';
+				$cookie_table_header_description = isset( $_POST['cookie_table_header_description'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_description'] ) ) : '';
+				$cookie_table_header_duration    = isset( $_POST['cookie_table_header_duration'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_duration'] ) ) : '';
+				$cookie_table_header_service_url = isset( $_POST['cookie_table_header_service_url'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_service_url'] ) ) : '';
+
 				$settings = array(
-					'banner_message'                => $banner_message,
-					'accept_button_text'            => $accept_button,
-					'cancel_button_text'            => $cancel_button,
-					'preferences_button_text'       => $settings_button,
-					'accept_button_enabled'         => $accept_enabled,
-					'cancel_button_enabled'         => $cancel_enabled,
-					'preferences_button_enabled'    => $preferences_enabled,
-					'button_order'                  => $button_order,
-					'banner_logo'                   => $banner_logo,
-					'enable_consent_banner'         => isset( $_POST['enable_consent_banner'] ),
-					'hide_powered_by'               => isset( $_POST['hide_powered_by'] ),
-					'preferences_panel_title'       => $preferences_panel_title,
-					'preferences_panel_description' => $preferences_panel_description,
-					'cookie_policy_title'           => $cookie_policy_title,
-					'cookie_policy_text'            => $cookie_policy_text,
-					'save_preferences_button_text'  => $save_preferences_button_text,
-					'close_button_text'             => $close_button_text,
+					'banner_message'                  => $banner_message,
+					'accept_button_text'              => $accept_button,
+					'cancel_button_text'              => $cancel_button,
+					'preferences_button_text'         => $settings_button,
+					'accept_button_enabled'           => $accept_enabled,
+					'cancel_button_enabled'           => $cancel_enabled,
+					'preferences_button_enabled'      => $preferences_enabled,
+					'button_order'                    => $button_order,
+					'banner_logo'                     => $banner_logo,
+					'enable_consent_banner'           => isset( $_POST['enable_consent_banner'] ),
+					'disable_close_button'            => isset( $_POST['disable_close_button'] ),
+					'hide_powered_by'                 => isset( $_POST['hide_powered_by'] ),
+					'preferences_panel_title'         => $preferences_panel_title,
+					'preferences_panel_description'   => $preferences_panel_description,
+					'cookie_policy_title'             => $cookie_policy_title,
+					'cookie_policy_text'              => $cookie_policy_text,
+					'save_preferences_button_text'    => $save_preferences_button_text,
+					'close_button_text'               => $close_button_text,
+					// Cookie table headers.
+					'cookie_table_header_name'        => $cookie_table_header_name,
+					'cookie_table_header_description' => $cookie_table_header_description,
+					'cookie_table_header_duration'    => $cookie_table_header_duration,
+					'cookie_table_header_service_url' => $cookie_table_header_service_url,
 				);
 			}
 

@@ -32,6 +32,8 @@ function wpconsent_frontend_scripts() {
 		return;
 	}
 
+	$default_allow = boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
+
 	wp_enqueue_script( 'wpconsent-frontend-js', WPCONSENT_PLUGIN_URL . 'build/frontend.js', $asset['dependencies'], $asset['version'], true );
 
 	wp_localize_script(
@@ -43,7 +45,8 @@ function wpconsent_frontend_scripts() {
 				'consent_duration' => wpconsent()->settings->get_option( 'consent_duration', 30 ),
 				'css_url'          => WPCONSENT_PLUGIN_URL . 'build/frontend.css',
 				'css_version'      => $asset['version'],
-				'default_allow'    => boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) ),
+				'default_allow'    => $default_allow,
+				'consent_type'     => $default_allow ? 'optout' : 'optin',
 			)
 		)
 	);

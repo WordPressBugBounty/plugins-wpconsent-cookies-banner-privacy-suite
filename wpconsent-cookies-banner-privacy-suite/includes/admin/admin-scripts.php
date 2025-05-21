@@ -73,6 +73,15 @@ function wpconsent_admin_scripts() {
 					'text'  => esc_html__( 'Upgrade to WPConsent PRO today and unlock the ability to show your cookie banner in multiple languages.', 'wpconsent-cookies-banner-privacy-suite' ),
 					'url'   => wpconsent_utm_url( 'https://wpconsent.com/lite/', 'language-switcher', $current_screen->id ),
 				),
+				'import_warning_title'      => esc_html__( 'Warning: Import Settings', 'wpconsent-cookies-banner-privacy-suite' ),
+				'import_warning_message'    => esc_html__( 'This action will overwrite all your current settings. This cannot be undone. We recommend exporting your current settings as a backup before proceeding.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'import_button'             => esc_html__( 'Import Settings', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cancel_button'             => esc_html__( 'Cancel', 'wpconsent-cookies-banner-privacy-suite' ),
+				'service_library_upsell'    => array(
+					'title' => esc_html__( 'Service Library Import is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+					'text'  => esc_html__( 'Upgrade to WPConsent PRO today and 1-click import cookie data for any service in our library.', 'wpconsent-cookies-banner-privacy-suite' ),
+					'url'   => wpconsent_utm_url( 'https://wpconsent.com/lite/', 'service-library', $current_screen->id ),
+				),
 			)
 		)
 	);

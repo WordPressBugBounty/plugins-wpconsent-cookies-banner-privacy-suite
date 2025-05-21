@@ -19,7 +19,7 @@
 			template.remove();
 
 			// Load and inject the external CSS
-			loadExternalCSS();
+			loadExternalCSS(container);
 
 			// Add preview class if we're in preview context
 			if (isPreview) {
@@ -27,10 +27,47 @@
 			}
 		}
 
+  /**
+	 * Add a custom close button to the banner holder if the regular close button is disabled
+	 * @param {Element} bannerHolder - The banner holder element
+	 */
+	function addCustomCloseButton(bannerHolder) {
+		// Check if the close button is not present (disabled in settings) and add a custom close button if needed
+		const closeButton = shadowRoot.querySelector('.wpconsent-banner-close');
+
+		// Always remove any existing custom close button to avoid duplicates
+		const existingCustomCloseButton = bannerHolder.querySelector('.wpconsent-preview-close-button');
+		if (existingCustomCloseButton) {
+			existingCustomCloseButton.remove();
+		}
+
+		// If the regular close button is not present, add a custom close button
+		if (!closeButton) {
+			const customCloseButton = document.createElement('button');
+			customCloseButton.className = 'wpconsent-preview-close-button';
+			customCloseButton.setAttribute('aria-label', 'Close preview');
+			customCloseButton.innerHTML = '&times;'; // × symbol
+
+			customCloseButton.addEventListener('click', function() {
+				const previewButton = document.getElementById('wpconsent-show-banner-preview');
+				if (previewButton) {
+					previewButton.classList.remove('wpconsent-button-active');
+				}
+				bannerHolder.classList.remove('wpconsent-banner-preview-visible');
+				localStorage.setItem('wpconsent-banner-preview-visible', 'false');
+			});
+
+			bannerHolder.appendChild(customCloseButton);
+		}
+	}
+
+	// Expose the addCustomCloseButton function to the global scope
+	window.addCustomCloseButton = addCustomCloseButton;
+
 		/**
 		 * Load and inject external CSS into shadow DOM
 		 */
-		async function loadExternalCSS() {
+		async function loadExternalCSS(container) {
 			try {
 				// Add cache-busting version parameter
 				const cssUrl = `${wpconsent.css_url}?ver=${wpconsent.css_version}`;
@@ -41,6 +78,7 @@
 				const style = document.createElement( 'style' );
 				style.textContent = css;
 				shadowRoot.appendChild( style );
+				container.style.display = 'block';
 			} catch ( error ) {
 				console.error( 'Failed to load WPConsent styles:', error );
 			}
@@ -67,15 +105,16 @@
 			banner.classList.add( `wpconsent-banner-${position}` );
 		}
 
-		window.wpconsent_show_banner = function ( position ) {
-			if ( shadowRoot ) {
-				const bannerHolder = shadowRoot.querySelector( '#wpconsent-banner-holder' );
-				if (bannerHolder) {
-					bannerHolder.classList.add('wpconsent-banner-preview-visible');
-				}
-				updateBannerPosition( position );
+	window.wpconsent_show_banner = function ( position ) {
+		if ( shadowRoot ) {
+			const bannerHolder = shadowRoot.querySelector( '#wpconsent-banner-holder' );
+			if (bannerHolder) {
+				bannerHolder.classList.add('wpconsent-banner-preview-visible');
+				addCustomCloseButton(bannerHolder);
 			}
-		};
+			updateBannerPosition( position );
+		}
+	};
 
 		// Listen for position changes from the admin
 		window.addEventListener( 'message', function ( event ) {
@@ -212,6 +251,11 @@ jQuery(function($) {
 			bannerHolder.classList.toggle('wpconsent-banner-preview-visible');
 			$(this).toggleClass('wpconsent-button-active');
 			localStorage.setItem('wpconsent-banner-preview-visible', bannerHolder.classList.contains('wpconsent-banner-preview-visible'));
+
+			// Add custom close button if banner is visible
+			if (bannerHolder.classList.contains('wpconsent-banner-preview-visible')) {
+				addCustomCloseButton(bannerHolder);
+			}
 		}
 	});
 
@@ -224,6 +268,7 @@ jQuery(function($) {
 			const bannerHolder = shadowRoot.querySelector('#wpconsent-banner-holder');
 			if (bannerHolder) {
 				bannerHolder.classList.add('wpconsent-banner-preview-visible');
+				addCustomCloseButton(bannerHolder);
 			}
 		}
 	}
@@ -241,6 +286,12 @@ jQuery(function($) {
 				}
 				localStorage.setItem('wpconsent-banner-preview-visible', 'false');
 			});
+		} else {
+			// If the close button is not present (disabled in settings), add a custom close button to the banner holder
+			const bannerHolder = shadowRoot.querySelector('#wpconsent-banner-holder');
+			if (bannerHolder) {
+				addCustomCloseButton(bannerHolder);
+			}
 		}
 	}
 });

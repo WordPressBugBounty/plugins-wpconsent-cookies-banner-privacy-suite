@@ -144,6 +144,7 @@ class WPConsentServiceManagement {
 			.replace( /{{description}}/g, response.description )
 			.replace( /{{service_id}}/g, response.cookie_id )
 			.replace( /{{service_url}}/g, response.service_url )
+			.replace( /{{id}}/g, response.cookie_id );
 
 		cookiesList.insertAdjacentHTML( 'beforeend', newRow );
 
@@ -166,5 +167,23 @@ class WPConsentServiceManagement {
 
 // Initialize when DOM is ready
 document.addEventListener( 'DOMContentLoaded', () => {
-	new WPConsentServiceManagement();
+	const mgr = new WPConsentServiceManagement();
+
+	// Listen for service added from library
+	document.addEventListener('wpconsent:service-added', (e) => {
+		mgr.addServiceToList(e.detail);
+
+		// Add cookies if they exist
+		if (e.detail.cookies && e.detail.cookies.length > 0) {
+			// Create an instance of the cookie management class
+			const cookieMgr = new WPConsentCookieManagement();
+
+			// Add each cookie to the list
+			e.detail.cookies.forEach(cookie => {
+				// Add service_id to the cookie data so it can be properly associated with the service
+				cookie.service_id = e.detail.id;
+				cookieMgr.addCookieToList(cookie, e.detail.category_id);
+			});
+		}
+	});
 } );

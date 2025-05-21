@@ -1,4 +1,5 @@
-class WPConsentCookieManagement {
+// Make the class available globally
+window.WPConsentCookieManagement = class WPConsentCookieManagement {
 	constructor() {
 		if ( document.getElementById( 'wpconsent-modal-add-cookie' ) ) {
 			this.modal = new WPConsentModalForm( 'wpconsent-modal-add-cookie' );
@@ -137,7 +138,16 @@ class WPConsentCookieManagement {
 			`.wpconsent-accordion-item [data-category-id="${categoryId}"]`
 		).closest( '.wpconsent-accordion-item' )
 		                            .querySelector( '.wpconsent-cookies-list' ).querySelector( '.wpconsent-cookie-header' );
-		let serviceElement = document.querySelector( '.wpconsent-service-item[data-service-id="'+response.category_id+'"] .wpconsent-cookies-list' );
+
+		// Find the service element by looking for the hidden input with the service ID
+		let serviceElement = null;
+		if (response.service_id) {
+			// Try to find the service by its ID stored in the hidden input
+			const serviceItem = document.querySelector(`.wpconsent-service-item .wpconsent-service-id[value="${response.service_id}"]`);
+			if (serviceItem) {
+				serviceElement = serviceItem.closest('.wpconsent-service-item').querySelector('.wpconsent-cookies-list');
+			}
+		}
 
 		const template = document.getElementById( 'wpconsent-new-cookie-row' ).innerHTML;
 		const newRow = template
@@ -181,6 +191,7 @@ class WPConsentCookieManagement {
 				const header = accordion.querySelector( '.wpconsent-accordion-header' );
 				const content = accordion.querySelector( '.wpconsent-accordion-content' );
 				const toggleButton = accordion.querySelector( '.wpconsent-accordion-toggle' );
+				const tableHeader = content ? content.querySelector( '.wpconsent-cookie-header' ) : null;
 
 				// Open the first accordion item by default
 				if ( index === 0 ) {
@@ -192,7 +203,8 @@ class WPConsentCookieManagement {
 					this.maybe_hide_header();
 				}
 
-				header.addEventListener( 'click', ( e ) => {
+				// Function to toggle the accordion
+				const toggleAccordion = (e) => {
 					// Don't toggle if clicking on buttons inside the header
 					if ( e.target.closest( '.wpconsent-button' ) ) {
 						return;
@@ -223,7 +235,20 @@ class WPConsentCookieManagement {
 					} else {
 						content.style.maxHeight = null;
 					}
-				} );
+				};
+
+				// Add click event to the accordion header
+				header.addEventListener( 'click', toggleAccordion );
+
+				// Add click event to the table header if it exists
+				if ( tableHeader ) {
+					tableHeader.addEventListener( 'click', (e) => {
+						// If the accordion is not already active, toggle it
+						if ( !accordion.classList.contains( 'active' ) ) {
+							toggleAccordion(e);
+						}
+					});
+				}
 			} );
 		} );
 	}

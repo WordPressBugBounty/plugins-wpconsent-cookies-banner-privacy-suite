@@ -8,6 +8,7 @@ const WPConsentInputs = window.WPConsentInputs || (
 				app.initCheckbox();
 				app.initShowHidden();
 				app.itemToggle();
+				app.initFileUploads();
 			},
 			initCheckbox() {
 				$( document ).on(
@@ -51,6 +52,48 @@ const WPConsentInputs = window.WPConsentInputs || (
 					const checkbox = $( this ).find( 'input[type="checkbox"]' );
 					checkbox.prop( 'checked', !checkbox.prop( 'checked' ) ).trigger( 'change' );
 				} );
+			},
+			initFileUploads() {
+				$( '.wpconsent-file-upload' ).each(
+					function () {
+						const $input = $( this ).find( 'input[type=file]' ),
+							$label   = $( this ).find( 'label' ),
+							$placeholder = $label.find( '.placeholder' );
+
+						$input.on(
+							'change',
+							function ( event ) {
+								let fileName = '';
+								if ( this.files && this.files.length > 1 ) {
+									fileName = (
+										this.getAttribute( 'data-multiple-caption' ) || ''
+									).replace( '{count}', this.files.length );
+								} else if ( event.target.value ) {
+									fileName = event.target.value.split( '\\' ).pop();
+								}
+
+								if ( fileName ) {
+									$placeholder.html( fileName );
+								} else {
+									$placeholder.html( 'No file chosen' );
+								}
+							}
+						);
+
+						// Firefox bug fix.
+						$input.on(
+							'focus',
+							function () {
+								$input.addClass( 'has-focus' );
+							}
+						).on(
+							'blur',
+							function () {
+								$input.removeClass( 'has-focus' );
+							}
+						);
+					}
+				);
 			},
 		};
 		return app;
