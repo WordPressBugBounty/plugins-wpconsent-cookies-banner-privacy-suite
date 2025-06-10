@@ -14,3 +14,9 @@
 	transition: background-color 0.3s;
 	display: none;
 }
+
+
+.wpconsent-consent-floating-button img {
+	width: 24px;
+	height: 24px;
+}

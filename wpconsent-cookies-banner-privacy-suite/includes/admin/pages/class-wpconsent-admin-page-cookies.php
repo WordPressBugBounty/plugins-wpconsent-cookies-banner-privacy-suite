@@ -135,14 +135,12 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		// Handle import.
 		if ( isset( $_POST['wpconsent_import'] ) ) {
 			$this->handle_import();
-
 			return;
 		}
 
 		// Handle export.
 		if ( isset( $_POST['wpconsent_export'] ) ) {
 			$this->handle_export();
-
 			return;
 		}
 
@@ -154,6 +152,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'google_consent_mode'               => ( isset( $_POST['google_consent_mode'] ) && isset( $_POST['google_consent_mode'] ) ) ? 1 : 0,
 			'enable_consent_floating'           => isset( $_POST['enable_consent_floating'] ) ? 1 : 0,
 			'default_allow'                     => isset( $_POST['default_allow'] ) ? 1 : 0,
+			'manual_toggle_services'            => isset( $_POST['manual_toggle_services'] ) ? 1 : 0,
 			'consent_duration'                  => isset( $_POST['consent_duration'] ) ? intval( $_POST['consent_duration'] ) : 30,
 			'enable_content_blocking'           => isset( $_POST['enable_content_blocking'] ) ? 1 : 0,
 			'content_blocking_services'         => isset( $_POST['content_blocking_services'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['content_blocking_services'] ) ) : array(),
@@ -202,7 +201,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	 * Get settings for export.
 	 *
 	 * @param array $all_options All plugin options.
-	 *
 	 * @return array
 	 */
 	protected function get_settings_for_export( $all_options ) {
@@ -225,7 +223,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	 * Get banner design settings for export.
 	 *
 	 * @param array $all_options All plugin options.
-	 *
 	 * @return array
 	 */
 	protected function get_banner_design_for_export( $all_options ) {
@@ -233,7 +230,12 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 
 		foreach ( $this->get_banner_settings_keys() as $setting ) {
 			if ( isset( $all_options[ $setting ] ) ) {
-				$banner_data[ $setting ] = $all_options[ $setting ];
+				// If this is the consent_floating_icon setting and it's a URL (custom image)
+				if ( $setting === 'consent_floating_icon' && filter_var( $all_options[ $setting ], FILTER_VALIDATE_URL ) ) {
+					$banner_data[ $setting ] = 'preferences';
+				} else {
+					$banner_data[ $setting ] = $all_options[ $setting ];
+				}
 			}
 		}
 
@@ -296,7 +298,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	 * Get cookie export data.
 	 *
 	 * @param array $cookie Cookie data.
-	 *
 	 * @return array
 	 */
 	protected function get_cookie_export_data( $cookie ) {
@@ -351,6 +352,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'cookie_table_header_description',
 			'cookie_table_header_duration',
 			'cookie_table_header_category',
+			'consent_floating_icon',
 		);
 	}
 
@@ -582,9 +584,9 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			$banner_design = $import_data['banner_design'];
 			foreach ( $banner_design as $key => $value ) {
 				if ( is_array( $value ) ) {
-					$banner_design[ $key ] = array_map( 'sanitize_text_field', $value );
+					$banner_design[ $key ] = array_map( 'wp_kses_post', $value );
 				} else {
-					$banner_design[ $key ] = sanitize_text_field( $value );
+					$banner_design[ $key ] = wp_kses_post( $value );
 				}
 			}
 
@@ -614,6 +616,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 					}
 				} else {
 					$category_id = $category->term_id;
+
+					// Update category name and description if it already exists
+					wpconsent()->cookies->update_category(
+						$category_id,
+						sanitize_text_field( $category_data['name'] ),
+						wp_kses_post( $category_data['description'] )
+					);
 				}
 
 				// Update category meta.
@@ -870,6 +879,16 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				)
 			),
 			'default_allow'
+		);
+
+		$this->metabox_row(
+			esc_html__( 'Toggle Services', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'manual_toggle_services' ),
+				'manual_toggle_services',
+				esc_html__( 'Allow site visitors to toggle individual services from the preferences panel.', 'wpconsent-cookies-banner-privacy-suite' )
+			),
+			'manual_toggle_services'
 		);
 
 		$this->metabox_row_separator();
@@ -1279,7 +1298,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	 * Get the service library button HTML.
 	 *
 	 * @param array $category The category data.
-	 *
 	 * @return string The button HTML.
 	 */
 	public function get_service_library_button( $category ) {

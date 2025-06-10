@@ -32,7 +32,9 @@ function wpconsent_frontend_scripts() {
 		return;
 	}
 
-	$default_allow = boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
+	$default_allow          = boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
+	$manual_toggle_services = boolval( wpconsent()->settings->get_option( 'manual_toggle_services', 0 ) );
+	$slugs                  = $manual_toggle_services ? wpconsent()->cookies->get_preference_slugs() : array( 'essential', 'statistics', 'marketing' );
 
 	wp_enqueue_script( 'wpconsent-frontend-js', WPCONSENT_PLUGIN_URL . 'build/frontend.js', $asset['dependencies'], $asset['version'], true );
 
@@ -42,11 +44,13 @@ function wpconsent_frontend_scripts() {
 		apply_filters(
 			'wpconsent_frontend_js_data',
 			array(
-				'consent_duration' => wpconsent()->settings->get_option( 'consent_duration', 30 ),
-				'css_url'          => WPCONSENT_PLUGIN_URL . 'build/frontend.css',
-				'css_version'      => $asset['version'],
-				'default_allow'    => $default_allow,
-				'consent_type'     => $default_allow ? 'optout' : 'optin',
+				'consent_duration'       => wpconsent()->settings->get_option( 'consent_duration', 30 ),
+				'css_url'                => WPCONSENT_PLUGIN_URL . 'build/frontend.css',
+				'css_version'            => $asset['version'],
+				'default_allow'          => $default_allow,
+				'consent_type'           => $default_allow ? 'optout' : 'optin',
+				'manual_toggle_services' => $manual_toggle_services,
+				'slugs'                  => $slugs,
 			)
 		)
 	);

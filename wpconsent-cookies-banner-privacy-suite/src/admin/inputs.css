@@ -890,22 +890,26 @@ label {
 	border: 1px solid var(--wpconsent-border-color);
 	border-radius: 4px;
 	padding: 8px;
-	
+
 	&::-webkit-scrollbar {
 		width: 8px;
 	}
-	
+
 	&::-webkit-scrollbar-track {
 		background: var(--wpconsent-background-white);
 		border-radius: 4px;
 	}
-	
+
 	&::-webkit-scrollbar-thumb {
 		background: #ccc;
 		border-radius: 4px;
-		
+
 		&:hover {
 			background: #999;
 		}
 	}
+}
+
+.wpconsent-admin-content-section-dnt-export {
+	min-height: 600px;
 }

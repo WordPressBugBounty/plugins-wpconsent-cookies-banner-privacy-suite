@@ -635,5 +635,43 @@ class WPConsent_Cookies {
 		delete_transient( 'wpconsent_needs_google_consent' );
 		// Delete transient wpconsent_cookies.
 		delete_transient( 'wpconsent_preference_cookies' );
+		// Delete transient wpconsent_preference_slugs.
+		delete_transient( 'wpconsent_preference_slugs' );
+	}
+
+	/**
+	 * Get all default categories and their services slugs in a flattened array.
+	 *
+	 * @return array
+	 */
+	public function get_preference_slugs() {
+		$slugs              = array();
+		$default_categories = array( 'essential', 'statistics', 'marketing' );
+
+		// Try to get from cache first
+		$cached_slugs = get_transient( 'wpconsent_preference_slugs' );
+		if ( false !== $cached_slugs ) {
+			return $cached_slugs;
+		}
+
+		$categories = $this->get_categories();
+
+		foreach ( $categories as $category_slug => $category ) {
+			if ( in_array( $category_slug, $default_categories, true ) ) {
+				$slugs[] = $category_slug;
+
+				$services = $this->get_services_by_category( $category['id'] );
+				if ( ! empty( $services ) ) {
+					foreach ( $services as $service ) {
+						$service_slug = sanitize_title( $service['name'] );
+						$slugs[]      = $service_slug;
+					}
+				}
+			}
+		}
+
+		set_transient( 'wpconsent_preference_slugs', $slugs, DAY_IN_SECONDS );
+
+		return $slugs;
 	}
 }

@@ -492,6 +492,79 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			?>
 		</div>
 		<?php
+		if ( wpconsent()->settings->get_option( 'enable_consent_floating' ) ) {
+			$this->metabox_row_separator();
+
+			$this->metabox_row(
+				esc_html__( 'Floating Settings Button Design', 'wpconsent-cookies-banner-privacy-suite' ),
+				'<span class="wpconsent-input-area-description">' . esc_html__( 'Customize the appearance of the floating settings button that appears on your website.', 'wpconsent-cookies-banner-privacy-suite' ) . '</span>'
+			);
+			?>
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label><?php esc_html_e( 'Button Icon', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<?php
+					$background_color = wpconsent()->settings->get_option( 'banner_background_color', '#FFFFFF' );
+					$text_color       = wpconsent()->settings->get_option( 'banner_text_color', '#000000' );
+					$css_vars         = sprintf(
+						'--wpconsent-floating-button-bg: %s; --wpconsent-floating-button-color: %s;',
+						esc_attr( $background_color ),
+						esc_attr( $text_color )
+					);
+					?>
+					<div class="wpconsent-floating-button-grid" style="<?php echo esc_attr( $css_vars ); ?>">
+						<input type="hidden" name="consent_floating_icon" id="consent_floating_icon" value="<?php echo esc_attr( wpconsent()->settings->get_option( 'consent_floating_icon', 'preferences' ) ); ?>">
+						<div class="wpconsent-floating-button-preview" data-icon="custom" id="floating-icon-custom">
+							<?php
+							$icon_value = wpconsent()->settings->get_option( 'consent_floating_icon', 'preferences' );
+							if ( filter_var( $icon_value, FILTER_VALIDATE_URL ) ) {
+								echo '<img src="' . esc_url( $icon_value ) . '" alt="' . esc_attr__( 'Cookie Settings', 'wpconsent-cookies-banner-privacy-suite' ) . '">';
+							}
+							?>
+							<button type="button" class="wpconsent-media-upload-button">
+								<span><?php esc_html_e( 'Your Image', 'wpconsent-cookies-banner-privacy-suite' ); ?></span>
+							</button>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="preferences" id="floating-icon-preferences">
+							<?php wpconsent_icon( 'preferences', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="settings" id="floating-icon-settings">
+							<?php wpconsent_icon( 'settings', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="cookie-icon" id="floating-icon-cookie-icon">
+							<?php wpconsent_icon( 'cookie-icon', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="cookie-off" id="floating-icon-cookie-off">
+							<?php wpconsent_icon( 'cookie-off', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="lock-icon" id="floating-icon-lock-icon">
+							<?php wpconsent_icon( 'lock-icon', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="shield" id="floating-icon-shield">
+							<?php wpconsent_icon( 'shield', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="policy" id="floating-icon-policy">
+							<?php wpconsent_icon( 'policy', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="list" id="floating-icon-list">
+							<?php wpconsent_icon( 'list', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="wrench" id="floating-icon-wrench">
+							<?php wpconsent_icon( 'wrench', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="tune" id="floating-icon-tune">
+							<?php wpconsent_icon( 'tune', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+						<div class="wpconsent-floating-button-preview" data-icon="pencil" id="floating-icon-pencil">
+							<?php wpconsent_icon( 'pencil', 24, 24, '0 -960 960 960', $text_color ); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php
+		}
 	}
 
 	/**
@@ -526,7 +599,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 		);
 		$this->metabox_row_separator();
 
-		// Add a title for the preferences panel section
+		// Add a title for the preferences panel section.
 		echo '<h2 class="wpconsent-preferences-section-title">' . esc_html__( 'Preferences Panel Settings', 'wpconsent-cookies-banner-privacy-suite' ) . '</h2>';
 
 		// Preferences Panel Settings - Accordion.
@@ -607,6 +680,17 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			'close_button_text'
 		);
 
+		$this->metabox_row(
+			esc_html__( 'Service URL Label', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_table_header_service_url',
+				wpconsent()->settings->get_option( 'cookie_table_header_service_url', esc_html__( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				esc_html__( 'The label text for the Service URL in the cookie table.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_table_header_service_url'
+			),
+			'cookie_table_header_service_url'
+		);
+
 		echo '</div>'; // .wpconsent-accordion-content
 		echo '</div>'; // .wpconsent-accordion-item
 
@@ -651,17 +735,6 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				'cookie_table_header_duration'
 			),
 			'cookie_table_header_duration'
-		);
-
-		$this->metabox_row(
-			esc_html__( 'Service URL Header', 'wpconsent-cookies-banner-privacy-suite' ),
-			$this->get_input_text(
-				'cookie_table_header_service_url',
-				wpconsent()->settings->get_option( 'cookie_table_header_service_url', esc_html__( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) ),
-				esc_html__( 'The header text for the Service URL column in the cookie table.', 'wpconsent-cookies-banner-privacy-suite' ),
-				'cookie_table_header_service_url'
-			),
-			'cookie_table_header_service_url'
 		);
 
 		echo '</div>'; // .wpconsent-accordion-content
@@ -782,6 +855,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				$banner_cancel_color      = isset( $_POST['banner_cancel_color'] ) ? sanitize_text_field( wp_unslash( $_POST['banner_cancel_color'] ) ) : false;
 				$banner_preferences_bg    = isset( $_POST['banner_preferences_bg'] ) ? sanitize_text_field( wp_unslash( $_POST['banner_preferences_bg'] ) ) : false;
 				$banner_preferences_color = isset( $_POST['banner_preferences_color'] ) ? sanitize_text_field( wp_unslash( $_POST['banner_preferences_color'] ) ) : false;
+				$consent_floating_icon    = isset( $_POST['consent_floating_icon'] ) ? sanitize_text_field( wp_unslash( $_POST['consent_floating_icon'] ) ) : 'preferences';
 
 				$current_view = 'style';
 
@@ -798,6 +872,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 					'banner_cancel_color'      => $banner_cancel_color,
 					'banner_preferences_bg'    => $banner_preferences_bg,
 					'banner_preferences_color' => $banner_preferences_color,
+					'consent_floating_icon'    => $consent_floating_icon,
 				);
 			}
 

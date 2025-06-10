@@ -634,6 +634,8 @@ input[type="checkbox"]:focus,
 	height: 20px;
 	position: relative;
 	width: 36px;
+	will-change: transform;
+	transform-origin: left center;
 
 	input {
 		opacity: 0;
@@ -647,6 +649,7 @@ input[type="checkbox"]:focus,
 
 				&:before {
 					transform: translateX(16px);
+					will-change: transform;
 				}
 			}
 		}
@@ -676,6 +679,7 @@ input[type="checkbox"]:focus,
 		top: 0;
 		-webkit-transition: .4s;
 		transition: .4s;
+		will-change: background-color;
 
 		&:before {
 			background-color: white;
@@ -688,6 +692,7 @@ input[type="checkbox"]:focus,
 			-webkit-transition: .4s;
 			transition: .4s;
 			width: 14px;
+			will-change: transform;
 		}
 	}
 
@@ -710,6 +715,15 @@ input[type="checkbox"]:focus,
 	flex-direction: column;
 }
 
+.wpconsent-cookie-service {
+	margin-left: 20px;
+	position: relative;
+}
+
+.wpconsent-cookie-service .wpconsent-preferences-accordion-header {
+	padding: 16px 0; /* Slightly smaller padding than category headers */
+}
+
 .wpconsent-preferences-accordion-header {
 	width: 100%;
 	display: flex;
@@ -723,8 +737,13 @@ input[type="checkbox"]:focus,
 	overflow: hidden;
 	transition: max-height 0.3s ease-out;
 	font-size: 14px;
-	opacity: .8;
+	will-change: max-height;
+
+	a {
+		color: inherit;
+	}
 }
+
 .wpconsent-preferences-accordion-toggle {
 	background: none;
 	border: none;
@@ -744,17 +763,19 @@ input[type="checkbox"]:focus,
 	top: -3px;
 	transform: rotate(45deg);
 	-webkit-transform: rotate(45deg);
-	transition: transform 0.2s ease;
+	transition: transform 0.3s ease-out;
 }
 
-.wpconsent-preferences-accordion-item.active .wpconsent-preferences-accordion-arrow {
+.wpconsent-preferences-accordion-item.active > .wpconsent-preferences-accordion-header .wpconsent-preferences-accordion-arrow {
     transform: rotate(-135deg);
     -webkit-transform: rotate(-135deg);
-	top: 2px;
+    top: 2px;
 }
 
-.wpconsent-preferences-accordion-item.active .wpconsent-preferences-accordion-content {
-    max-height: 1000px;
+/* Only show content for directly active accordion items */
+.wpconsent-preferences-accordion-item.active > .wpconsent-preferences-accordion-content {
+    max-height: 2000px;
+    transition: max-height 0.3s ease-in;
 }
 
 /* cookies list */
@@ -763,7 +784,7 @@ input[type="checkbox"]:focus,
 	.wpconsent-preferences-list-header,
 	.wpconsent-preferences-list-item {
 		display: grid;
-		grid-template-columns: 1fr 3fr 1fr 1fr;
+		grid-template-columns: 1fr 4fr 1fr;
 		gap: 15px;
 		padding: 14px;
 		align-items: center;
@@ -772,13 +793,9 @@ input[type="checkbox"]:focus,
 		font-size: 14px;
 	}
 
-	.cookie-url a {
-		color: var(--wpconsent-accept-bg);
-		text-decoration: none;
-
-		&:hover {
-			text-decoration: underline;
-		}
+	.wpconsent-service-url {
+		margin: 10px 0;
+		font-size: 14px;
 	}
 
 	.wpconsent-preferences-list-item:last-child {

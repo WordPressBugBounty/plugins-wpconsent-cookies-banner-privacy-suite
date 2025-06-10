@@ -231,7 +231,7 @@ class WPConsent_Banner {
 	 * @return string
 	 */
 	public function get_banner_top_buttons() {
-		// Check if close button is disabled in settings
+		// Check if close button is disabled in settings.
 		if ( wpconsent()->settings->get_option( 'disable_close_button' ) ) {
 			return '';
 		}
@@ -314,6 +314,7 @@ class WPConsent_Banner {
 				$html .= '<label class="wpconsent-preferences-checkbox-toggle wpconsent-preferences-checkbox-toggle-disabled">';
 				$html .= '<input type="checkbox" id="cookie-category-' . esc_attr( $category_slug ) . '" checked disabled>';
 				$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
+				$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
 			} else {
 				$html .= '<label class="wpconsent-preferences-checkbox-toggle">';
 				$html .= '<input type="checkbox" id="cookie-category-' . esc_attr( $category_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $category_slug ) . '" ' . ( $category['required'] ? 'checked disabled' : '' ) . '>';
@@ -325,7 +326,7 @@ class WPConsent_Banner {
 
 			$html .= '<div class="wpconsent-preferences-accordion-content">';
 			$html .= '<p tabindex="0">' . wp_kses_post( $category['description'] ) . '</p>';
-			$html .= $this->get_cookies_table_by_category( $cookies );
+			$html .= $this->get_cookies_content_by_category( $cookies, $category['name'], $category_slug );
 			$html .= '</div>'; // .wpconsent-preferences-accordion-content
 
 			$html .= '</div>'; // .wpconsent-cookie-category
@@ -364,9 +365,7 @@ class WPConsent_Banner {
 					'<a href="' . esc_url( $cookie_policy_page_url ) . '">' . esc_html__( 'Cookie Policy', 'wpconsent-cookies-banner-privacy-suite' ) . '</a>'
 				);
 			}
-			$html .= '<span class="cookie-url">';
 			$html .= wp_kses_post( $this->maybe_replace_smart_tags( wpconsent()->settings->get_option( 'cookie_policy_text', $default_cookie_policy_text ) ) );
-			$html .= '</span>'; // .cookie-url
 			$html .= '</p>';
 			$html .= '</div>'; // .wpconsent-preferences-accordion-content
 			$html .= '</div>'; // .wpconsent-cookie-category
@@ -412,38 +411,130 @@ class WPConsent_Banner {
 		if ( false === $cookies ) {
 			$categories = wpconsent()->cookies->get_categories();
 			$cookies    = array();
+
 			foreach ( $categories as $category ) {
 				$category_id             = $category['id'];
-				$cookies[ $category_id ] = array();
+				$cookies[ $category_id ] = array(
+					'cookies'  => array(),
+					'services' => array(),
+				);
 
 				$category_cookies = wpconsent()->cookies->get_cookies_by_category( $category_id );
 				$services         = wpconsent()->cookies->get_services_by_category( $category_id );
-				if ( ! empty( $services ) ) {
-					foreach ( $category_cookies as &$cookie ) {
-						foreach ( $services as $service ) {
-							// Get cookies specifically for this service.
-							$service_cookies = wpconsent()->cookies->get_cookies_by_service( $service['id'] );
 
-							// Check if this cookie is included in the service's cookies.
-							foreach ( $service_cookies as $service_cookie ) {
-								if ( $service_cookie['id'] === $cookie['id'] ) {
-									// This cookie belongs to this service, add the service URL.
-									if ( ! empty( $service['service_url'] ) ) {
-										$cookie['service_url'] = $service['service_url'];
-										break 2;
-									}
+				if ( ! empty( $category_cookies ) ) {
+					foreach ( $category_cookies as $cookie ) {
+						// Let's skip here the cookies that are not associated with this category directly and are associated with a service.
+						if ( ! in_array( $category_id, $cookie['categories'], true ) ) {
+							continue;
+						}
+						// Add cookie to the category's cookie array.
+						$cookies[ $category_id ]['cookies'][] = $cookie;
+					}
+				}
+
+				// Process services and their cookies.
+				if ( ! empty( $services ) ) {
+					foreach ( $services as $service ) {
+						$service_slug = sanitize_title( $service['name'] );
+						$cookies[ $category_id ]['services'][ $service_slug ] = array(
+							'name'        => $service['name'],
+							'description' => $service['description'],
+							'service_url' => $service['service_url'],
+							'cookies'     => array(),
+						);
+
+						// We already loaded all the cookies for this category so we need to simply add the ones for this service.
+						if ( ! empty( $category_cookies ) ) {
+							foreach ( $category_cookies as $cookie_for_service ) {
+								if ( ! in_array( $service['id'], $cookie_for_service['categories'], true ) ) {
+									continue;
 								}
+								$cookies[ $category_id ]['services'][ $service_slug ]['cookies'][] = $cookie_for_service;
 							}
 						}
 					}
 				}
-				$cookies[ $category_id ] = $category_cookies;
 			}
 			// Cache for 24 hours.
 			set_transient( $cache_key, $cookies, DAY_IN_SECONDS );
 		}
 
 		return $cookies;
+	}
+
+	/**
+	 * Generate the cookies accordioncontent for a category
+	 *
+	 * @param array  $cookies The cookies array for each category to display.
+	 * @param string $category_name The name of the category.
+	 * @param string $category_slug The slug of the category.
+	 *
+	 * @return string
+	 */
+	private function get_cookies_content_by_category( $cookies, $category_name = '', $category_slug = '' ) {
+		if ( empty( $cookies ) ) {
+			return '';
+		}
+
+		$html = '';
+
+		if ( ! empty( $cookies['cookies'] ) ) {
+			$html .= $this->get_cookies_table_by_category( $cookies['cookies'] );
+		}
+
+		// First display services and their cookies.
+		if ( ! empty( $cookies['services'] ) ) {
+			foreach ( $cookies['services'] as $service_slug => $service ) {
+				$html .= '<div class="wpconsent-preferences-accordion-item wpconsent-cookie-service">';
+				$html .= '<div class="wpconsent-preferences-accordion-header">';
+				$html .= '<div class="wpconsent-cookie-category-text">';
+				$html .= '<button class="wpconsent-preferences-accordion-toggle">';
+				$html .= '<span class="wpconsent-preferences-accordion-arrow"></span>';
+				$html .= '</button>';  // .wpconsent-preferences-accordion-toggle
+				$html .= '<label>' . esc_html( $service['name'] ) . '</label>';
+				$html .= '</div>'; // .wpconsent-cookie-category-text
+				$html .= '<div class="wpconsent-cookie-category-checkbox">';
+
+				if ( wpconsent()->settings->get_option( 'manual_toggle_services', false ) ) {
+					if ( 'essential' === $category_slug ) {
+						$html .= '<label class="wpconsent-preferences-checkbox-toggle wpconsent-preferences-checkbox-toggle-disabled">';
+						$html .= '<input type="checkbox" id="cookie-service-' . esc_attr( $service_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $service_slug ) . '" checked disabled>';
+						$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
+						$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
+					} else {
+						$html .= '<label class="wpconsent-preferences-checkbox-toggle">';
+						$html .= '<input type="checkbox" id="cookie-service-' . esc_attr( $service_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $service_slug ) . '">';
+						$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
+						$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
+					}
+				}
+
+				$html .= '</div>'; // .wpconsent-cookie-category-checkbox
+				$html .= '</div>'; // .wpconsent-preferences-accordion-header
+
+				$html .= '<div class="wpconsent-preferences-accordion-content">';
+				if ( ! empty( $service['description'] ) ) {
+					$html .= '<p tabindex="0">' . wp_kses_post( $service['description'] ) . '</p>';
+				}
+				// Add service URL to description if it exists.
+				if ( ! empty( $service['service_url'] ) ) {
+					$service_url_label = wpconsent()->settings->get_option( 'cookie_table_header_service_url', esc_html__( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) );
+
+					$html .= '<p tabindex="0" class="wpconsent-service-url">' . sprintf(
+						/* translators: %1$s: Service URL label, %2$s: Service URL */
+						esc_html__( '%1$s: %2$s', 'wpconsent-cookies-banner-privacy-suite' ),
+						esc_html( $service_url_label ),
+						'<a href="' . esc_url( $service['service_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( wp_parse_url( $service['service_url'], PHP_URL_HOST ) ) . '</a>'
+					) . '</p>';
+				}
+				$html .= $this->get_cookies_table_by_category( $service['cookies'] );
+				$html .= '</div>'; // .wpconsent-preferences-accordion-content
+				$html .= '</div>'; // .wpconsent-cookie-service
+			}
+		}
+
+		return $html;
 	}
 
 	/**
@@ -464,7 +555,6 @@ class WPConsent_Banner {
 		$html .= '<div class="cookie-name">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_name', __( 'Name', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
 		$html .= '<div class="cookie-desc">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_description', __( 'Description', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
 		$html .= '<div class="cookie-duration">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_duration', __( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
-		$html .= '<div class="cookie-url">' . esc_html( wpconsent()->settings->get_option( 'cookie_table_header_service_url', __( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ) ) ) . '</div>';
 		$html .= '</div>'; // .wpconsent-preferences-list-header
 
 		foreach ( $cookies as $cookie ) {
@@ -472,13 +562,6 @@ class WPConsent_Banner {
 			$html .= '<div class="cookie-name">' . esc_html( $cookie['name'] ) . '</div>';
 			$html .= '<div class="cookie-desc">' . wp_kses_post( $cookie['description'] ) . '</div>';
 			$html .= '<div class="cookie-duration">' . esc_html( ! empty( $cookie['duration'] ) ? $cookie['duration'] : '-' ) . '</div>';
-			$html .= '<div class="cookie-url">';
-			if ( ! empty( $cookie['service_url'] ) ) {
-				$html .= '<a href="' . esc_url( $cookie['service_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( wp_parse_url( $cookie['service_url'], PHP_URL_HOST ) ) . '</a>';
-			} else {
-				$html .= '-';
-			}
-			$html .= '</div>'; // .cookie-url
 			$html .= '</div>'; // .wpconsent-preferences-list-item
 		}
 
@@ -526,13 +609,21 @@ class WPConsent_Banner {
 		$colors = $this->get_color_settings();
 		$style  = 'background-color: ' . esc_attr( $colors['background'] ) . '; color: ' . esc_attr( $colors['text'] ) . ';';
 		echo '<button id="wpconsent-consent-floating" class="wpconsent-consent-floating-button" part="wpconsent-settings-button" style="' . esc_attr( $style ) . '" aria-label="' . esc_attr__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ) . '">';
-		echo wp_kses(
-			apply_filters(
-				'wpconsent_preferences_icon',
-				wpconsent_get_icon( 'preferences', 24, 24, '0 -960 960 960', $colors['text'] )
-			),
-			wpconsent_get_icon_allowed_tags()
-		);
+
+		$icon_value = wpconsent()->settings->get_option( 'consent_floating_icon', 'preferences' );
+
+		if ( filter_var( $icon_value, FILTER_VALIDATE_URL ) ) {
+			echo '<img src="' . esc_url( $icon_value ) . '" alt="' . esc_attr__( 'Cookie Settings', 'wpconsent-cookies-banner-privacy-suite' ) . '">';
+		} else {
+			echo wp_kses(
+				apply_filters(
+					'wpconsent_preferences_icon',
+					wpconsent_get_icon( $icon_value, 24, 24, '0 -960 960 960', $colors['text'] )
+				),
+				wpconsent_get_icon_allowed_tags()
+			);
+		}
+
 		echo '</button>';
 	}
 

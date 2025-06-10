@@ -56,6 +56,7 @@ class WPConsent_Admin_Page_Loader {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-onboarding.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-geolocation.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-consent-logs.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-do-not-track.php';
 	}
 
 	/**
@@ -141,6 +142,7 @@ class WPConsent_Admin_Page_Loader {
 		$this->pages['geolocation']  = 'WPConsent_Admin_Page_Geolocation';
 		$this->pages['consent_logs'] = 'WPConsent_Admin_Page_Consent_Logs';
 		$this->pages['onboarding']   = 'WPConsent_Admin_Page_Onboarding';
+		$this->pages['do_not_track'] = 'WPConsent_Admin_Page_Do_Not_Track';
 	}
 
 	/**

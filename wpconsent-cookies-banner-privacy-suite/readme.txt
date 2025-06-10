@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,15 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+= 1.0.8 =
+* New: You can now allow users to manage their consent per individual services in the preferences panel.
+* New: Added an option to easily change the icon for the preferences panel button shown after consent is saved.
+* Fix: Links were being stripped out from the banner message when performing an import.
+
+= 1.0.7.1 =
+* Fix: Fixed an issue with the import not updating categories correctly.
+* Tweak: The import process was not allowing HTML tags in the banner message.
 
 = 1.0.7 =
 * New: We added an Export/Import feature on the Settings page so that you can move the WPConsent configuration to another site. You can choose what to include in the export: Settings, Banner Design or Cookie Data.

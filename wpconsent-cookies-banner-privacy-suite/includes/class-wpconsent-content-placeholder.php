@@ -79,7 +79,7 @@ class WPConsent_Content_Placeholder {
 		$thumbnail_html = $this->get_thumbnail_html( $service_name, $src );
 
 		return sprintf(
-			'<div class="wpconsent-iframe-placeholder wpconsent-iframe-placeholder-%1$s" data-wpconsent-category="%2$s">%3$s%4$s%5$s</div>',
+			'<div class="wpconsent-iframe-placeholder wpconsent-iframe-placeholder-%1$s" data-wpconsent-name="%1$s" data-wpconsent-category="%2$s">%3$s%4$s%5$s</div>',
 			esc_attr( $service_name ),
 			esc_attr( $category ),
 			$thumbnail_html,
@@ -188,7 +188,6 @@ class WPConsent_Content_Placeholder {
 		if ( isset( $categories[ $category ] ) ) {
 			$category_name = $categories[ $category ]['name'];
 		}
-
 
 		$button_text = sprintf(
 		/* translators: %s: The category name (e.g., analytics, marketing) */

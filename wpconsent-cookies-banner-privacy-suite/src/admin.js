@@ -23,3 +23,4 @@ import './admin/script-blocking.js';
 import './admin/upsells.js';
 import './admin/manual-scan-input.js';
 import './admin/import-confirm.js';
+import './admin/banner-admin.js';
