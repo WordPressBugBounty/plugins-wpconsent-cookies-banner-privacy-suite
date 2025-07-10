@@ -436,21 +436,29 @@ class WPConsent_Cookies {
 	 * @param string       $service_name The service name.
 	 * @param string       $service_description The service description.
 	 * @param string|false $service_url The service URL (optional) - this is usually the privacy policy URL for this specific service.
+	 * @param int|false    $service_category The service category ID (optional) - if not provided, the service will be added to the root category.
 	 *
 	 * @return int|false
 	 */
-	public function update_service( $service_id, $service_name, $service_description = '', $service_url = false ) {
+	public function update_service( $service_id, $service_name, $service_description = '', $service_url = false, $service_category = false ) {
 
 		$updated = apply_filters( 'wpconsent_update_service', false, $service_id, $service_name, $service_description, $service_url );
 
 		if ( ! $updated ) {
+			// if the $service_category is not false, we need to change the parent term.
+			$service_data = array(
+				'name'        => $service_name,
+				'description' => $service_description,
+			);
+
+			if ( false !== $service_category ) {
+				$service_data['parent'] = $service_category;
+			}
+
 			$term = wp_update_term(
 				$service_id,
 				$this->taxonomy,
-				array(
-					'name'        => $service_name,
-					'description' => $service_description,
-				)
+				$service_data
 			);
 		} else {
 			$term = $updated;
@@ -571,6 +579,41 @@ class WPConsent_Cookies {
 	}
 
 	/**
+	 * Get a category by its ID.
+	 *
+	 * @param int $category_id The category ID.
+	 *
+	 * @return array|false
+	 */
+	public function get_category_by_id( $category_id ) {
+		$category = get_term( $category_id, $this->taxonomy );
+		if ( ! $category || is_wp_error( $category ) ) {
+			return false;
+		}
+
+		$category_data = array(
+			'id'          => $category->term_id,
+			'name'        => $category->name,
+			'description' => $category->description,
+			'required'    => ( 'essential' === $category->slug ) ? 1 : get_term_meta( $category->term_id, 'wpconsent_required', true ),
+			'slug'        => $category->slug,
+		);
+
+		return $category_data;
+	}
+
+	/**
+	 * Get a service by its ID.
+	 *
+	 * @param int $service_id The service ID.
+	 *
+	 * @return array|false
+	 */
+	public function get_service_by_id( $service_id ) {
+		return $this->get_category_by_id( $service_id );
+	}
+
+	/**
 	 * Checks if the passed service has been automatically added by our scanner configuration.
 	 *
 	 * @param int|array $service
@@ -648,7 +691,7 @@ class WPConsent_Cookies {
 		$slugs              = array();
 		$default_categories = array( 'essential', 'statistics', 'marketing' );
 
-		// Try to get from cache first
+		// Try to get from cache first.
 		$cached_slugs = get_transient( 'wpconsent_preference_slugs' );
 		if ( false !== $cached_slugs ) {
 			return $cached_slugs;

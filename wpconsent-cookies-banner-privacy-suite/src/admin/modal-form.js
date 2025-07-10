@@ -59,7 +59,19 @@ class WPConsentModalForm {
         Object.keys(data).forEach(key => {
             const field = this.form.querySelector(`[name="${key}"]`);
             if (field) {
-                field.value = data[key];
+                if (field.type === 'radio') {
+                    // For radio buttons, find the one with matching value and check it.
+                    const radioButtons = this.form.querySelectorAll(`[name="${key}"]`);
+                    radioButtons.forEach(radio => {
+                        radio.checked = (radio.value === data[key]);
+                    });
+                } else if (field.type === 'checkbox') {
+                    // For checkboxes, set checked based on truthy value.
+                    field.checked = !!data[key];
+                } else {
+                    // For other field types, set the value.
+                    field.value = data[key];
+                }
             }
         });
     }

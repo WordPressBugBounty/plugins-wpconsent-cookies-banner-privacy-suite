@@ -72,6 +72,9 @@ class WPConsent_Notice {
 
 		// Display notices above the header.
 		add_action( 'wpconsent_admin_page', array( $this, 'display_top' ), 5 );
+
+		// Load registered notices from the database.
+		add_action( 'admin_init', array( $this, 'load_registered_notices' ), 5 );
 	}
 
 	/**
@@ -199,7 +202,7 @@ class WPConsent_Notice {
 			esc_attr( $type_class ),
 			esc_attr( $class ),
 			esc_attr( $id ),
-			$message
+			wp_kses_post( $message )
 		);
 
 		if ( 'top' === $type ) {
@@ -371,5 +374,77 @@ class WPConsent_Notice {
 		update_user_meta( $user_id, 'wpconsent_admin_notices', $notices );
 
 		return $notices;
+	}
+
+	/**
+	 * Load registered notices from the database and add them to the notices array.
+	 */
+	public function load_registered_notices() {
+		// Get all notices from the database.
+		$notices = get_option( 'wpconsent_admin_notices', array() );
+
+		// Get user dismissed notices.
+		$user_dismissed = get_user_meta( get_current_user_id(), 'wpconsent_admin_notices', true );
+		$user_dismissed = is_array( $user_dismissed ) ? $user_dismissed : array();
+
+		foreach ( $notices as $slug => $notice ) {
+			// Skip if notice is dismissed globally.
+			if ( ! empty( $notice['dismissed'] ) ) {
+				continue;
+			}
+
+			// Skip if notice is dismissed by the current user.
+			if ( isset( $user_dismissed[ $slug ] ) && ! empty( $user_dismissed[ $slug ]['dismissed'] ) ) {
+				continue;
+			}
+
+			// Skip if no message is set.
+			if ( empty( $notice['message'] ) ) {
+				continue;
+			}
+
+			// Add the notice to be displayed.
+			$args = isset( $notice['args'] ) ? $notice['args'] : array();
+			$args['slug'] = $slug; // Ensure the slug is set.
+
+			self::add( $notice['message'], $notice['type'], $args );
+		}
+	}
+
+	/**
+	 * Register a notice to be displayed.
+	 *
+	 * @param string $message Message to display.
+	 * @param string $type Type of the notice. Can be [ '' (default) | 'info' | 'error' | 'success' | 'warning' | 'top' ].
+	 * @param array  $args The array of additional arguments. Please see the $defaults array in the add() method.
+	 *
+	 * @return string The ID of the registered notice.
+	 */
+	public static function register_notice( $message, $type = '', $args = [] ) {
+		// Generate a unique ID if not provided.
+		if ( empty( $args['slug'] ) ) {
+			$args['slug'] = 'notice_' . md5( $message . time() . wp_rand() );
+		}
+
+		// Store the notice in the database.
+		$notices = get_option( 'wpconsent_admin_notices', array() );
+
+		// Only store if it doesn't exist or isn't dismissed.
+		if ( ! isset( $notices[ $args['slug'] ] ) || empty( $notices[ $args['slug'] ]['dismissed'] ) ) {
+			$notices[ $args['slug'] ] = array(
+				'time'      => time(),
+				'dismissed' => false,
+				'message'   => $message,
+				'type'      => $type,
+				'args'      => $args,
+			);
+
+			update_option( 'wpconsent_admin_notices', $notices, true );
+		}
+
+		// Add the notice to be displayed.
+		self::add( $message, $type, $args );
+
+		return $args['slug'];
 	}
 }

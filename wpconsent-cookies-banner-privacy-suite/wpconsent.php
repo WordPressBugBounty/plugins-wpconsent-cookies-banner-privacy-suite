@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPConsent
  * Description: Improve your WordPress website privacy compliance. Custom cookie banner, website scanner, automatic script blocking, and easy cookie configuration.
- * Version:     1.0.8
+ * Version:     1.0.9
  * Author:      WPConsent
  * Author URI:  https://wpconsent.com
  * License:     GPL v2 or later
@@ -223,6 +223,13 @@ class WPConsent {
 	public $notifications;
 
 	/**
+	 * The privacy integration instance.
+	 *
+	 * @var WPConsent_Privacy_Integration
+	 */
+	public $privacy_integration;
+
+	/**
 	 * Main instance of WPConsent.
 	 *
 	 * @return WPConsent
@@ -282,6 +289,7 @@ class WPConsent {
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-admin-notice.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-notifications.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-reminders.php';
+			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-privacy-integration.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-scanner.php';
 		}
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-file-cache.php';
@@ -309,11 +317,12 @@ class WPConsent {
 	 */
 	public function load_components() {
 		if ( is_admin() || wp_doing_ajax() || defined( 'DOING_CRON' ) && DOING_CRON ) {
-			$this->admin_page_loader = new WPConsent_Admin_Page_Loader();
-			$this->services          = WPConsent_Services::get_instance();
-			$this->scanner           = WPConsent_Scanner::get_instance();
-			$this->notice            = new WPConsent_Notice();
-			$this->notifications     = new WPConsent_Notifications();
+			$this->admin_page_loader   = new WPConsent_Admin_Page_Loader();
+			$this->services            = WPConsent_Services::get_instance();
+			$this->scanner             = WPConsent_Scanner::get_instance();
+			$this->notice              = new WPConsent_Notice();
+			$this->notifications       = new WPConsent_Notifications();
+			$this->privacy_integration = new WPConsent_Privacy_Integration();
 
 			// Load the reminders.
 			new WPConsent_Reminders();

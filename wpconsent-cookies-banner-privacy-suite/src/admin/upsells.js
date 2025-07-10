@@ -20,6 +20,12 @@ jQuery( function ( $ ) {
 		WPConsentAdminNotices.show_pro_notice( wpconsent.scanner.title, wpconsent.scanner.text, wpconsent.scanner.url );
 	}
 
+	jQuery( '#wpconsent-export-custom-scripts-lite' ).on( 'change', function () {
+		jQuery( this ).prop( 'checked', false );
+
+		WPConsentAdminNotices.show_pro_notice( wpconsent.custom_scripts_export.title, wpconsent.custom_scripts_export.text, wpconsent.custom_scripts_export.url );
+	} );
+
  $( '.wpconsent-languages-button-lite' ).on( 'click', function () {
  	WPConsentAdminNotices.show_pro_notice( wpconsent.languages_upsell.title, wpconsent.languages_upsell.text, wpconsent.languages_upsell.url );
  } );

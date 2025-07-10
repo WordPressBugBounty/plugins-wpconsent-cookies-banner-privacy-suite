@@ -913,3 +913,9 @@ label {
 .wpconsent-admin-content-section-dnt-export {
 	min-height: 600px;
 }
+
+.wpconsent-modal-content {
+	.wpconsent-input-area-description {
+		margin-bottom: 15px;
+	}
+}

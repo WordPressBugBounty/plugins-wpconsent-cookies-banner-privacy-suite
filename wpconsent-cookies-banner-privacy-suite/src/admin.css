@@ -19,6 +19,7 @@
 @import './admin/tooltips.css';
 @import './admin/languages.css';
 @import './admin/language-picker.css';
+@import './admin/geolocation-groups.css';
 
 /** Import for preview **/
 @import './frontend/banner.css';

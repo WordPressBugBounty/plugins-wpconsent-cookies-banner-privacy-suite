@@ -10,10 +10,22 @@ window.WPConsent = {
 	displayChecks: [],
 	checksPassed: true,
 
+	// Hook system for settings modification
+	settingsHooks: [],
+	settingsProcessed: false,
+
 	// Register a display check function that returns a promise
 	registerDisplayCheck: function(checkFunction) {
 		this.displayChecks.push(checkFunction);
 		this.checksPassed = false;
+	},
+
+	// Register a settings hook function that returns a promise
+	// The hook function receives the current settings object and should return a promise
+	// that resolves when settings modifications are complete
+	registerSettingsHook: function(hookFunction) {
+		this.settingsHooks.push(hookFunction);
+		this.settingsProcessed = false;
 	},
 
 	// Run all display checks and return a promise
@@ -31,6 +43,27 @@ window.WPConsent = {
 			.catch(error => {
 				console.error('Error in WPConsent display check:', error);
 				this.checksPassed = true; // Default to showing banner on error
+				return Promise.resolve();
+			});
+	},
+
+	// Run all settings hooks and return a promise
+	// This allows other scripts to modify the wpconsent settings before init proceeds
+	runSettingsHooks: function() {
+		if (this.settingsHooks.length === 0) {
+			this.settingsProcessed = true;
+			return Promise.resolve();
+		}
+
+		// Pass the current wpconsent settings to each hook
+		return Promise.all(this.settingsHooks.map(hook => hook(window.wpconsent)))
+			.then(() => {
+				this.settingsProcessed = true;
+				return Promise.resolve();
+			})
+			.catch(error => {
+				console.error('Error in WPConsent settings hook:', error);
+				this.settingsProcessed = true; // Continue with init even if hooks fail
 				return Promise.resolve();
 			});
 	},
@@ -74,11 +107,8 @@ window.WPConsent = {
 		// Unlock iframes based on the new preferences
 		this.unlockIframes( preferences );
 
-		// Show the floating button
-		const floatingButton = this.shadowRoot?.querySelector( '#wpconsent-consent-floating' );
-		if ( floatingButton ) {
-			floatingButton.style.display = 'block';
-		}
+		// Show the floating button if enabled in settings
+		this.showFloatingButtonIfEnabled();
 
 		this.updateWordPressConsent( preferences );
 
@@ -153,6 +183,10 @@ window.WPConsent = {
 	},
 
 	showBanner: function () {
+		if ( ! wpconsent.enable_consent_banner ) {
+			return;
+		}
+
 		const banner = this.shadowRoot?.querySelector( '#wpconsent-banner-holder' );
 		if ( banner ) {
 			banner.classList.add( 'wpconsent-banner-visible' );
@@ -222,8 +256,11 @@ window.WPConsent = {
 			return true;
 		}
 
+		// Get manual_toggle_services setting from wpconsent object
+		const manualToggleServices = wpconsent.manual_toggle_services;
+
 		// If manual toggle services is enabled
-		if (wpconsent.manual_toggle_services) {
+		if (manualToggleServices) {
 			if (service && preferences[service] !== undefined) {
 				return preferences[service];
 			}
@@ -308,35 +345,40 @@ window.WPConsent = {
 
 	// Initialize the banner
 	init: function () {
-		this.initWordPress();
+		// Run settings hooks first to allow other scripts to modify settings
+		this.runSettingsHooks().then(() => {
+			this.initWordPress();
 
-		const container = document.getElementById( 'wpconsent-container' );
-		const template = document.getElementById( 'wpconsent-template' );
+			const container = document.getElementById( 'wpconsent-container' );
+			const template = document.getElementById( 'wpconsent-template' );
 
-		// Get existing shadow root or create new one
-		this.shadowRoot = container.shadowRoot;
-		if ( !this.shadowRoot ) {
-			this.shadowRoot = container.attachShadow( {mode: 'open'} );
-			const content = template.content.cloneNode( true );
-			this.shadowRoot.appendChild( content );
-			template.remove();
+			// Get existing shadow root or create new one
+			this.shadowRoot = container.shadowRoot;
+			if ( !this.shadowRoot ) {
+				this.shadowRoot = container.attachShadow( {mode: 'open'} );
+				const content = template.content.cloneNode( true );
+				this.shadowRoot.appendChild( content );
+				template.remove();
 
-			// Initialize event listeners and other UI components
-			this.initializeEventListeners();
-			this.initializeAccordions();
-			this.initializeKeyboardHandlers();
+				// Initialize event listeners and other UI components
+				this.initializeEventListeners();
+				this.initializeAccordions();
+				this.initializeKeyboardHandlers();
 
-			// Run all display checks before proceeding with banner initialization
-			this.runDisplayChecks().then(() => {
-				// Only load CSS and potentially show banner after all checks have passed
-				this.loadExternalCSS(container).then(() => {
+				// Run all display checks before proceeding with banner initialization
+				this.runDisplayChecks().then(() => {
+					// Only load CSS and potentially show banner after all checks have passed
+					this.loadExternalCSS(container).then(() => {
+						this.processBannerDisplay();
+					});
+				});
+			} else {
+				// If shadow root already exists, run display checks then process banner display
+				this.runDisplayChecks().then(() => {
 					this.processBannerDisplay();
 				});
-			});
-		} else {
-			// If shadow root already exists, just process banner display
-			this.processBannerDisplay();
-		}
+			}
+		});
 	},
 
 	// Process banner display based on existing preferences
@@ -365,10 +407,8 @@ window.WPConsent = {
 			} catch ( e ) {
 				console.error( 'Error parsing WPConsent preferences:', e );
 			}
-			const floatingButton = this.shadowRoot.querySelector( '#wpconsent-consent-floating' );
-			if ( floatingButton ) {
-				floatingButton.style.display = 'block';
-			}
+			// Only show floating button if enabled in settings
+			this.showFloatingButtonIfEnabled();
 		} else {
 			// Only show banner if all checks have passed
 			if (this.checksPassed) {
@@ -376,7 +416,7 @@ window.WPConsent = {
 			}
 
 			// If default_allow is true, let's unlock scripts until the user accepts or declines.
-			if ( wpconsent.default_allow ) {
+			if ( wpconsent.default_allow || ! wpconsent.enable_script_blocking ) {
 				const allPreferences = {};
 				// Get all slugs and set them to true.
 				wpconsent.slugs.forEach(slug => {
@@ -386,6 +426,9 @@ window.WPConsent = {
 				this.unlockIframes(allPreferences);
 			}
 		}
+
+		// Dispatch event to notify that the banner is fully initialized
+		window.dispatchEvent(new CustomEvent('wpconsent_banner_initialized'));
 	},
 
 	// Load external CSS
@@ -822,6 +865,16 @@ window.WPConsent = {
 
 		let event = new CustomEvent( 'wp_consent_type_defined' );
 		document.dispatchEvent( event );
+	},
+
+	// Show the floating button if enabled in settings
+	showFloatingButtonIfEnabled: function () {
+		if (wpconsent.enable_consent_floating) {
+			const floatingButton = this.shadowRoot?.querySelector( '#wpconsent-consent-floating' );
+			if ( floatingButton ) {
+				floatingButton.style.display = 'block';
+			}
+		}
 	},
 
 	// Update using wp_set_consent if it exists.

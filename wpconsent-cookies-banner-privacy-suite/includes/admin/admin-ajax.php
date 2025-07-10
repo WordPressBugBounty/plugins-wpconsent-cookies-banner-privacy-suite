@@ -118,14 +118,14 @@ function wpconsent_ajax_delete_category() {
 function wpconsent_ajax_manage_service() {
 	check_admin_referer( 'wpconsent_manage_service', 'wpconsent_manage_service_nonce' );
 
-	// Get and sanitize all input fields
+	// Get and sanitize all input fields.
 	$post_id             = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 	$service_name        = isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
 	$service_description = isset( $_POST['service_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['service_description'] ) ) : '';
 	$service_category    = isset( $_POST['service_category'] ) ? intval( $_POST['service_category'] ) : 0;
 	$service_url         = isset( $_POST['service_url'] ) ? sanitize_text_field( wp_unslash( $_POST['service_url'] ) ) : '';
 
-	// Validate required fields
+	// Validate required fields.
 	if ( empty( $service_name ) || empty( $service_category ) ) {
 		wp_send_json_error( array(
 			'message' => esc_html__( 'Service  name and category are required.', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -135,12 +135,12 @@ function wpconsent_ajax_manage_service() {
 	$service_url = esc_url( $service_url );
 
 	if ( $post_id ) {
-		// Update existing service
-		$post_id         = wpconsent()->cookies->update_service( $post_id, $service_name, $service_description, $service_url );
+		// Update existing service.
+		$post_id         = wpconsent()->cookies->update_service( $post_id, $service_name, $service_description, $service_url, $service_category );
 		$success_message = esc_html__( 'Service updated successfully.', 'wpconsent-cookies-banner-privacy-suite' );
 		$error_message   = esc_html__( 'Failed to update service.', 'wpconsent-cookies-banner-privacy-suite' );
 	} else {
-		// Add new service
+		// Add new service.
 		$result          = wpconsent()->cookies->add_service( $service_name, $service_category, $service_description, $service_url );
 		$post_id         = $result;
 		$success_message = esc_html__( 'Service added successfully.', 'wpconsent-cookies-banner-privacy-suite' );

@@ -25,6 +25,13 @@ class WPConsent_Script_Blocker {
 	protected $categorized_scripts = array();
 
 	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		// Empty constructor for inheritance.
+	}
+
+	/**
 	 * Get scripts for a specific category.
 	 *
 	 * @param string $category The category to get scripts for.

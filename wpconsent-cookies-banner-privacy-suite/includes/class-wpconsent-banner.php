@@ -297,7 +297,7 @@ class WPConsent_Banner {
 			$all_cookies = $this->get_cookies_from_cache();
 			$cookies     = isset( $all_cookies[ $category['id'] ] ) ? $all_cookies[ $category['id'] ] : array();
 
-			if ( empty( $cookies ) ) {
+			if ( empty( $cookies['cookies'] ) && empty( $cookies['services'] ) ) {
 				continue;
 			}
 
@@ -436,7 +436,7 @@ class WPConsent_Banner {
 				// Process services and their cookies.
 				if ( ! empty( $services ) ) {
 					foreach ( $services as $service ) {
-						$service_slug = sanitize_title( $service['name'] );
+						$service_slug                                         = sanitize_title( $service['name'] );
 						$cookies[ $category_id ]['services'][ $service_slug ] = array(
 							'name'        => $service['name'],
 							'description' => $service['description'],
@@ -523,10 +523,10 @@ class WPConsent_Banner {
 
 					$html .= '<p tabindex="0" class="wpconsent-service-url">' . sprintf(
 						/* translators: %1$s: Service URL label, %2$s: Service URL */
-						esc_html__( '%1$s: %2$s', 'wpconsent-cookies-banner-privacy-suite' ),
-						esc_html( $service_url_label ),
-						'<a href="' . esc_url( $service['service_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( wp_parse_url( $service['service_url'], PHP_URL_HOST ) ) . '</a>'
-					) . '</p>';
+							esc_html__( '%1$s: %2$s', 'wpconsent-cookies-banner-privacy-suite' ),
+							esc_html( $service_url_label ),
+							'<a href="' . esc_url( $service['service_url'] ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( wp_parse_url( $service['service_url'], PHP_URL_HOST ) ) . '</a>'
+						) . '</p>';
 				}
 				$html .= $this->get_cookies_table_by_category( $service['cookies'] );
 				$html .= '</div>'; // .wpconsent-preferences-accordion-content
@@ -603,7 +603,7 @@ class WPConsent_Banner {
 	 * @return void
 	 */
 	public function floating_consent_button() {
-		if ( ! wpconsent()->settings->get_option( 'enable_consent_floating' ) || is_admin() ) {
+		if ( is_admin() ) {
 			return;
 		}
 		$colors = $this->get_color_settings();
