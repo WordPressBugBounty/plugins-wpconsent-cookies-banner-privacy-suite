@@ -500,10 +500,10 @@ class WPConsent_Cookies {
 		if ( ! is_wp_error( $term ) ) {
 			update_term_meta( $term['term_id'], 'wpconsent_service_url', $service_url );
 
+			$this->clear_cookies_cache();
+
 			return $term['term_id'];
 		}
-
-		$this->clear_cookies_cache();
 
 		return false;
 	}

@@ -202,7 +202,7 @@ class WPConsent_Notice {
 			esc_attr( $type_class ),
 			esc_attr( $class ),
 			esc_attr( $id ),
-			wp_kses_post( $message )
+			$message
 		);
 
 		if ( 'top' === $type ) {

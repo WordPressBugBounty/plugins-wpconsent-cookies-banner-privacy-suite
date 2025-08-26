@@ -272,6 +272,7 @@ class WPConsent_Banner {
 		$logo                    = wpconsent()->settings->get_option( 'banner_logo', '' );
 		$cookie_policy_title     = wpconsent()->settings->get_option( 'cookie_policy_title', esc_html__( 'Cookie Policy', 'wpconsent-cookies-banner-privacy-suite' ) );
 		$preferences_panel_title = wpconsent()->settings->get_option( 'preferences_panel_title', esc_html__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ) );
+		$default_allow           = wpconsent()->settings->get_option( 'default_allow', 0 );
 
 		$html = '<div id="wpconsent-preferences-modal" class="wpconsent-preferences-modal" style="display:none;" tabindex="-1" role="dialog" aria-labelledby="wpconsent-preferences-title" aria-modal="true" part="wpconsent-preferences-modal">';
 
@@ -307,7 +308,7 @@ class WPConsent_Banner {
 			$html .= '<button class="wpconsent-preferences-accordion-toggle">';
 			$html .= '<span class="wpconsent-preferences-accordion-arrow"></span>';
 			$html .= '</button>';  // .wpconsent-preferences-accordion-toggle
-			$html .= '<label>' . esc_html( $category['name'] ) . '</label>';
+			$html .= '<label for="cookie-category-' . esc_attr( $category_slug ) . '">' . esc_html( $category['name'] ) . '</label>';
 			$html .= '</div>'; // .wpconsent-cookie-category-text
 			$html .= '<div class="wpconsent-cookie-category-checkbox">';
 			if ( 'essential' === $category_slug ) {
@@ -316,8 +317,16 @@ class WPConsent_Banner {
 				$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
 				$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
 			} else {
+				// Apply filter to allow customization of default state for this category.
+				$default_checked = apply_filters( 'wpconsent_category_default_checked', $default_allow, $category_slug, $category );
+
+				$checked_attr = '';
+				if ( $default_checked ) {
+					$checked_attr = 'checked';
+				}
+
 				$html .= '<label class="wpconsent-preferences-checkbox-toggle">';
-				$html .= '<input type="checkbox" id="cookie-category-' . esc_attr( $category_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $category_slug ) . '" ' . ( $category['required'] ? 'checked disabled' : '' ) . '>';
+				$html .= '<input type="checkbox" id="cookie-category-' . esc_attr( $category_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $category_slug ) . '" ' . $checked_attr . '>';
 				$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
 				$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
 			}
@@ -477,7 +486,8 @@ class WPConsent_Banner {
 			return '';
 		}
 
-		$html = '';
+		$html          = '';
+		$default_allow = wpconsent()->settings->get_option( 'default_allow', false );
 
 		if ( ! empty( $cookies['cookies'] ) ) {
 			$html .= $this->get_cookies_table_by_category( $cookies['cookies'] );
@@ -503,8 +513,13 @@ class WPConsent_Banner {
 						$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
 						$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
 					} else {
+						// Apply filter to allow customization of default state for this service.
+						$default_checked = apply_filters( 'wpconsent_service_default_checked', $default_allow, $service_slug, $service, $category_slug );
+
+						$checked_attr = $default_checked ? 'checked' : '';
+
 						$html .= '<label class="wpconsent-preferences-checkbox-toggle">';
-						$html .= '<input type="checkbox" id="cookie-service-' . esc_attr( $service_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $service_slug ) . '">';
+						$html .= '<input type="checkbox" id="cookie-service-' . esc_attr( $service_slug ) . '" name="wpconsent_cookie[]" value="' . esc_attr( $service_slug ) . '" ' . $checked_attr . '>';
 						$html .= '<span class="wpconsent-preferences-checkbox-toggle-slider"></span>';
 						$html .= '</label>';  // .wpconsent-preferences-checkbox-toggle
 					}

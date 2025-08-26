@@ -80,16 +80,73 @@ window.WPConsent = {
 		this.closePreferences();
 	},
 
-	savePreferences: function ( preferences ) {
+	checkGPC: function () {
+		if (!wpconsent.respect_gpc || navigator.globalPrivacyControl !== true) {
+			return;
+		}
+
+		// Check for existing preferences
+		const existingPreferences = this.getCookie('wpconsent_preferences');
+		let currentPreferences = {};
+
+		if (existingPreferences) {
+			try {
+				currentPreferences = JSON.parse(existingPreferences);
+			} catch (e) {
+				console.error('WPConsent: Error parsing existing preferences:', e);
+			}
+		}
+
+		// If respect_gpc already exists, just return
+		if (currentPreferences.hasOwnProperty('respect_gpc')) {
+			return;
+		}
+
+		// If respect_gpc doesn't exist, create new GPC preferences
+		const gpcPreferences = {};
+		wpconsent.slugs.forEach(slug => {
+			const serviceCheckbox = this.shadowRoot?.querySelector(`#wpconsent-preferences-modal input[type="checkbox"][id="cookie-service-${slug}"]`);
+			if (serviceCheckbox && serviceCheckbox.disabled) {
+				gpcPreferences[slug] = true;
+			} else {
+				gpcPreferences[slug] = false;
+			}
+		});
+		gpcPreferences.essential = true; // Essential is always true
+		gpcPreferences.respect_gpc = true; // Mark that GPC was acknowledged
+
+		// Apply GPC preferences - savePreferences handles all the comparison logic
+		this.savePreferences(gpcPreferences, true); // This is automatic GPC application
+
+		// Disable banner
+		this.checksPassed = false;
+	},
+
+	savePreferences: function ( preferences, isGPCChange = false ) {
 		const existingPreferences = this.getCookie( 'wpconsent_preferences' );
 		let reload = false;
 
+		// Parse existing preferences for proper comparison
+		let parsedExistingPreferences = null;
+		if (existingPreferences) {
+			try {
+				parsedExistingPreferences = JSON.parse(existingPreferences);
+			} catch (e) {
+				console.error('WPConsent: Error parsing existing preferences:', e);
+			}
+		}
+
 		// Clear cookies if the preferences changed OR if wpconsent.default_allow is true and not all settings are true.
-		if ( existingPreferences && JSON.stringify( existingPreferences ) !== JSON.stringify( preferences ) || (
+		if ( (parsedExistingPreferences && JSON.stringify( parsedExistingPreferences ) !== JSON.stringify( preferences )) || (
 			wpconsent.default_allow && Object.values(preferences).some(value => value === false)
 		) ) {
 			this.clearCookies();
 			reload = true;
+		}
+
+		// Check if GPC was overridden by user
+		if (wpconsent.respect_gpc && !isGPCChange && parsedExistingPreferences && parsedExistingPreferences.hasOwnProperty('respect_gpc')) {
+			preferences.respect_gpc = false;  // Mark that GPC was overridden by user
 		}
 
 		// Save preferences to a cookie
@@ -156,9 +213,23 @@ window.WPConsent = {
 					const savedPreferences = JSON.parse( preferences );
 					const checkboxes = this.shadowRoot.querySelectorAll( '#wpconsent-preferences-modal input[type="checkbox"]' );
 					checkboxes.forEach( checkbox => {
-						const category = checkbox.value;
-						if ( category in savedPreferences ) {
-							checkbox.checked = savedPreferences[category];
+						let preferenceKey = null;
+
+						// Handle category checkboxes (ID: cookie-category-{slug})
+						if ( checkbox.id.startsWith( 'cookie-category-' ) ) {
+							preferenceKey = checkbox.id.replace( 'cookie-category-', '' );
+						}
+						// Handle service checkboxes (ID: cookie-service-{slug})
+						else if ( checkbox.id.startsWith( 'cookie-service-' ) ) {
+							preferenceKey = checkbox.id.replace( 'cookie-service-', '' );
+						}
+						// Fallback to using value attribute for other patterns
+						else {
+							preferenceKey = checkbox.value;
+						}
+
+						if ( preferenceKey && preferenceKey in savedPreferences ) {
+							checkbox.checked = savedPreferences[preferenceKey];
 						}
 					} );
 				} catch ( e ) {
@@ -218,7 +289,30 @@ window.WPConsent = {
 			) );
 			expires = 'expires=' + date.toUTCString() + ';';
 		}
-		document.cookie = name + '=' + value + ';' + expires + 'path=/';
+
+		// Get the domain string for the cookie
+		const domain = this.getCookieDomain();
+		document.cookie = name + '=' + value + ';' + expires + domain + 'path=/';
+	},
+
+	// Get the appropriate domain string for cookie setting
+	getCookieDomain: function() {
+		// Check if subdomain sharing is enabled
+		if ( wpconsent.enable_shared_consent ) {
+			// Get the current hostname
+			const hostname = window.location.hostname;
+
+			// Split by dots and take the last two parts (domain.com)
+			const parts = hostname.split('.');
+
+			if ( parts.length >= 2 ) {
+				const domain = '.' + parts.slice(-2).join('.');
+				return 'domain=' + domain + ';';
+			}
+		}
+		// Return empty string for default behavior (current domain only)
+		// This ensures the cookie is set for the current domain without any domain attribute
+		return '';
 	},
 
 	getCookie: function ( name ) {
@@ -396,9 +490,13 @@ window.WPConsent = {
 					wpconsent.slugs && Array.isArray(wpconsent.slugs) &&
 					!wpconsent.slugs.every(slug => preferences.hasOwnProperty(slug))
 				) {
-					// Preferences are outdated, clear cookie and show banner
+					// Preferences are outdated, clear cookie and check GPC before showing banner
 					this.setCookie('wpconsent_preferences', '', -1); // Expire the cookie
-					this.showBanner();
+					this.checkGPC(); // Check GPC for new preferences needed
+					// Only show banner if all checks have passed
+					if (this.checksPassed) {
+						this.showBanner();
+					}
 					return;
 				}
 
@@ -410,6 +508,9 @@ window.WPConsent = {
 			// Only show floating button if enabled in settings
 			this.showFloatingButtonIfEnabled();
 		} else {
+			// No existing preferences, check GPC before potentially showing banner
+			this.checkGPC();
+
 			// Only show banner if all checks have passed
 			if (this.checksPassed) {
 				this.showBanner();

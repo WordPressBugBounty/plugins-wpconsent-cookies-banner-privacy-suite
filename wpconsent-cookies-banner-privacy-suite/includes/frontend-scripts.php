@@ -58,6 +58,8 @@ function wpconsent_frontend_scripts() {
 				'enable_consent_banner'   => wpconsent()->settings->get_option( 'enable_consent_banner', 1 ),
 				'enable_script_blocking'  => wpconsent()->settings->get_option( 'enable_script_blocking', 1 ),
 				'enable_consent_floating' => boolval( wpconsent()->settings->get_option( 'enable_consent_floating', 0 ) ),
+				'enable_shared_consent'   => boolval( wpconsent()->settings->get_option( 'enable_shared_consent', 0 ) ),
+				'respect_gpc'             => boolval( wpconsent()->settings->get_option( 'respect_gpc', 0 ) ),
 			)
 		)
 	);

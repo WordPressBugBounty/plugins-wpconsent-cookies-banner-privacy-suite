@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,15 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+= 1.0.10 =
+* New: Added Global Privacy Control option.
+* New: Added an option to share consent cookie for subdomains.
+* Tweak: Improved accessibility with labels for categories in the preferences panel.
+* Tweak: The toggles in the preferences panel now reflect user consent choices.
+* Tweak: When the "Default Allow" option is enabled, preferences panel toggles are enabled by default.
+* Fix: Fixed an issue with the scanner page/post search.
+* Fix: Fixed an issue with the frontend list of services cache when adding a new service manually.
 
 = 1.0.9 =
 * Fix: Empty categories were still displayed in the preferences panel after deleting services.

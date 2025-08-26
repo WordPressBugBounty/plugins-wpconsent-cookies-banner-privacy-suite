@@ -151,12 +151,14 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		}
 
 		// Save the settings based on current view.
-		if ( $this->view === 'advanced' ) {
+		if ( 'advanced' === $this->view ) {
 			$settings = array(
-				'uninstall_data' => isset( $_POST['uninstall_data'] ) ? 1 : 0,
+				'uninstall_data'        => isset( $_POST['uninstall_data'] ) ? 1 : 0,
+				'enable_shared_consent' => isset( $_POST['enable_shared_consent'] ) ? 1 : 0,
+				'respect_gpc'           => isset( $_POST['respect_gpc'] ) ? 1 : 0,
 			);
 		} else {
-			// Update main settings (for settings view)
+			// Update main settings (for settings view).
 			$settings = array(
 				'enable_consent_banner'             => isset( $_POST['enable_consent_banner'] ) ? 1 : 0,
 				'cookie_policy_page'                => isset( $_POST['cookie_policy_page'] ) ? intval( $_POST['cookie_policy_page'] ) : 0,
@@ -247,8 +249,8 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 
 		foreach ( $this->get_banner_settings_keys() as $setting ) {
 			if ( isset( $all_options[ $setting ] ) ) {
-				// If this is the consent_floating_icon setting and it's a URL (custom image)
-				if ( $setting === 'consent_floating_icon' && filter_var( $all_options[ $setting ], FILTER_VALIDATE_URL ) ) {
+				// If this is the consent_floating_icon setting and it's a URL (custom image).
+				if ( 'consent_floating_icon' === $setting && filter_var( $all_options[ $setting ], FILTER_VALIDATE_URL ) ) {
 					$banner_data[ $setting ] = 'preferences';
 				} else {
 					$banner_data[ $setting ] = $all_options[ $setting ];
@@ -644,7 +646,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				} else {
 					$category_id = $category->term_id;
 
-					// Update category name and description if it already exists
+					// Update category name and description if it already exists.
 					wpconsent()->cookies->update_category(
 						$category_id,
 						sanitize_text_field( $category_data['name'] ),
@@ -974,8 +976,8 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			'content_blocking_placeholder_text',
 			'#enable_content_blocking',
 			'1',
-			// Translators: %s is the {category} tag wrapped in a code tag.
 			sprintf(
+				// Translators: %s is the {category} tag wrapped in a code tag.
 				esc_html__( 'Customize the text shown on the placeholder button. Use %s to insert the cookie category name.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'<code>{category}</code>'
 			)
@@ -1265,7 +1267,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 								<?php wpconsent_icon( 'plus', 14, 14, '0 -960 960 960' ); ?>
 								<?php esc_html_e( 'Add A Service', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 							</button>
-							<?php echo $this->get_service_library_button( $category ); ?>
+							<?php echo $this->get_service_library_button( $category ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</div>
 					</div>
 				</div>
@@ -1759,28 +1761,35 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				<div class="wpconsent-language-setting-list" id="wpconsent-language-list">
 					<?php
 					// Output selected languages first.
-					if ( ! empty( $selected_languages ) ) : ?>
+					if ( ! empty( $selected_languages ) ) :
+						?>
 						<div class="wpconsent-language-section">
 							<div class="wpconsent-language-section-title">
 								<?php esc_html_e( 'Selected Languages', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 							</div>
-							<?php foreach ( $selected_languages as $locale => $language ) :
+							<?php
+							foreach ( $selected_languages as $locale => $language ) :
 								$is_default = $locale === $default_language;
 								$this->output_language_item( $locale, $language, $is_default, true );
-							endforeach; ?>
+							endforeach;
+							?>
 						</div>
-					<?php endif;
+						<?php
+					endif;
 
 					// Output unselected languages.
-					if ( ! empty( $unselected_languages ) ) : ?>
+					if ( ! empty( $unselected_languages ) ) :
+						?>
 						<div class="wpconsent-language-section">
 							<div class="wpconsent-language-section-title">
 								<?php esc_html_e( 'Available Languages', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 							</div>
-							<?php foreach ( $unselected_languages as $locale => $language ) :
+							<?php
+							foreach ( $unselected_languages as $locale => $language ) :
 								$is_default = $locale === $default_language;
 								$this->output_language_item( $locale, $language, $is_default, false );
-							endforeach; ?>
+							endforeach;
+							?>
 						</div>
 					<?php endif; ?>
 				</div>
@@ -2154,6 +2163,26 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	 */
 	public function get_advanced_settings_content() {
 		ob_start();
+
+		$this->metabox_row(
+			esc_html__( 'Shared Consent', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'enable_shared_consent' ),
+				'enable_shared_consent',
+				esc_html__( 'Share cookie preferences across all subdomains. MUST be enabled on all subdomain sites using WPConsent.', 'wpconsent-cookies-banner-privacy-suite' )
+			) . $this->help_icon( __( 'Preferences set on example.com will automatically apply to blog.example.com, shop.example.com, and any other subdomain. All subdomain sites must have this setting enabled.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
+			'enable_shared_consent'
+		);
+
+		$this->metabox_row(
+			esc_html__( 'Respect Global Privacy Controls', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'respect_gpc', false ),
+				'respect_gpc',
+				esc_html__( 'Automatically respect Global Privacy Control (GPC) signals from user browsers.', 'wpconsent-cookies-banner-privacy-suite' )
+			) . $this->help_icon( __( 'When enabled, users with GPC enabled in their browser will automatically have non-essential cookies declined and will not see the consent banner. This helps comply with privacy regulations by respecting user-set privacy preferences.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
+			'respect_gpc'
+		);
 
 		$this->metabox_row(
 			esc_html__( 'Remove all data', 'wpconsent-cookies-banner-privacy-suite' ),
