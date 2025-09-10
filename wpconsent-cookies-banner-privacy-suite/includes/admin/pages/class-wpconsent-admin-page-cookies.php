@@ -153,6 +153,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		// Save the settings based on current view.
 		if ( 'advanced' === $this->view ) {
 			$settings = array(
+				'clarity_consent_mode'  => isset( $_POST['clarity_consent_mode'] ) ? 1 : 0,
 				'uninstall_data'        => isset( $_POST['uninstall_data'] ) ? 1 : 0,
 				'enable_shared_consent' => isset( $_POST['enable_shared_consent'] ) ? 1 : 0,
 				'respect_gpc'           => isset( $_POST['respect_gpc'] ) ? 1 : 0,
@@ -2151,7 +2152,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				<?php esc_html_e( 'Add Custom iFrame/Script', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 			</button>
 		</div>
-		
+
 		<?php
 		return ob_get_clean();
 	}
@@ -2163,6 +2164,21 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	 */
 	public function get_advanced_settings_content() {
 		ob_start();
+
+		$this->metabox_row(
+			esc_html__( 'Clarity Consent Mode', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_checkbox_toggle(
+				wpconsent()->settings->get_option( 'clarity_consent_mode', true ),
+				'clarity_consent_mode',
+				sprintf(
+				// translators: %1$s is an opening link tag, %2$s is a closing link tag.
+					esc_html__( 'Use Microsoft Clarity without cookies until consent is given. %1$sLearn More%2$s', 'wpconsent-cookies-banner-privacy-suite' ),
+					'<a target="_blank" rel="noopener noreferrer" href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/docs/clarity-consent-mode', 'advanced', 'clarity-consent-mode' ) ) . '">',
+					'</a>'
+				)
+			) . $this->help_icon( __( 'Clarity Consent Mode will not be loaded if the banner is disabled.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
+			'clarity_consent_mode'
+		);
 
 		$this->metabox_row(
 			esc_html__( 'Shared Consent', 'wpconsent-cookies-banner-privacy-suite' ),

@@ -10,3 +10,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once WPCONSENT_PLUGIN_PATH . 'includes/compatibility/wp-rocket.php';
+require_once WPCONSENT_PLUGIN_PATH . 'includes/compatibility/easy-digital-downloads.php';
+require_once WPCONSENT_PLUGIN_PATH . 'includes/compatibility/bricks.php';

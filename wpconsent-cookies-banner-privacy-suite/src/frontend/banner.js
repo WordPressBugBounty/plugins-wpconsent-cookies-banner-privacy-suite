@@ -261,6 +261,8 @@ window.WPConsent = {
 		const banner = this.shadowRoot?.querySelector( '#wpconsent-banner-holder' );
 		if ( banner ) {
 			banner.classList.add( 'wpconsent-banner-visible' );
+			// Update button visibility based on current settings
+			this.updateButtonVisibility( wpconsent );
 			// Set up focus trap for the banner
 			this.setupFocusTrap( banner );
 		}
@@ -442,6 +444,9 @@ window.WPConsent = {
 		// Run settings hooks first to allow other scripts to modify settings
 		this.runSettingsHooks().then(() => {
 			this.initWordPress();
+
+			// Update button visibility after settings hooks have potentially modified settings
+			this.updateButtonVisibility( wpconsent );
 
 			const container = document.getElementById( 'wpconsent-container' );
 			const template = document.getElementById( 'wpconsent-template' );
@@ -650,13 +655,9 @@ window.WPConsent = {
 		this.shadowRoot.querySelector( '.wpconsent-close-preferences' )?.addEventListener( 'click', () => this.closePreferences() );
 
 		window.addEventListener( 'wpconsent_consent_saved', function ( event ) {
-			// Fire this only if gtag exists.
-			if ( typeof gtag !== 'function' ) {
-				return;
-			}
 			// Passed detail is preferences.
 			const preferences = event.detail;
-			gtag( 'consent', 'update', {
+			WPConsent.localGtag( 'consent', 'update', {
 				'ad_storage': preferences.marketing ? 'granted' : 'denied',
 				'analytics_storage': preferences.statistics ? 'granted' : 'denied',
 				'ad_user_data': preferences.marketing ? 'granted' : 'denied',
@@ -665,6 +666,26 @@ window.WPConsent = {
 				'functionality_storage': 'granted'
 			} );
 		} );
+
+		window.addEventListener( 'wpconsent_consent_saved', function ( event ) {
+			// Fire this only if Clarity exists.
+			if ( typeof window.clarity !== 'function' ) {
+				return;
+			}
+			// Passed detail is preferences.
+			const preferences = event.detail;
+
+			window.clarity( 'consentv2', {
+				ad_Storage: preferences.marketing ? 'granted' : 'denied',
+				analytics_Storage: preferences.statistics ? 'granted' : 'denied',
+			});
+		} );
+	},
+
+	localGtag: function() {
+		window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
+		// pass arguments to gtag function.
+		gtag.apply(window, arguments);
 	},
 
 	// Initialize checkbox listeners for category and service checkboxes
@@ -976,6 +997,29 @@ window.WPConsent = {
 				floatingButton.style.display = 'block';
 			}
 		}
+	},
+
+	// Show or hide buttons based on settings
+	updateButtonVisibility: function( settings ) {
+		if ( !this.shadowRoot ) {
+			return;
+		}
+
+		const buttonTypes = ['accept', 'cancel', 'preferences'];
+
+		buttonTypes.forEach( buttonType => {
+			const button = this.shadowRoot.querySelector( `#wpconsent-${buttonType}-all` );
+			if ( button ) {
+				const isEnabled = settings[`${buttonType}_button_enabled`];
+				if ( isEnabled ) {
+					button.classList.remove( 'wpconsent-button-disabled' );
+					button.removeAttribute( 'data-disabled' );
+				} else {
+					button.classList.add( 'wpconsent-button-disabled' );
+					button.setAttribute( 'data-disabled', 'true' );
+				}
+			}
+		});
 	},
 
 	// Update using wp_set_consent if it exists.

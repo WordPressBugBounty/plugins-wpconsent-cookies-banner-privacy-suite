@@ -669,6 +669,45 @@ class WPConsent_Cookies {
 	}
 
 	/**
+	 * Whether this site is using Microsoft Clarity services that require Clarity Consent.
+	 *
+	 * @return bool
+	 */
+	public function needs_clarity_consent() {
+		if ( ! wpconsent()->cookie_blocking->get_clarity_consent_mode() ) {
+			return false;
+		}
+
+		// Check if we have a cached result.
+		$cached_result = get_transient( 'wpconsent_needs_clarity_consent' );
+		if ( false !== $cached_result ) {
+			return 'yes' === $cached_result;
+		}
+
+		// Now let's look at all the services to check if any of them are Clarity services.
+		$services = get_terms(
+			array(
+				'taxonomy'   => $this->taxonomy,
+				'hide_empty' => false,
+				'number'     => 0,
+			)
+		);
+
+		// Let's see if any of the service slugs contain "google".
+		foreach ( $services as $service ) {
+			if ( false !== strpos( $service->slug, 'clarity' ) ) {
+				set_transient( 'wpconsent_needs_clarity_consent', 'yes', DAY_IN_SECONDS );
+
+				return true;
+			}
+		}
+
+		set_transient( 'wpconsent_needs_clarity_consent', 'no', DAY_IN_SECONDS );
+
+		return false;
+	}
+
+	/**
 	 * Clear cookies cache for a category for prefernces modal.
 	 *
 	 * @return void

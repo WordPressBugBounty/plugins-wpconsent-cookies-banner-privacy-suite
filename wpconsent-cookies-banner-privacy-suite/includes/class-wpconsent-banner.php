@@ -53,6 +53,11 @@ class WPConsent_Banner {
 			return;
 		}
 
+		// Filter to prevent the banner from being output.
+		if ( apply_filters( 'wpconsent_banner_output', true ) === false ) {
+			return;
+		}
+
 		$this->output_banner();
 	}
 
@@ -208,13 +213,14 @@ class WPConsent_Banner {
 		$html .= '<div class="wpconsent-banner-footer wpconsent-button-size-' . esc_attr( $button_size ) . ' wpconsent-button-corner-' . esc_attr( $button_corner ) . ' wpconsent-button-type-' . esc_attr( $button_type ) . '" part="wpconsent-banner-footer">';
 
 		foreach ( $button_order as $button_id ) {
-			$enabled = wpconsent()->settings->get_option( $button_id . '_button_enabled', true );
-			if ( ! $enabled ) {
-				continue;
-			}
+			$enabled     = wpconsent()->settings->get_option( $button_id . '_button_enabled', true );
 			$button_text = wpconsent()->settings->get_option( $button_id . '_button_text', '' );
 
-			$html .= '<button type="button" id="wpconsent-' . esc_attr( $button_id ) . '-all" class="wpconsent-' . esc_attr( $button_id ) . '-cookies wpconsent-banner-button wpconsent-' . esc_attr( $button_id ) . '-all" part="wpconsent-button-' . esc_attr( $button_id ) . '">' . esc_html( $button_text ) . '</button>';
+			// Always render the button but add disabled class and data attribute if not enabled
+			$disabled_class = ! $enabled ? ' wpconsent-button-disabled' : '';
+			$disabled_attr  = ! $enabled ? ' data-disabled="true"' : '';
+
+			$html .= '<button type="button" id="wpconsent-' . esc_attr( $button_id ) . '-all" class="wpconsent-' . esc_attr( $button_id ) . '-cookies wpconsent-banner-button wpconsent-' . esc_attr( $button_id ) . '-all' . esc_attr( $disabled_class ) . '" part="wpconsent-button-' . esc_attr( $button_id ) . '"' . $disabled_attr . '>' . esc_html( $button_text ) . '</button>';
 		}
 
 		$html .= '</div>'; // .wpconsent-banner-footer

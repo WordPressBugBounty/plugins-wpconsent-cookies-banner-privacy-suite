@@ -4,21 +4,21 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Improve WordPress privacy compliance. Custom cookie consent banner, full site cookie scanner, automatic script blocking, and easy cookie policy setup.
+Improve WordPress privacy compliance. Custom GDPR / CCPA cookie consent banner, full site cookie scanner, automatic script blocking, & easy cookie policy setup.
 
 == Description ==
 
 = Customizable Cookie Banner + Website Compliance Scanner =
 
-WPConsent is the easiest way to add a cookie consent banner to your WordPress website. You can customize the banner to match your website's branding and configure how it looks.
+WPConsent is the easiest way to add a GDPR / CCPA cookie consent banner to your WordPress website. You can customize the banner to match your website's branding and configure how it looks.
 
-Our easy-to-use website scanner will automatically detect and list popular services used on your website. Our built-in integration provides you with details and a list of cookies used by each service, so you can easily configure them.
+Our easy-to-use website cookie scanner will automatically detect and list popular services used on your website. Our built-in integration provides you with details and a list of cookies used by each service, so you can easily configure them to comply with GDPR, CCPA / CPRA, ePrivacy, DSGVO, TTDSG, LGPD, POPIA, APA, RGPD, PIPEDA, and other global privacy regulations.
 
-With the automatic script blocking feature, WPConsent will detect and block common tracking scripts like Google Analytics, Facebook Pixel, and more until the user gives consent. This ensures that those services can't add 3rd party cookies without user consent.
+With the automatic script blocking feature, WPConsent will detect and block common tracking scripts / cookies like Google Analytics, Facebook Pixel, and more until the user gives consent. This ensures that those services can't add 3rd party cookies without user consent as required by GDPR and other privacy regulations.
 
 All cookie consent data is self-hosted on your website like it should be, making WPConsent the most privacy conscious solution.
 
@@ -29,7 +29,7 @@ https://www.youtube.com/watch?v=7fcP9QO8bKQ&rel=0
 
 = Fully Customizable Cookie Banner =
 
-The cookie banner should match your website's branding and be easy to use. We give you many options in order to improve the consent rates on your website:
+The cookie banner should match your website's branding and be easy to use. We give you many options in order to improve the consent rates on your website while being in full compliance with GDPR, CCPA, and other privacy laws:
 
 * Choose from multiple banner layouts and positions.
 * Customize all colors and text to match your website's branding.
@@ -38,7 +38,7 @@ The cookie banner should match your website's branding and be easy to use. We gi
 
 = Automatic Script Blocking =
 
-WPConsent will automatically prevent many popular tracking scripts from adding cookies on your website. There's no need to change the tracking solutions you use in order to use WPConsent. We are continuously adding new scripts to our block list, if you have a specific script you'd like us to block, please [reach out](https://wpconsent.com/contact/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin).
+WPConsent will automatically prevent many popular tracking scripts from adding cookies on your website to improve GDPR compliance. There's no need to change the tracking solutions you use in order to use WPConsent. We are continuously adding new scripts to our block list, if you have a specific script you'd like us to block, please [reach out](https://wpconsent.com/contact/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin).
 
 Automatically detected scripts:
 
@@ -55,7 +55,7 @@ Google Consent Mode v2 is now supported, allowing you to use Google Analytics an
 
 Our goal with WPConsent was to create a WordPress privacy compliance plugin that's both EASY and POWERFUL.
 
-That's why we added a built-in website scanner that detects many popular services used on your website.
+That's why we added a built-in website cookie scanner that detects many popular services used on your website.
 
 But that's not all, with our API integration you can get details about services and cookies used by each service automatically configured on your site.
 
@@ -70,9 +70,10 @@ These are the details included with each service:
 = Smart Content Blocking =
 
 Prevent 3rd party content from being loaded before consent is given.
+
 WPConsent can automatically block content like YouTube, Vimeo, DailyMotion, Google Maps, reCAPTCHA and more until the user gives consent.
 
-Dynamic placeholders are displayed for YouTube, Vimeo and DailyMotion for a better user experience. The placeholder images are loaded from your website for improved privacy.
+Dynamic placeholders are displayed for YouTube, Vimeo and DailyMotion for a better user experience. The placeholder images are loaded from your website for improved privacy compliance with GDPR, CCPA, and more.
 
 You can easily customize which content is blocked from the admin area.
 
@@ -98,7 +99,7 @@ wpconsent (incorrect)
 
 = DISCLAIMER =
 
-This plugin is not a guarantee of website compliance. It is your responsibility to ensure your website meets all applicable cookie law requirements.
+This plugin is not a guarantee of website compliance. It is your responsibility to ensure your website meets all applicable cookie law requirements with GDPR, CCPA, and other global privacy laws.
 
 == Installation ==
 
@@ -134,6 +135,11 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+= 1.0.11 =
+* New: Added support for Microsoft Clarity Consent Mode.
+* Tweak: We adjusted the way Google Consent Mode is set when Google Tag Manager is loaded on the page without other Google scripts.
+* Tweak: Improved compatibility with Bricks Builder by not loading WPConsent in the Bricks editor.
 
 = 1.0.10 =
 * New: Added Global Privacy Control option.
@@ -215,4 +221,3 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 = 1.0.0 =
 * Initial Release
-
