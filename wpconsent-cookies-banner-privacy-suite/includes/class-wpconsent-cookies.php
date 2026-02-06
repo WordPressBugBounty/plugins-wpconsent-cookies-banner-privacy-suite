@@ -109,6 +109,7 @@ class WPConsent_Cookies {
 						'post_status'  => 'publish',
 					)
 				);
+				update_post_meta( $post_id, 'wpconsent_cookie_duration', $duration );
 			}
 		} else {
 			$post_id = wp_insert_post(
@@ -119,12 +120,12 @@ class WPConsent_Cookies {
 					'post_status'  => 'publish',
 				)
 			);
+			update_post_meta( $post_id, 'wpconsent_cookie_duration', $duration );
 		}
 
 		if ( ! is_wp_error( $post_id ) ) {
 			wp_set_object_terms( $post_id, $cookie_category, $this->taxonomy );
 			update_post_meta( $post_id, 'wpconsent_cookie_id', $cookie_id );
-			update_post_meta( $post_id, 'wpconsent_cookie_duration', $duration );
 		}
 
 		$this->clear_cookies_cache();
@@ -170,7 +171,7 @@ class WPConsent_Cookies {
 			}
 		}
 
-		return $category_array;
+		return apply_filters( 'wpconsent_get_categories', $category_array );
 	}
 
 	/**
@@ -388,7 +389,7 @@ class WPConsent_Cookies {
 			}
 		}
 
-		return $cookie_array;
+		return apply_filters( 'wpconsent_get_cookies_by_category', $cookie_array, $category );
 	}
 
 	/**
@@ -553,7 +554,7 @@ class WPConsent_Cookies {
 			$service_array[] = apply_filters( 'wpconsent_service_data', $service_data, $service->term_id );
 		}
 
-		return $service_array;
+		return apply_filters( 'wpconsent_get_services_by_category', $service_array, $category_id );
 	}
 
 	/**
@@ -639,6 +640,11 @@ class WPConsent_Cookies {
 			return false;
 		}
 
+		// If SiteKit plugin has the consent mode enabled we don't need to add the default state script.
+		if ( 'enabled' === apply_filters( 'googlesitekit_consent_mode_status', 'disabled' ) ) {
+			return false;
+		}
+
 		// Check if we have a cached result.
 		$cached_result = get_transient( 'wpconsent_needs_google_consent' );
 		if ( false !== $cached_result ) {
@@ -719,6 +725,9 @@ class WPConsent_Cookies {
 		delete_transient( 'wpconsent_preference_cookies' );
 		// Delete transient wpconsent_preference_slugs.
 		delete_transient( 'wpconsent_preference_slugs' );
+
+		// Allow extensions to clear additional caches (e.g., locale-specific caches).
+		do_action( 'wpconsent_clear_preference_cookies_cache' );
 	}
 
 	/**
@@ -727,8 +736,7 @@ class WPConsent_Cookies {
 	 * @return array
 	 */
 	public function get_preference_slugs() {
-		$slugs              = array();
-		$default_categories = array( 'essential', 'statistics', 'marketing' );
+		$slugs = array();
 
 		// Try to get from cache first.
 		$cached_slugs = get_transient( 'wpconsent_preference_slugs' );
@@ -736,18 +744,20 @@ class WPConsent_Cookies {
 			return $cached_slugs;
 		}
 
-		$categories = $this->get_categories();
+		$categories    = $this->get_categories();
+		$manual_toggle = wpconsent()->settings->get_option( 'manual_toggle_services', 0 );
 
 		foreach ( $categories as $category_slug => $category ) {
-			if ( in_array( $category_slug, $default_categories, true ) ) {
-				$slugs[] = $category_slug;
+			$slugs[] = $category_slug;
 
-				$services = $this->get_services_by_category( $category['id'] );
-				if ( ! empty( $services ) ) {
-					foreach ( $services as $service ) {
-						$service_slug = sanitize_title( $service['name'] );
-						$slugs[]      = $service_slug;
-					}
+			if ( ! $manual_toggle ) {
+				continue;
+			}
+			$services = $this->get_services_by_category( $category['id'] );
+			if ( ! empty( $services ) ) {
+				foreach ( $services as $service ) {
+					$service_slug = sanitize_title( $service['name'] );
+					$slugs[]      = $service_slug;
 				}
 			}
 		}
@@ -755,5 +765,49 @@ class WPConsent_Cookies {
 		set_transient( 'wpconsent_preference_slugs', $slugs, DAY_IN_SECONDS );
 
 		return $slugs;
+	}
+
+	/**
+	 * Reset categories and cookies to their default state.
+	 *
+	 * @return void
+	 */
+	public function reset_to_defaults() {
+		// Reset default categories.
+		$default_categories = $this->get_default_categories();
+		foreach ( $default_categories as $slug => $category_data ) {
+			$category = get_term_by( 'slug', $slug, $this->taxonomy );
+			if ( $category ) {
+				$this->update_category( $category->term_id, $category_data['name'], $category_data['description'] );
+			}
+		}
+
+		// Reset default preferences cookie - find it by cookie_id meta.
+		$preferences_cookies = get_posts(
+			array(
+				'post_type'      => $this->post_type,
+				'posts_per_page' => 1,
+				'meta_query'     => array(
+					array(
+						'key'   => 'wpconsent_cookie_id',
+						'value' => 'wpconsent_preferences',
+					),
+				),
+			)
+		);
+
+		if ( ! empty( $preferences_cookies ) ) {
+			$preferences_cookie = $preferences_cookies[0];
+			$post_id            = $this->update_cookie(
+				$preferences_cookie->ID,
+				'wpconsent_preferences',
+				__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ),
+				__( 'This cookie is used to store the user\'s cookie consent preferences.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'essential',
+				'30 days'
+			);
+		}
+
+		$this->clear_cookies_cache();
 	}
 }

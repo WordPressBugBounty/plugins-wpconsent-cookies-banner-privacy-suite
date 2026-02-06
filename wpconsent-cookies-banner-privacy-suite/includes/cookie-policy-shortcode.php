@@ -37,6 +37,17 @@ function wpconsent_cookie_policy_shortcode( $atts = array() ) {
 	$categories = wpconsent()->cookies->get_categories();
 	$output     = '<div class="wpconsent-cookie-policy">';
 
+	// Get translatable table headers from settings (same as preferences panel).
+	// Fall back to default strings if the option is empty.
+	$header_name = wpconsent()->settings->get_option( 'cookie_table_header_name', wpconsent()->strings->get_string( 'cookie_table_header_name' ) );
+	$header_name = ! empty( $header_name ) ? $header_name : wpconsent()->strings->get_string( 'cookie_table_header_name' );
+
+	$header_description = wpconsent()->settings->get_option( 'cookie_table_header_description', wpconsent()->strings->get_string( 'cookie_table_header_description' ) );
+	$header_description = ! empty( $header_description ) ? $header_description : wpconsent()->strings->get_string( 'cookie_table_header_description' );
+
+	$header_duration = wpconsent()->settings->get_option( 'cookie_table_header_duration', wpconsent()->strings->get_string( 'cookie_table_header_duration' ) );
+	$header_duration = ! empty( $header_duration ) ? $header_duration : wpconsent()->strings->get_string( 'cookie_table_header_duration' );
+
 	foreach ( $categories as $category ) {
 		$cookies = wpconsent()->cookies->get_cookies_by_category( $category['id'] );
 		if ( empty( $cookies ) ) {
@@ -47,7 +58,7 @@ function wpconsent_cookie_policy_shortcode( $atts = array() ) {
 
 		$category_table = '<table class="wpconsent-cookie-policy-table">';
 
-		$category_table .= '<tr><th>' . esc_html__( 'Cookie ID', 'wpconsent-cookies-banner-privacy-suite' ) . '</th><th>' . esc_html__( 'Purpose', 'wpconsent-cookies-banner-privacy-suite' ) . '</th><th>' . esc_html__( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ) . '</th></tr>';
+		$category_table .= '<tr><th>' . esc_html( $header_name ) . '</th><th>' . esc_html( $header_description ) . '</th><th>' . esc_html( $header_duration ) . '</th></tr>';
 
 		$has_cookies = false;
 		foreach ( $cookies as $cookie ) {
@@ -74,7 +85,7 @@ function wpconsent_cookie_policy_shortcode( $atts = array() ) {
 			$cookies = wpconsent()->cookies->get_cookies_by_service( $service['id'] );
 
 			$output .= '<table class="wpconsent-cookie-policy-table">';
-			$output .= '<tr><th>' . esc_html__( 'Cookie ID', 'wpconsent-cookies-banner-privacy-suite' ) . '</th><th>' . esc_html__( 'Purpose', 'wpconsent-cookies-banner-privacy-suite' ) . '</th><th>' . esc_html__( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ) . '</th></tr>';
+			$output .= '<tr><th>' . esc_html( $header_name ) . '</th><th>' . esc_html( $header_description ) . '</th><th>' . esc_html( $header_duration ) . '</th></tr>';
 			foreach ( $cookies as $cookie ) {
 				$output .= '<tr><td>' . esc_html( $cookie['cookie_id'] ) . '</td><td>' . esc_html( $cookie['description'] ) . '</td><td>' . esc_html( $cookie['duration'] ) . '</td></tr>';
 			}

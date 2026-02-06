@@ -301,7 +301,7 @@
 		margin: 5px 0 0;
 
 		a {
-			font-size: 12px;
+			font-size: 14px;
 			font-weight: 400;
 		}
 	}
@@ -341,5 +341,14 @@
 
 	.wpconsent-button {
 		color: #fff;
+	}
+}
+
+.wpconsent-usage-tracking-toggle {
+	.wpconsent-inline-styled-checkbox {
+		a {
+			color: inherit;
+			font-weight: 600;
+		}
 	}
 }

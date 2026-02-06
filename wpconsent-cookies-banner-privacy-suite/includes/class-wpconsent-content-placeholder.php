@@ -62,6 +62,7 @@ class WPConsent_Content_Placeholder {
 		$css_variables = wpconsent()->banner->get_css_variables( $colors );
 
 		wp_enqueue_style( 'wpconsent-placeholders-css', WPCONSENT_PLUGIN_URL . 'build/placeholders.css.css', null, $asset['version'] );
+		wp_style_add_data( 'wpconsent-placeholders-css', 'rtl', 'replace' );
 		wp_add_inline_style( 'wpconsent-placeholders-css', ':root{' . $css_variables . '}' );
 	}
 
@@ -105,7 +106,7 @@ class WPConsent_Content_Placeholder {
 			</div>',
 			esc_url( $thumbnail_url ),
 			// translators: %s: The service name.
-			esc_attr( sprintf( __( '%s placeholder image', 'wpconsent' ), $service_name ) )
+			esc_attr( sprintf( __( '%s placeholder image', 'wpconsent-cookies-banner-privacy-suite' ), $service_name ) )
 		);
 	}
 
@@ -191,7 +192,7 @@ class WPConsent_Content_Placeholder {
 
 		$button_text = sprintf(
 		/* translators: %s: The category name (e.g., analytics, marketing) */
-			esc_html__( 'Click here to accept %s cookies and load this content', 'wpconsent' ),
+			esc_html__( 'Click here to accept %s cookies and load this content', 'wpconsent-cookies-banner-privacy-suite' ),
 			esc_html( $category_name )
 		);
 

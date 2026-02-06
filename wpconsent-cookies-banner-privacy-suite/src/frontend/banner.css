@@ -406,12 +406,19 @@ input[type="checkbox"]:focus,
 	max-width: 90%;
 	width: 800px;
 	max-height: 90vh;
-	overflow-y: auto;
+	overflow: hidden;
 	box-shadow: var(--wpconsent-shadow);
 	display: flex;
 	flex-direction: column;
 	color: var(--wpconsent-text);
 	position: relative;
+}
+
+.wpconsent-preferences-body {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	overflow-x: hidden;
+	min-height: 0;
 }
 
 .wpconsent-preferences-content h2 {
@@ -433,6 +440,7 @@ input[type="checkbox"]:focus,
 	display: flex;
 	align-items: flex-end;
 	justify-content: space-between;
+	flex-shrink: 0;
 
 	@media (max-width: 767px) {
 		flex-direction: column;
@@ -578,6 +586,7 @@ input[type="checkbox"]:focus,
 	justify-content: space-between;
     align-items: center;
 	padding-top: 26px;
+	flex-shrink: 0;
 
 	.wpconsent-preferences-header-right {
         display: flex;
@@ -625,6 +634,26 @@ input[type="checkbox"]:focus,
     display: flex;
     justify-content: flex-end;
     align-items: center;
+}
+
+/* Dual checkboxes layout for IAB TCF vendors with both consent and legitimate interest */
+.wpconsent-dual-checkboxes {
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.wpconsent-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wpconsent-checkbox-label {
+    font-size: 12px;
+    color: var(--wpconsent-text);
+    white-space: nowrap;
+    margin: 0;
 }
 
 .wpconsent-always-active {
@@ -783,6 +812,12 @@ input[type="checkbox"]:focus,
     transition: max-height 0.3s ease-in;
 }
 
+/* When IAB TCF is enabled, remove height limit to show all vendors */
+.wpconsent-preferences-modal.wpconsent-iab-tcf .wpconsent-preferences-accordion-item.active > .wpconsent-preferences-accordion-content {
+    max-height: none;
+    transition: max-height 0.3s ease-in;
+}
+
 /* cookies list */
 
 .wpconsent-preference-cookies {
@@ -816,6 +851,7 @@ input[type="checkbox"]:focus,
 	display: flex;
     padding-top: 20px;
     align-items: left;
+	flex-shrink: 0;
 }
 
 .wpconsent-powered-by {
@@ -843,5 +879,130 @@ input[type="checkbox"]:focus,
 			width: 80px;
 			height: 12px;
 		}
+	}
+}
+
+/* GPC Toast Notification Styles */
+.wpconsent-toast {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	z-index: calc(var(--wpconsent-z-index) + 1);
+	max-width: 280px;
+	opacity: 0;
+	transform: translateY(100px);
+	transition: opacity 0.3s ease, transform 0.3s ease;
+	pointer-events: none;
+}
+
+.wpconsent-toast.wpconsent-toast-visible {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.wpconsent-toast-content {
+	background: var(--wpconsent-background, #ffffff);
+	color: var(--wpconsent-text, #000000);
+	padding: 10px 14px;
+	border-radius: var(--wpconsent-border-radius, 8px);
+	box-shadow: var(--wpconsent-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.wpconsent-toast-message {
+	flex: 1;
+	font-size: 13px;
+	line-height: 1.3;
+}
+
+.wpconsent-toast-close {
+	background: none;
+	border: none;
+	color: var(--wpconsent-text, #000000);
+	font-size: 18px;
+	line-height: 1;
+	cursor: pointer;
+	padding: 0;
+	width: 18px;
+	height: 18px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0.5;
+	transition: opacity 0.2s ease;
+	flex-shrink: 0;
+}
+
+.wpconsent-toast-close:hover,
+.wpconsent-toast-close:focus {
+	opacity: 0.8;
+}
+
+/* GPC Override Toggle Styles */
+.wpconsent-gpc-override {
+	margin: 20px 0;
+	padding: 16px;
+	background: var(--wpconsent-background, #ffffff);
+	border-radius: var(--wpconsent-border-radius, 8px);
+}
+
+.wpconsent-gpc-override-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.wpconsent-gpc-override-text {
+	padding-right: 20px;
+	flex: 1;
+
+	label {
+		margin: 0;
+		font-size: 14px;
+		line-height: 1.5;
+		color: var(--wpconsent-text, #000000);
+		cursor: pointer;
+		font-weight: 500;
+	}
+}
+
+.wpconsent-gpc-override-toggle {
+	flex-shrink: 0;
+
+	.wpconsent-preferences-checkbox-toggle {
+		transition: outline 0.2s ease;
+	}
+}
+
+/* Error state for GPC override toggle */
+.wpconsent-gpc-override-error {
+	outline: 2px solid var(--wpconsent-text, #000000);
+	outline-offset: 2px;
+	border-radius: 20px;
+}
+
+/* Shake animation for validation error */
+@keyframes wpconsent-shake {
+	0%, 100% { transform: translateX(0); }
+	25%, 75% { transform: translateX(-3px); }
+	50% { transform: translateX(3px); }
+}
+
+.wpconsent-shake {
+	animation: wpconsent-shake 0.3s ease-in-out;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+	.wpconsent-toast {
+		bottom: 10px;
+		right: 10px;
+		left: 10px;
+		max-width: none;
 	}
 }

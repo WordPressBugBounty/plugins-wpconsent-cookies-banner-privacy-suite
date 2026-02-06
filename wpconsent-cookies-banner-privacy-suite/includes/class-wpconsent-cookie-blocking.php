@@ -75,6 +75,11 @@ class WPConsent_Cookie_Blocking {
 	 * @return string Modified page output.
 	 */
 	public function process_output( $buffer ) {
+		// Check content type at output time since headers may have changed after buffer started.
+		if ( ! $this->is_html_response( $buffer ) ) {
+			return $buffer;
+		}
+
 		$scripts_by_category = $this->find_scripts_by_category( $buffer );
 
 		foreach ( $scripts_by_category['scripts'] as $category => $scripts ) {
@@ -246,6 +251,50 @@ class WPConsent_Cookie_Blocking {
 	}
 
 	/**
+	 * Check if the response is HTML content that should be processed.
+	 *
+	 * This method performs runtime checks on the buffer content and headers
+	 * to determine if we should process it. This is needed because the initial
+	 * should_process() check happens when the buffer starts, but the content
+	 * type may change during the request (e.g., AJAX responses).
+	 *
+	 * @param string $buffer The output buffer content.
+	 *
+	 * @return bool Whether this appears to be HTML content.
+	 */
+	private function is_html_response( $buffer ) {
+		// Check content type header at output time.
+		$headers_list = headers_list();
+		foreach ( $headers_list as $header ) {
+			if ( 0 === stripos( $header, 'Content-Type:' ) ) {
+				// If JSON content type, skip processing.
+				if ( false !== stripos( $header, 'application/json' ) ) {
+					return false;
+				}
+				// If explicitly HTML, we're good.
+				if ( false !== stripos( $header, 'text/html' ) ) {
+					return true;
+				}
+			}
+		}
+
+		// If no content type header, check the buffer content itself.
+		$trimmed = ltrim( $buffer );
+
+		// Skip if buffer looks like JSON (starts with { or [).
+		if ( '' !== $trimmed && ( '{' === $trimmed[0] || '[' === $trimmed[0] ) ) {
+			return false;
+		}
+
+		// Skip if buffer doesn't look like HTML (should start with <).
+		if ( '' !== $trimmed && '<' !== $trimmed[0] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Get the Google Consent Mode.
 	 *
 	 * @return bool
@@ -386,7 +435,7 @@ class WPConsent_Cookie_Blocking {
 	private function get_placeholder_button( $category ) {
 		$button_text = sprintf(
 		/* translators: %s: The category name (e.g., analytics, marketing) */
-			esc_html__( 'Click here to accept %s cookies and load this content', 'wpconsent' ),
+			esc_html__( 'Click here to accept %s cookies and load this content', 'wpconsent-cookies-banner-privacy-suite' ),
 			esc_html( $category )
 		);
 

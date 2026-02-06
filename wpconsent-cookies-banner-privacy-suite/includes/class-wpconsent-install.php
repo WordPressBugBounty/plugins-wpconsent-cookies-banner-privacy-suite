@@ -73,6 +73,8 @@ class WPConsent_Install {
 
 		do_action( 'wpconsent_before_version_update', $activated );
 
+		// Re-fetch the option to preserve any changes made by upgrade hooks.
+		$activated            = get_option( 'wpconsent_activated', array() );
 		$activated['version'] = WPCONSENT_VERSION;
 		update_option( 'wpconsent_activated', $activated );
 	}

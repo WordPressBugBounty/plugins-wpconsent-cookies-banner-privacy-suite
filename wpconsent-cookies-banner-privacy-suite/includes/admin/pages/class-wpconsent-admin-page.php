@@ -108,6 +108,7 @@ abstract class WPConsent_Admin_Page {
 		add_action( 'wpconsent_admin_page', array( $this, 'output_footer' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'page_scripts' ) );
 		add_filter( 'admin_body_class', array( $this, 'page_specific_body_class' ) );
+		add_action( 'in_admin_footer', array( $this, 'wpconsent_footer' ) );
 
 		$this->setup_views();
 		$this->page_hooks();
@@ -394,6 +395,72 @@ abstract class WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Output of the footer markup for admin pages (credits + links).
+	 *
+	 * @return void
+	 */
+	public function wpconsent_footer() {
+
+		$links = array(
+			array(
+				'url'    => class_exists( 'WPConsent_Premium' ) ? wpconsent_utm_url( 'https://wpconsent.com/my-account/support/', 'plugin-footer', 'contact-support' ) : 'https://wordpress.org/support/plugin/wpconsent-cookies-banner-privacy-suite/',
+				'text'   => __( 'Support', 'wpconsent-cookies-banner-privacy-suite' ),
+				'target' => '_blank',
+			),
+			array(
+				'url'    => function_exists( 'wpconsent_utm_url' ) ? wpconsent_utm_url( 'https://wpconsent.com/docs/', 'plugin-footer', 'documentation' ) : 'https://wpconsent.com/docs/',
+				'text'   => __( 'Docs', 'wpconsent-cookies-banner-privacy-suite' ),
+				'target' => '_blank',
+			),
+		);
+
+		$heart = '♥';
+		$team  = 'WPConsent';
+		?>
+
+		<div class="wpconsent-footer">
+
+			<p>
+			<?php
+			printf(
+				// Translators: %1$s - love symbol (e.g., heart), %2$s - team name.
+				esc_html__( 'Made with %1$s by the %2$s team', 'wpconsent-cookies-banner-privacy-suite' ),
+				esc_html( $heart ),
+				esc_html( $team )
+			);
+			?>
+			</p>
+
+			<ul class="wpconsent-footer-links">
+				<?php foreach ( $links as $index => $item ) : ?>
+					<li>
+						<a href="<?php echo esc_url( $item['url'] ); ?>" target="<?php echo esc_attr( $item['target'] ); ?>" rel="noopener noreferrer"><?php echo esc_html( $item['text'] ); ?></a>
+						<?php if ( $index + 1 < count( $links ) ) : ?>
+							<span>/</span>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<ul class="wpconsent-footer-social">
+				<li>
+					<a href="https://www.facebook.com/groups/wpbeginner" target="_blank" rel="noopener noreferrer">
+						<?php wpconsent_icon( 'facebook', 17, 16 ); ?>
+						<span class="screen-reader-text">Facebook</span>
+					</a>
+				</li>
+				<li>
+					<a href="https://x.com/wpconsent" target="_blank" rel="noopener noreferrer">
+						<?php wpconsent_icon( 'x', 17, 16, '0 0 512 512' ); ?>
+						<span class="screen-reader-text">X</span>
+					</a>
+				</li>
+			</ul>
+		</div>
+
+		<?php
+	}
+
+	/**
 	 * Get the notification HTML markup for displaying in a list.
 	 *
 	 * @param array $notification The notification array.
@@ -540,7 +607,7 @@ abstract class WPConsent_Admin_Page {
 				</div>
 			</div>
 			<div class="wpconsent-metabox-content">
-				<?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				<?php echo $content; // phpcs:ignore
 				?>
 			</div>
 		</div>
@@ -598,8 +665,10 @@ abstract class WPConsent_Admin_Page {
 			$class .= ' wpconsent-form-row-pro';
 		}
 		?>
-		<div class="<?php echo esc_attr( $class ); ?>" <?php echo $show_if_rules; ?> <?php echo $id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		?>>
+		<div class="<?php echo esc_attr( $class ); ?>" <?php echo $show_if_rules; ?> <?php
+		echo $id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+		>
 			<div class="wpconsent-metabox-form-row-label">
 				<label for="<?php echo esc_attr( $input_id ); ?>">
 					<?php echo esc_html( $label ); ?>
@@ -611,7 +680,8 @@ abstract class WPConsent_Admin_Page {
 				</label>
 			</div>
 			<div class="wpconsent-metabox-form-row-input">
-				<?php echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				<?php
+				echo $input; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				?>
 				<?php if ( ! empty( $description ) ) { ?>
 					<p><?php echo wp_kses_post( $description ); ?></p>
