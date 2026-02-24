@@ -575,8 +575,8 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 				$this->get_checkbox_toggle(
 					$is_enabled,
 					$enabled_key,
-					esc_html__( 'Enable this field', 'wpconsent-cookies-banner-privacy-suite' ),
-				),
+					esc_html__( 'Enable this field', 'wpconsent-cookies-banner-privacy-suite' )
+				)
 			);
 
 			$this->metabox_row(
@@ -584,8 +584,8 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 				$this->get_checkbox_toggle(
 					$is_required,
 					$required_key,
-					esc_html__( 'Make this field required', 'wpconsent-cookies-banner-privacy-suite' ),
-				),
+					esc_html__( 'Make this field required', 'wpconsent-cookies-banner-privacy-suite' )
+				)
 			);
 		} else {
 			$this->metabox_row(
@@ -595,7 +595,7 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 				</div>',
 				'',
 				'',
-				'',
+				''
 			);
 		}
 
@@ -605,8 +605,8 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 				$label_key,
 				$field_label,
 				'',
-				true,
-			) . '<p class="wpconsent-input-area-description wpconsent-dnt-field-label">Field Label</p>',
+				true
+			) . '<p class="wpconsent-input-area-description wpconsent-dnt-field-label">Field Label</p>'
 		);
 		$this->metabox_row_separator();
 		return ob_get_clean();
@@ -672,12 +672,12 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 				$this->get_checkbox_toggle(
 					false,
 					'export-only-not-processed',
-					esc_html__( 'Export only "not processed" entries', 'wpconsent-cookies-banner-privacy-suite' ),
+					esc_html__( 'Export only "not processed" entries', 'wpconsent-cookies-banner-privacy-suite' )
 				),
 				'',
 				'',
 				'',
-				esc_html__( 'If checked, only entries that have not been marked as processed will be exported.', 'wpconsent-cookies-banner-privacy-suite' ),
+				esc_html__( 'If checked, only entries that have not been marked as processed will be exported.', 'wpconsent-cookies-banner-privacy-suite' )
 			);
 
 			$this->metabox_row(
@@ -685,12 +685,12 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 				$this->get_checkbox_toggle(
 					false,
 					'mark-as-processed',
-					esc_html__( 'Mark exported data as processed', 'wpconsent-cookies-banner-privacy-suite' ),
+					esc_html__( 'Mark exported data as processed', 'wpconsent-cookies-banner-privacy-suite' )
 				),
 				'',
 				'',
 				'',
-				esc_html__( 'If checked, all exported entries will be automatically marked as processed.', 'wpconsent-cookies-banner-privacy-suite' ),
+				esc_html__( 'If checked, all exported entries will be automatically marked as processed.', 'wpconsent-cookies-banner-privacy-suite' )
 			);
 
 			wp_nonce_field( 'wpconsent_dnt_export_start', 'wpconsent_dnt_export_nonce' );
@@ -772,12 +772,12 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 			'dnt_email_addresses',
 			'',
 			'',
-			esc_html__( 'Enter a comma separated list of email addresses to receive Do Not Sell request notifications. Defaults to the admin email address.', 'wpconsent-cookies-banner-privacy-suite' ),
+			esc_html__( 'Enter a comma separated list of email addresses to receive Do Not Sell request notifications. Defaults to the admin email address.', 'wpconsent-cookies-banner-privacy-suite' )
 		);
 
 		$this->metabox_row(
 			'',
-			$this->get_preview_email_button(),
+			$this->get_preview_email_button()
 		);
 
 		return ob_get_clean();

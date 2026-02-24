@@ -1,7 +1,10 @@
 .wpconsent-admin-page {
 	#wpcontent {
 		padding-left: 0 !important;
-		margin-bottom: 100px;
+	}
+
+	#wpbody-content {
+		padding-bottom: 180px;
 	}
 
 	#wpwrap {
