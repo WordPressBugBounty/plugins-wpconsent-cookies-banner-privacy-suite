@@ -16,11 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function wpconsent_load_compatibility_files() {
 	$compatibility_files = array(
-		'php'                    => 'php.php',
-		'wp-rocket'              => 'wp-rocket.php',
-		'easy-digital-downloads' => 'easy-digital-downloads.php',
-		'bricks'                 => 'bricks.php',
-		'divi'                   => 'divi.php',
+		'php'                        => 'php.php',
+		'wp-rocket'                  => 'wp-rocket.php',
+		'easy-digital-downloads'     => 'easy-digital-downloads.php',
+		'bricks'                     => 'bricks.php',
+		'divi'                       => 'divi.php',
+		'avada'                      => 'avada.php',
 	);
 
 	foreach ( $compatibility_files as $slug => $file ) {

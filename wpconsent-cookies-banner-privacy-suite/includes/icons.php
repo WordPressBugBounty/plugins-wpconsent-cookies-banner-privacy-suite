@@ -5,6 +5,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Get an SVG icon by name with width, height and viewbox options.
  *

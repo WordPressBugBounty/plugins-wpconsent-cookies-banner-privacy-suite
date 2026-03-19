@@ -5,6 +5,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Onboarding wizard page class.
  */

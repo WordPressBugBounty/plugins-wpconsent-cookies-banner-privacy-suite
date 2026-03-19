@@ -5,6 +5,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( ! function_exists( 'str_starts_with' ) ) {
 	/**
 	 * Polyfill for `str_starts_with()` function added in PHP 8.0.

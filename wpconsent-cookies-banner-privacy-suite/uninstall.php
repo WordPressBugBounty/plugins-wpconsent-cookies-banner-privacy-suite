@@ -27,6 +27,7 @@ require_once 'wpconsent.php';
 
 // Clear any scheduled events.
 wp_clear_scheduled_hook( 'wpconsent_auto_scanner' );
+wp_clear_scheduled_hook( 'wpconsent_cleanup_scan_history' );
 wp_clear_scheduled_hook( 'wpconsent_usage_tracking_cron' );
 
 // Remove notifications.
@@ -117,13 +118,17 @@ if ( ! empty( $wpconsent_settings['uninstall_data'] ) ) {
 
 	// Maybe drop the "records of consent" table.
 	if ( class_exists( 'WPConsent_Consent_Log' ) ) {
-		$wpconsent_records_table = $wpdb->prefix . 'wpconsent_consent_logs';
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpconsent_records_table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpconsent_records_table = esc_sql( $wpdb->prefix . 'wpconsent_consent_logs' );
+		$wpdb->query( "DROP TABLE IF EXISTS `{$wpconsent_records_table}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
 
 	// Maybe drop the "Do Not Track" table.
 	if ( class_exists( 'WPConsent_DNT_DB' ) ) {
-		$wpconsent_dnt_table = $wpdb->prefix . 'wpconsent_dnt_requests';
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpconsent_dnt_table}" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$wpconsent_dnt_table = esc_sql( $wpdb->prefix . 'wpconsent_dnt_requests' );
+		$wpdb->query( "DROP TABLE IF EXISTS `{$wpconsent_dnt_table}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	}
+
+	// Drop the scan history table.
+	$wpconsent_scan_history_table = esc_sql( $wpdb->prefix . 'wpconsent_scan_history' );
+	$wpdb->query( "DROP TABLE IF EXISTS `{$wpconsent_scan_history_table}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 }

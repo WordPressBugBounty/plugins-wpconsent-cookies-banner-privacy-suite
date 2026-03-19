@@ -94,10 +94,15 @@ class WPConsent_Settings {
 				'banner_logo'                => '',
 				'cancel_button_enabled'      => 1,
 				'preferences_button_enabled' => 1,
-				'consent_floating_icon'      => 'preferences',
-				'enable_consent_banner'      => 0,
-				'disable_close_button'       => 1,
-				'manual_scan_pages'          => array(),
+				'consent_floating_icon'           => 'preferences',
+				'enable_consent_banner'           => 0,
+				'disable_close_button'            => 1,
+				'manual_scan_pages'               => array(),
+				// Scanner history and notification settings.
+				'scanner_auto_update'             => 0,
+				'scanner_email_notifications'     => 0,
+				'scanner_email_addresses'         => '',
+				'scanner_history_retention'       => 90,
 			),
 			$default_strings
 		);

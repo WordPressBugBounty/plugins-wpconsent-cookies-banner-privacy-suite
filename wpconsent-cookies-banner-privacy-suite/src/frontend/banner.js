@@ -761,35 +761,47 @@ window.WPConsent = {
 				} );
 				this.unlockScripts( allPreferences );
 				this.unlockIframes( allPreferences );
+			} else if ( !wpconsent.enable_content_blocking ) {
+				// Content blocking is disabled (e.g. by geolocation) but script blocking is still on.
+				// Only unlock iframes, not scripts.
+				const allPreferences = {};
+				wpconsent.slugs.forEach( slug => {
+					allPreferences[slug] = true;
+				} );
+				this.unlockIframes( allPreferences );
 			}
 		}
+
+		// Reveal overlay buttons on placeholders that are still blocked.
+		// They start with the wpconsent-content-hidden class to prevent a flash
+		// for content that gets unlocked immediately (opt-out mode, geolocation, etc.).
+		document.querySelectorAll( '.wpconsent-iframe-overlay-content.wpconsent-content-hidden' ).forEach( function( el ) {
+			el.classList.remove( 'wpconsent-content-hidden' );
+		} );
 
 		// Dispatch event to notify that the banner is fully initialized
 		window.dispatchEvent( new CustomEvent( 'wpconsent_banner_initialized' ) );
 	},
 
-	// Load external CSS
+	// Load external CSS using a <link> element to avoid CORS issues with fetch() on subdomain setups.
 	loadExternalCSS: function ( container ) {
-		return new Promise( ( resolve, reject ) => {
+		return new Promise( ( resolve ) => {
 			try {
 				const cssUrl = `${wpconsent.css_url}?ver=${wpconsent.css_version}`;
-				fetch( cssUrl )
-					.then( response => response.text() )
-					.then( css => {
-						const style = document.createElement( 'style' );
-						style.textContent = css;
-						this.shadowRoot.appendChild( style );
-						container.style.display = 'block';
-						resolve();
-					} )
-					.catch( error => {
-						console.error( 'Failed to load WPConsent styles:', error );
-						// Still resolve so the flow continues even if CSS fails to load
-						resolve();
-					} );
+				const link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.href = cssUrl;
+				link.onload = function () {
+					container.style.display = 'block';
+					resolve();
+				};
+				link.onerror = function () {
+					console.error( 'Failed to load WPConsent styles' );
+					resolve();
+				};
+				this.shadowRoot.appendChild( link );
 			} catch ( error ) {
 				console.error( 'Failed to load WPConsent styles:', error );
-				// Still resolve so the flow continues even if CSS fails to load
 				resolve();
 			}
 		} );

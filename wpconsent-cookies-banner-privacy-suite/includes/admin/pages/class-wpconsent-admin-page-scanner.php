@@ -28,6 +28,13 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 	public $view = 'scanner';
 
 	/**
+	 * Available views.
+	 *
+	 * @var array
+	 */
+	public $views = array();
+
+	/**
 	 * Scan results.
 	 *
 	 * @var array
@@ -48,6 +55,97 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 		$this->page_title = __( 'Website Scanner', 'wpconsent-cookies-banner-privacy-suite' );
 		$this->menu_title = __( 'Scanner', 'wpconsent-cookies-banner-privacy-suite' );
 		parent::__construct();
+	}
+
+	/**
+	 * Page specific Hooks.
+	 *
+	 * @return void
+	 */
+	public function page_hooks() {
+		$this->views = array(
+			'scanner'  => __( 'Scanner', 'wpconsent-cookies-banner-privacy-suite' ),
+			'history'  => __( 'History', 'wpconsent-cookies-banner-privacy-suite' ),
+			'settings' => __( 'Auto Scanning', 'wpconsent-cookies-banner-privacy-suite' ),
+		);
+	}
+
+	/**
+	 * For this page we output a menu.
+	 *
+	 * @return void
+	 */
+	public function output_header_bottom() {
+		?>
+		<ul class="wpconsent-admin-tabs">
+			<?php
+			foreach ( $this->views as $slug => $label ) {
+				$class = $this->view === $slug ? 'active' : '';
+				?>
+				<li>
+					<a href="<?php echo esc_url( $this->get_view_link( $slug ) ); ?>" class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $label ); ?></a>
+				</li>
+			<?php } ?>
+		</ul>
+		<?php
+	}
+
+	/**
+	 * Override the output method to handle upsell for History and Settings views.
+	 *
+	 * @return void
+	 */
+	public function output() {
+		// For history and settings views, show upsell modal with blurred content.
+		if ( 'history' === $this->view || 'settings' === $this->view ) {
+			$this->output_header();
+			?>
+			<div class="wpconsent-content">
+				<div class="wpconsent-blur-area">
+					<?php
+					if ( 'history' === $this->view ) {
+						$this->output_view_history();
+					} else {
+						$this->output_view_settings();
+					}
+					?>
+				</div>
+				<?php
+				if ( 'history' === $this->view ) {
+					echo WPConsent_Admin_page::get_upsell_box( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						esc_html__( 'Scanning History is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+						'<p>' . esc_html__( 'Upgrade to WPConsent PRO to track all website scans over time. View detected services, monitor changes, and get notified when new services are found on your website.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
+						array(
+							'text' => esc_html__( 'Upgrade to PRO and Unlock "Scanning History"', 'wpconsent-cookies-banner-privacy-suite' ),
+							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'scanner-history-page', 'main' ) ),
+						),
+						array(
+							'text' => esc_html__( 'Learn more about all the features', 'wpconsent-cookies-banner-privacy-suite' ),
+							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'scanner-history-page', 'features' ) ),
+						)
+					);
+				} else {
+					echo WPConsent_Admin_page::get_upsell_box( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						esc_html__( 'Scheduled Automatic Scans is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+						'<p>' . esc_html__( 'Upgrade to WPConsent PRO to automatically update your cookie configuration when new services are detected. Get email notifications and control how long scan history is retained.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
+						array(
+							'text' => esc_html__( 'Upgrade to PRO and Unlock "Scanner Settings"', 'wpconsent-cookies-banner-privacy-suite' ),
+							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'scanner-settings-page', 'main' ) ),
+						),
+						array(
+							'text' => esc_html__( 'Learn more about all the features', 'wpconsent-cookies-banner-privacy-suite' ),
+							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'scanner-settings-page', 'features' ) ),
+						)
+					);
+				}
+				?>
+			</div>
+			<?php
+			return;
+		}
+
+		// Default behavior for scanner view.
+		parent::output();
 	}
 
 	/**
@@ -363,5 +461,340 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Output the history view with dummy data.
+	 *
+	 * @return void
+	 */
+	protected function output_view_history() {
+		$dummy_history = $this->get_dummy_scan_history();
+		ob_start();
+		?>
+		<div class="wpconsent-scan-history-table">
+		<p><?php esc_html_e( 'View the history of all website scans. Track new services detected over time and monitor changes to your website\'s cookie usage.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+		<div class="tablenav top">
+			<div class="actions alignleft">
+				<button type="button" class="button"><?php esc_html_e( 'Export CSV', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+			</div>
+			<div class="tablenav-pages">
+				<span class="displaying-num"><?php echo esc_html( count( $dummy_history ) . ' ' . __( 'items', 'wpconsent-cookies-banner-privacy-suite' ) ); ?></span>
+			</div>
+		</div>
+		<table class="wp-list-table widefat fixed striped">
+			<thead>
+				<tr>
+					<th scope="col" class="column-scan_date"><?php esc_html_e( 'Scan Date', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-services_detected"><?php esc_html_e( 'Services Detected', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-new_services_count"><?php esc_html_e( 'New Services', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-removed_services_count"><?php esc_html_e( 'Removed Services', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-status"><?php esc_html_e( 'Status', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-actions"><?php esc_html_e( 'Actions', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ( $dummy_history as $item ) : ?>
+					<tr>
+						<td class="column-scan_date"><?php echo esc_html( $item['scan_date'] ); ?></td>
+						<td class="column-services_detected"><?php echo esc_html( $item['services_detected'] ); ?></td>
+						<td class="column-new_services_count">
+							<?php if ( $item['new_services'] > 0 ) : ?>
+								<span class="wpconsent-badge wpconsent-badge-new"><?php echo esc_html( $item['new_services'] ); ?></span>
+							<?php else : ?>
+								<?php echo esc_html( $item['new_services'] ); ?>
+							<?php endif; ?>
+						</td>
+						<td class="column-removed_services_count">
+							<?php if ( $item['removed_services'] > 0 ) : ?>
+								<span class="wpconsent-badge wpconsent-badge-removed"><?php echo esc_html( $item['removed_services'] ); ?></span>
+							<?php else : ?>
+								<?php echo esc_html( $item['removed_services'] ); ?>
+							<?php endif; ?>
+						</td>
+						<td class="column-status">
+							<?php foreach ( $item['status'] as $status ) : ?>
+								<span class="wpconsent-badge wpconsent-badge-<?php echo esc_attr( $status['class'] ); ?>"><?php echo esc_html( $status['label'] ); ?></span>
+							<?php endforeach; ?>
+						</td>
+						<td class="column-actions">
+							<div class="wpconsent-scan-history-actions">
+								<button type="button" class="wpconsent-button wpconsent-button-primary"><?php esc_html_e( 'View Details', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+								<button type="button" class="wpconsent-button wpconsent-button-secondary"><?php esc_html_e( 'Delete', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+							</div>
+						</td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+			<tfoot>
+				<tr>
+					<th scope="col" class="column-scan_date"><?php esc_html_e( 'Scan Date', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-services_detected"><?php esc_html_e( 'Services Detected', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-new_services_count"><?php esc_html_e( 'New Services', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-removed_services_count"><?php esc_html_e( 'Removed Services', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-status"><?php esc_html_e( 'Status', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+					<th scope="col" class="column-actions"><?php esc_html_e( 'Actions', 'wpconsent-cookies-banner-privacy-suite' ); ?></th>
+				</tr>
+			</tfoot>
+		</table>
+		</div>
+		<?php
+		$content = ob_get_clean();
+
+		$this->metabox(
+			esc_html__( 'Scan History', 'wpconsent-cookies-banner-privacy-suite' ),
+			$content
+		);
+	}
+
+	/**
+	 * Get dummy scan history data.
+	 *
+	 * @return array
+	 */
+	protected function get_dummy_scan_history() {
+		return array(
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-1 day' ) ),
+				'services_detected' => 8,
+				'new_services'      => 2,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'auto-updated',
+						'label' => __( 'Auto-Updated', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+					array(
+						'class' => 'email-sent',
+						'label' => __( 'Email Sent', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-8 days' ) ),
+				'services_detected' => 6,
+				'new_services'      => 1,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'auto-updated',
+						'label' => __( 'Auto-Updated', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-15 days' ) ),
+				'services_detected' => 5,
+				'new_services'      => 0,
+				'removed_services'  => 1,
+				'status'            => array(
+					array(
+						'class' => 'neutral',
+						'label' => __( 'Completed', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-22 days' ) ),
+				'services_detected' => 6,
+				'new_services'      => 0,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'neutral',
+						'label' => __( 'Completed', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-29 days' ) ),
+				'services_detected' => 6,
+				'new_services'      => 1,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'auto-updated',
+						'label' => __( 'Auto-Updated', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+					array(
+						'class' => 'email-sent',
+						'label' => __( 'Email Sent', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-36 days' ) ),
+				'services_detected' => 5,
+				'new_services'      => 0,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'neutral',
+						'label' => __( 'Completed', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-43 days' ) ),
+				'services_detected' => 5,
+				'new_services'      => 2,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'auto-updated',
+						'label' => __( 'Auto-Updated', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-50 days' ) ),
+				'services_detected' => 3,
+				'new_services'      => 0,
+				'removed_services'  => 1,
+				'status'            => array(
+					array(
+						'class' => 'email-sent',
+						'label' => __( 'Email Sent', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-57 days' ) ),
+				'services_detected' => 4,
+				'new_services'      => 1,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'auto-updated',
+						'label' => __( 'Auto-Updated', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+			array(
+				'scan_date'         => wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( '-64 days' ) ),
+				'services_detected' => 3,
+				'new_services'      => 0,
+				'removed_services'  => 0,
+				'status'            => array(
+					array(
+						'class' => 'neutral',
+						'label' => __( 'Completed', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * Output the settings view with dummy data.
+	 *
+	 * @return void
+	 */
+	protected function output_view_settings() {
+		ob_start();
+		?>
+		<form method="post" action="">
+			<!-- Auto Scanning -->
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="auto_scanner"><?php esc_html_e( 'Auto Scanning', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<label class="wpconsent-checkbox-toggle">
+						<input type="checkbox" name="auto_scanner" id="auto_scanner" value="1" checked disabled />
+						<span class="wpconsent-checkbox-toggle-slider"></span>
+					</label>
+					<p class="description"><?php esc_html_e( 'Automatically scan your website in the background to detect services that may track your visitors.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+				</div>
+			</div>
+
+			<?php $this->metabox_row_separator(); ?>
+
+			<!-- Scan Interval -->
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="auto_scanner_interval"><?php esc_html_e( 'Scan Interval', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<select name="auto_scanner_interval" id="auto_scanner_interval" class="wpconsent-select" disabled>
+						<option value="1" selected><?php esc_html_e( 'Daily', 'wpconsent-cookies-banner-privacy-suite' ); ?></option>
+						<option value="7"><?php esc_html_e( 'Weekly', 'wpconsent-cookies-banner-privacy-suite' ); ?></option>
+						<option value="30"><?php esc_html_e( 'Monthly', 'wpconsent-cookies-banner-privacy-suite' ); ?></option>
+					</select>
+					<p class="description"><?php esc_html_e( 'Choose how often to automatically scan your website for tracking services.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+				</div>
+			</div>
+
+			<?php $this->metabox_row_separator(); ?>
+
+			<!-- Auto-Update Services -->
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="scanner_auto_update"><?php esc_html_e( 'Auto-Update Services', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<label class="wpconsent-checkbox-toggle">
+						<input type="checkbox" name="scanner_auto_update" id="scanner_auto_update" value="1" checked disabled />
+						<span class="wpconsent-checkbox-toggle-slider"></span>
+					</label>
+					<p class="description"><?php esc_html_e( 'Automatically add newly detected services to your cookie configuration.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+					<p><strong><?php esc_html_e( 'Note:', 'wpconsent-cookies-banner-privacy-suite' ); ?></strong> <?php esc_html_e( 'The scanner only adds new services, it never removes existing ones. This is by design since some services may only load on pages that are not scanned.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+				</div>
+			</div>
+
+			<?php $this->metabox_row_separator(); ?>
+
+			<!-- Email Notifications -->
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="scanner_email_notifications"><?php esc_html_e( 'Email Notifications', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<label class="wpconsent-checkbox-toggle">
+						<input type="checkbox" name="scanner_email_notifications" id="scanner_email_notifications" value="1" checked disabled />
+						<span class="wpconsent-checkbox-toggle-slider"></span>
+					</label>
+					<p class="description"><?php esc_html_e( 'Send email notifications when new services are detected on your website.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+				</div>
+			</div>
+
+			<!-- Email Addresses -->
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="scanner_email_addresses"><?php esc_html_e( 'Notification Email Addresses', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<input type="text" name="scanner_email_addresses" id="scanner_email_addresses" value="<?php echo esc_attr( get_option( 'admin_email' ) ); ?>" class="wpconsent-input-email" disabled />
+					<p class="description"><?php esc_html_e( 'Comma-separated list of email addresses to receive notifications. Leave empty to use the admin email.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+					<p>
+						<button type="button" class="wpconsent-button wpconsent-button-secondary" disabled><?php esc_html_e( 'Send Test Email', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+					</p>
+				</div>
+			</div>
+
+			<?php $this->metabox_row_separator(); ?>
+
+			<!-- History Retention -->
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="scanner_history_retention"><?php esc_html_e( 'History Retention (Days)', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<input type="number" name="scanner_history_retention" id="scanner_history_retention" class="wpconsent-regular-text wpconsent-input-number" value="90" min="0" max="365" disabled />
+					<p><?php esc_html_e( 'How long to keep scan history records. Set to 0 to keep forever.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+				</div>
+			</div>
+
+			<div class="wpconsent-metabox-form-row">
+				<button type="button" class="wpconsent-button wpconsent-button-primary" disabled><?php esc_html_e( 'Save Settings', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+			</div>
+		</form>
+		<?php
+		$content = ob_get_clean();
+
+		$this->metabox(
+			esc_html__( 'Scanner Settings', 'wpconsent-cookies-banner-privacy-suite' ),
+			$content
+		);
 	}
 }

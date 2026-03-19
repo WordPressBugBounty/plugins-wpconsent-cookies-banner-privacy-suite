@@ -5,6 +5,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class WPConsent_Admin_Page_Banner.
  */
@@ -162,11 +166,35 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Get the TCF notice for the Banner Layout section.
+	 *
+	 * Returns an empty string by default. Pro classes override this when IAB TCF is enabled.
+	 *
+	 * @return string
+	 */
+	protected function get_tcf_layout_notice() {
+		return '';
+	}
+
+	/**
+	 * Get the TCF notice for the Banner Content section.
+	 *
+	 * Returns an empty string by default. Pro classes override this when IAB TCF is enabled.
+	 *
+	 * @return string
+	 */
+	protected function get_tcf_content_notice() {
+		return '';
+	}
+
+	/**
 	 * Output the layout view.
 	 *
 	 * @return void
 	 */
 	public function output_view_layout() {
+		echo $this->get_tcf_layout_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		$this->metabox_row(
 			esc_html__( 'Layout', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->image_radio(
@@ -175,7 +203,13 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				wpconsent()->settings->get_option( 'banner_layout', 'long' ),
 				'large'
 			),
-			'banner_layout'
+			'banner_layout',
+			'',
+			'',
+			'',
+			false,
+			'',
+			$this->is_tcf_field_locked( 'banner_layout' )
 		);
 
 		$this->metabox_row(
@@ -573,6 +607,8 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 	 * @return void
 	 */
 	public function output_view_content() {
+		echo $this->get_tcf_content_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		$this->metabox_row(
 			esc_html__( 'Message', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->wysiwyg(
@@ -581,12 +617,25 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				'',
 				'.wpconsent-banner-body'
 			),
-			'banner_preferences_color'
+			'banner_message',
+			'',
+			'',
+			'',
+			false,
+			'',
+			$this->is_tcf_field_locked( 'banner_message' )
 		);
 		$this->metabox_row_separator();
 		$this->metabox_row(
 			esc_html__( 'Buttons', 'wpconsent-cookies-banner-privacy-suite' ),
-			$this->buttons_content_fields()
+			$this->buttons_content_fields(),
+			'',
+			'',
+			'',
+			'',
+			false,
+			'',
+			$this->is_tcf_field_locked( 'accept_button_text' )
 		);
 		$this->metabox_row(
 			esc_html__( 'Disable Close Button', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -631,7 +680,13 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				'',
 				'preferences_panel_description'
 			),
-			'preferences_panel_description'
+			'preferences_panel_description',
+			'',
+			'',
+			'',
+			false,
+			'',
+			$this->is_tcf_field_locked( 'preferences_panel_description' )
 		);
 		$this->metabox_row(
 			esc_html__( 'Cookie Policy Title', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -667,7 +722,13 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				'',
 				'save_preferences_button_text'
 			),
-			'save_preferences_button_text'
+			'save_preferences_button_text',
+			'',
+			'',
+			'',
+			false,
+			'',
+			$this->is_tcf_field_locked( 'save_preferences_button_text' )
 		);
 		$this->metabox_row(
 			esc_html__( 'Close Button Text', 'wpconsent-cookies-banner-privacy-suite' ),

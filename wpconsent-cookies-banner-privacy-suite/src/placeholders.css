@@ -72,6 +72,10 @@ div.wpforms-container-full .wpconsent-iframe-overlay-content,
 	z-index: 5;
 }
 
+.wpconsent-iframe-overlay-content.wpconsent-content-hidden {
+	visibility: hidden;
+}
+
 .wpforms-form .wpconsent-iframe-accept-button,
 div.wpforms-container-full .wpconsent-iframe-accept-button,
 .wpconsent-iframe-accept-button {

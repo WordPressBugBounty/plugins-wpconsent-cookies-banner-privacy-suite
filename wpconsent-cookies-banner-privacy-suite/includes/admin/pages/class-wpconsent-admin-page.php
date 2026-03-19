@@ -6,6 +6,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class Admin_Page
  */
@@ -651,10 +655,11 @@ abstract class WPConsent_Admin_Page {
 	 * @param string $description Description to show under the input.
 	 * @param bool   $is_pro Whether this is a pro feature and the pro indicator should be shown next to the label.
 	 * @param string $id The id of the metabox row.
+	 * @param bool   $locked Whether the field is locked (e.g. enforced by IAB TCF) and should render as non-editable.
 	 *
 	 * @return void
 	 */
-	public function metabox_row( $label, $input, $input_id = '', $show_if_id = '', $show_if_value = '', $description = '', $is_pro = false, $id = '' ) {
+	public function metabox_row( $label, $input, $input_id = '', $show_if_id = '', $show_if_value = '', $description = '', $is_pro = false, $id = '', $locked = false ) {
 		$show_if_rules = '';
 		if ( ! empty( $show_if_id ) ) {
 			$show_if_rules = sprintf( 'data-show-if-id="%1$s" data-show-if-value="%2$s"', esc_attr( $show_if_id ), esc_attr( $show_if_value ) );
@@ -664,12 +669,24 @@ abstract class WPConsent_Admin_Page {
 		if ( $is_pro ) {
 			$class .= ' wpconsent-form-row-pro';
 		}
+		if ( $locked ) {
+			$class .= ' wpconsent-field-tcf-locked';
+		}
 		?>
-		<div class="<?php echo esc_attr( $class ); ?>" <?php echo $show_if_rules; ?> <?php
-		echo $id; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		?>
+		<div class="<?php echo esc_attr( $class ); ?>"
+			<?php
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built with esc_attr().
+			echo $show_if_rules;
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			echo $id;
+			?>
 		>
 			<div class="wpconsent-metabox-form-row-label">
+				<?php
+				if ( $locked ) {
+					echo '<span class="wpconsent-tcf-lock-icon" aria-hidden="true"><span class="dashicons dashicons-lock"></span></span>';
+				}
+				?>
 				<label for="<?php echo esc_attr( $input_id ); ?>">
 					<?php echo esc_html( $label ); ?>
 					<?php
@@ -689,6 +706,44 @@ abstract class WPConsent_Admin_Page {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Check whether a specific field is locked by IAB TCF enforcement.
+	 *
+	 * Returns false by default; Pro classes override this when IAB TCF is enabled.
+	 *
+	 * @param string $field The option/field name to check.
+	 *
+	 * @return bool
+	 */
+	protected function is_tcf_field_locked( $field ) {
+		return false;
+	}
+
+	/**
+	 * Get the HTML for a TCF enforcement notice.
+	 *
+	 * @param string $message The notice message (may contain HTML links).
+	 * @param string $link_url URL for the "Manage TCF settings" link.
+	 * @param string $link_text Link text for the settings link.
+	 *
+	 * @return string
+	 */
+	protected function get_tcf_notice( $message, $link_url = '', $link_text = '' ) {
+		$link = '';
+		if ( ! empty( $link_url ) ) {
+			$link = sprintf(
+				' <a href="%1$s">%2$s &rarr;</a>',
+				esc_url( $link_url ),
+				esc_html( $link_text )
+			);
+		}
+		return sprintf(
+			'<div class="wpconsent-tcf-notice" role="status"><span class="dashicons dashicons-info-outline" aria-hidden="true"></span><span>%1$s%2$s</span></div>',
+			wp_kses_post( $message ),
+			$link // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		);
 	}
 
 	/**

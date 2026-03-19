@@ -5,6 +5,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class WPConsent_Admin_Page_Cookies.
  */
@@ -277,6 +281,17 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Get the TCF notice for the Consent Settings section.
+	 *
+	 * Returns an empty string by default. Pro classes override this when IAB TCF is enabled.
+	 *
+	 * @return string
+	 */
+	protected function get_tcf_consent_settings_notice() {
+		return '';
+	}
+
+	/**
 	 * Get the settings metabox.
 	 *
 	 * @return string
@@ -285,6 +300,8 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 
 		ob_start();
 
+		echo $this->get_tcf_consent_settings_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		$this->metabox_row(
 				esc_html__( 'Consent Banner', 'wpconsent-cookies-banner-privacy-suite' ),
 				$this->get_checkbox_toggle(
@@ -292,7 +309,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 						'enable_consent_banner',
 						esc_html__( 'Enable displaying the consent banner on your website.', 'wpconsent-cookies-banner-privacy-suite' )
 				),
-				'enable_consent_banner'
+				'enable_consent_banner',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'enable_consent_banner' )
 		);
 
 		$this->metabox_row(
@@ -307,7 +330,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 								'</a>'
 						)
 				) . $this->help_icon( __( 'Script blocking is not available without displaying the banner', 'wpconsent-cookies-banner-privacy-suite' ), false ),
-				'enable_script_blocking'
+				'enable_script_blocking',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'enable_script_blocking' )
 		);
 
 		$this->metabox_row(
@@ -322,7 +351,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 								'</a>'
 						)
 				) . $this->help_icon( __( 'Google Consent Mode will not be loaded if the banner is disabled.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
-				'google_consent_mode'
+				'google_consent_mode',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'google_consent_mode' )
 		);
 
 		$this->metabox_row(
@@ -332,7 +367,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 						'enable_consent_floating',
 						esc_html__( 'Show a floating button to manage consent after the banner is dismissed.', 'wpconsent-cookies-banner-privacy-suite' )
 				),
-				'enable_consent_floating'
+				'enable_consent_floating',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'enable_consent_floating' )
 		);
 
 		$this->metabox_row(
@@ -347,7 +388,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 								'</a>'
 						)
 				),
-				'default_allow'
+				'default_allow',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'default_allow' )
 		);
 
 		$this->metabox_row(
@@ -357,7 +404,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 						'manual_toggle_services',
 						esc_html__( 'Allow site visitors to toggle individual services from the preferences panel.', 'wpconsent-cookies-banner-privacy-suite' )
 				),
-				'manual_toggle_services'
+				'manual_toggle_services',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'manual_toggle_services' )
 		);
 
 		$this->metabox_row_separator();
@@ -422,8 +475,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		);
 		$this->metabox_row_separator();
 		$this->records_of_consent_input();
-		$this->metabox_row_separator();
-		$this->automatic_scanning_input();
 
 		return ob_get_clean();
 	}
@@ -445,43 +496,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				'',
 				'',
 				'',
-				true
-		);
-	}
-
-	/**
-	 * Get the input for enabling records of consent.
-	 *
-	 * @return void
-	 */
-	public function automatic_scanning_input() {
-		$this->metabox_row(
-				esc_html__( 'Auto Scanning', 'wpconsent-cookies-banner-privacy-suite' ),
-				$this->get_checkbox_toggle(
-						false,
-						'wpconsent-auto-scanner-lite',
-						esc_html__( 'Enable automatic scanning of consent compliance in the background.', 'wpconsent-cookies-banner-privacy-suite' )
-				),
-				'wpconsent-auto-scanner-lite',
-				'',
-				'',
-				'',
-				true
-		);
-		$this->metabox_row(
-				esc_html__( 'Scan Interval', 'wpconsent-cookies-banner-privacy-suite' ),
-				$this->select(
-						'wpconsent-auto-scanner-interval-lite',
-						array(
-								'1'  => esc_html__( 'Daily', 'wpconsent-cookies-banner-privacy-suite' ),
-								'7'  => esc_html__( 'Weekly', 'wpconsent-cookies-banner-privacy-suite' ),
-								'30' => esc_html__( 'Monthly', 'wpconsent-cookies-banner-privacy-suite' ),
-						)
-				),
-				'wpconsent-auto-scanner-interval-lite',
-				'',
-				'',
-				esc_html__( 'Choose how often to automatically scan your website for compliance.', 'wpconsent-cookies-banner-privacy-suite' ),
 				true
 		);
 	}
@@ -520,10 +534,12 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 					</div>
 					<div class="wpconsent-button-enabled-column">
 						<textarea class="wpconsent-hidden wpconsent-category-description" readonly><?php echo esc_textarea( $category['description'] ); ?></textarea>
-						<button class="wpconsent-button wpconsent-button-just-icon wpconsent-edit-category" type="button">
-							<?php wpconsent_icon( 'edit', 15, 16 ); ?>
-						</button>
-						<?php if ( ! array_key_exists( $slug, $default_categories ) ) : ?>
+						<?php if ( apply_filters( 'wpconsent_show_category_edit_button', true, $slug, $category ) ) : ?>
+							<button class="wpconsent-button wpconsent-button-just-icon wpconsent-edit-category" type="button">
+								<?php wpconsent_icon( 'edit', 15, 16 ); ?>
+							</button>
+						<?php endif; ?>
+						<?php if ( apply_filters( 'wpconsent_show_category_delete_button', ! array_key_exists( $slug, $default_categories ), $slug, $category ) ) : ?>
 							<button class="wpconsent-button wpconsent-button-just-icon wpconsent-delete-category" data-button-id="<?php echo esc_attr( $category['id'] ); ?>" type="button">
 								<?php wpconsent_icon( 'delete', 14, 16 ); ?>
 							</button>
@@ -533,11 +549,13 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				<?php
 			}
 			?>
-			<div class="wpconsent-actions-row">
-				<button class="wpconsent-button wpconsent-button-text" type="button" id="wpconsent-add-category">
-					<?php echo esc_html__( '+ Add New Category', 'wpconsent-cookies-banner-privacy-suite' ); ?>
-				</button>
-			</div>
+			<?php if ( apply_filters( 'wpconsent_show_add_category_button', true ) ) : ?>
+				<div class="wpconsent-actions-row">
+					<button class="wpconsent-button wpconsent-button-text" type="button" id="wpconsent-add-category">
+						<?php echo esc_html__( '+ Add New Category', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+					</button>
+				</div>
+			<?php endif; ?>
 		</div>
 		<div class="wpconsent-input-area-description">
 			<?php esc_html_e( 'Customize the information for cookie categories.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
@@ -1092,7 +1110,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		</div>
 
 		<div class="wpconsent-metabox-form-row wpconsent-metabox-form-row-separator"></div>
-		
+
 		<div class="wpconsent-metabox-form-row">
 			<div class="wpconsent-metabox-form-row-label">
 				<label>
@@ -1645,22 +1663,26 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		$dummy_data = $this->get_iab_tcf_dummy_data();
 
 		?>
-		<div class="wpconsent-blur-area">
-			<?php $this->output_iab_tcf_preview( $dummy_data ); ?>
+		<div style="position: relative; max-height: 700px; overflow: hidden;">
+			<div class="wpconsent-blur-area">
+				<?php $this->output_iab_tcf_preview( $dummy_data ); ?>
+			</div>
+			<?php
+			echo WPConsent_Admin_Page::get_upsell_box( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					esc_html__( 'IAB TCF is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+					'<p>' . esc_html__( 'Upgrade to WPConsent PRO today to enable IAB Transparency & Consent Framework v2.2 support. Manage vendor consents, publisher restrictions, and ensure compliance with the TCF specification.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
+					array(
+							'text' => esc_html__( 'Upgrade to PRO and Unlock IAB TCF', 'wpconsent-cookies-banner-privacy-suite' ),
+							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'iab-tcf-page', 'main' ) ),
+					),
+					array(
+							'text' => esc_html__( 'Learn more about all the features', 'wpconsent-cookies-banner-privacy-suite' ),
+							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'iab-tcf-page', 'features' ) ),
+					)
+			);
+			?>
 		</div>
 		<?php
-		echo WPConsent_Admin_Page::get_upsell_box( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				esc_html__( 'IAB TCF is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
-				'<p>' . esc_html__( 'Upgrade to WPConsent PRO today to enable IAB Transparency & Consent Framework v2.2 support. Manage vendor consents, publisher restrictions, and ensure compliance with the TCF specification.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
-				array(
-						'text' => esc_html__( 'Upgrade to PRO and Unlock IAB TCF', 'wpconsent-cookies-banner-privacy-suite' ),
-						'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'iab-tcf-page', 'main' ) ),
-				),
-				array(
-						'text' => esc_html__( 'Learn more about all the features', 'wpconsent-cookies-banner-privacy-suite' ),
-						'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'iab-tcf-page', 'features' ) ),
-				)
-		);
 	}
 
 	/**

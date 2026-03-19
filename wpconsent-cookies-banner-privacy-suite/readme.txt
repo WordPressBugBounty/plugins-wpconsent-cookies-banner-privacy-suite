@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.1.3.1
+Stable tag: 1.1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +135,10 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+= 1.1.4 =
+* New: Added compatibility with Avada Live Builder to prevent script blocking in the editor.
+* Tweak: Improved the way banner styles are loaded for better compatibility with different site configurations.
 
 = 1.1.3.1 =
 * Fix: Admin page footer was overlapping content in some browsers.

@@ -5,6 +5,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Class WPConsent_Cookies.
  */
@@ -641,6 +645,7 @@ class WPConsent_Cookies {
 		}
 
 		// If SiteKit plugin has the consent mode enabled we don't need to add the default state script.
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Hook defined by Google Site Kit plugin.
 		if ( 'enabled' === apply_filters( 'googlesitekit_consent_mode_status', 'disabled' ) ) {
 			return false;
 		}

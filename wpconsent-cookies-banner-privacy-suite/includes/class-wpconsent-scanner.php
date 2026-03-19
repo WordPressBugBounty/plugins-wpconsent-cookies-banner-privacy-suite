@@ -9,6 +9,10 @@
  * @package WPConsent
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * WPConsent Scanner, singleton pattern.
  */
@@ -635,7 +639,7 @@ class WPConsent_Scanner {
 	 *
 	 * @return void
 	 */
-	public function save_scan_data( $data ) {
+	public function save_scan_data( $data, $source = 'manual' ) {
 		// Don't save the $data['message'] if set.
 		unset( $data['message'] );
 
@@ -645,6 +649,17 @@ class WPConsent_Scanner {
 		);
 
 		update_option( 'wpconsent_scanner_data', $scanner_data );
+
+		/**
+		 * Fires after scan data is saved.
+		 *
+		 * This hook allows the scan history to be recorded and post-scan
+		 * processing to occur (auto-update, notifications, etc.).
+		 *
+		 * @param array  $data   The scan data that was saved.
+		 * @param string $source The scan source: 'manual' or 'auto'.
+		 */
+		do_action( 'wpconsent_scan_data_saved', $data, $source );
 	}
 
 	/**
@@ -681,6 +696,98 @@ class WPConsent_Scanner {
 		$scan_data['configured_time'] = current_time( 'mysql' );
 
 		update_option( 'wpconsent_scanner_data', $scan_data );
+	}
+
+	/**
+	 * Configure services and their cookies from a list of service slugs.
+	 *
+	 * Looks up each slug in the service library, creates the service and its
+	 * cookies if they don't already exist, and marks them as auto-added.
+	 * Skips services whose category is not found or whose service record
+	 * could not be created.
+	 *
+	 * @param array $service_slugs Array of service slugs to configure.
+	 * @return int Number of services configured.
+	 */
+	public function auto_configure_services( $service_slugs ) {
+		$all_services = wpconsent()->services->get_services();
+		$categories   = wpconsent()->cookies->get_categories();
+		$configured   = 0;
+
+		foreach ( $service_slugs as $service_slug ) {
+			if ( ! isset( $all_services[ $service_slug ] ) ) {
+				continue;
+			}
+
+			$service_data     = $all_services[ $service_slug ];
+			$category         = $service_data['category'];
+			$existing_cookies = array();
+
+			$existing_service = wpconsent()->cookies->get_service_by_slug( $service_slug );
+
+			if ( $existing_service && wpconsent()->cookies->is_service_auto_added( $existing_service ) ) {
+				$service_id       = $existing_service['id'];
+				$existing_cookies = wpconsent()->cookies->get_cookies_by_service( $service_id );
+				// Filter out cookies that were manually added.
+				$existing_cookies = array_filter(
+					$existing_cookies,
+					function ( $cookie ) {
+						return $cookie['auto_added'];
+					}
+				);
+			} else {
+				if ( ! isset( $categories[ $category ] ) ) {
+					continue;
+				}
+
+				$category_id = $categories[ $category ]['id'];
+				$service_id  = wpconsent()->cookies->add_service(
+					$service_data['label'],
+					$category_id,
+					$service_data['description'],
+					$service_data['service_url']
+				);
+
+				if ( empty( $service_id ) ) {
+					continue;
+				}
+			}
+
+			++$configured;
+
+			update_term_meta( $service_id, '_wpconsent_auto_added', true );
+			update_term_meta( $service_id, '_wpconsent_source_slug', $service_slug );
+
+			foreach ( $service_data['cookies'] as $cookie => $cookie_data ) {
+				$existing_cookie = array_filter(
+					$existing_cookies,
+					function ( $existing_cookie ) use ( $cookie ) {
+						return $existing_cookie['cookie_id'] === $cookie;
+					}
+				);
+
+				if ( ! empty( $existing_cookie ) ) {
+					continue;
+				}
+
+				$cookie_id = wpconsent()->cookies->add_cookie(
+					$cookie,
+					$cookie,
+					$cookie_data['description'],
+					$service_id,
+					$cookie_data['duration']
+				);
+
+				if ( empty( $cookie_id ) ) {
+					continue;
+				}
+
+				update_post_meta( $cookie_id, '_wpconsent_auto_added', true );
+				update_post_meta( $cookie_id, '_wpconsent_source_slug', $cookie );
+			}
+		}
+
+		return $configured;
 	}
 
 	/**

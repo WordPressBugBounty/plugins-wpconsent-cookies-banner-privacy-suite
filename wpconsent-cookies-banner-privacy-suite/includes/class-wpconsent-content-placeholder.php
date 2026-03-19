@@ -202,7 +202,7 @@ class WPConsent_Content_Placeholder {
 		$button_text = str_replace( '{category}', $category_name, $button_text );
 
 		return sprintf(
-			'<div class="wpconsent-iframe-overlay-content">
+			'<div class="wpconsent-iframe-overlay-content wpconsent-content-hidden">
 				<button class="wpconsent-iframe-accept-button" data-category="%s" type="button">%s</button>
 			</div>',
 			esc_attr( $category ),
