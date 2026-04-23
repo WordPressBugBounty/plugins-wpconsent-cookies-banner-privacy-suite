@@ -256,8 +256,12 @@ class WPConsent_Scanner {
 
 			// If this is the final scan, save the aggregated results.
 			if ( $is_final ) {
-				$final_results       = $this->get_aggregated_results();
-				$response['message'] = $this->get_message( $final_results );
+				// Return the aggregated, deduplicated results to the client so consumers (e.g. the onboarding wizard) render the full set from all scanned pages, not just the last page.
+				$response = $this->get_aggregated_results();
+				// Sync services_needed with the full aggregated list so save_email() subscribes the user with every detected service. array_values() re-indexes because aggregate_scan_results() runs array_unique() which preserves sparse keys, and save_email() JSON-encodes this for the subscribe endpoint — sparse keys would serialize as an object instead of an array.
+				$this->services_needed  = array_values( $response['services_needed'] );
+				$response['services_needed'] = $this->services_needed;
+				$response['message']    = $this->get_message( $response );
 
 				$scanned_pages = isset( $_POST['scanned_pages'] ) ? absint( $_POST['scanned_pages'] ) : 0;
 				$total_pages   = isset( $_POST['total_pages'] ) ? absint( $_POST['total_pages'] ) : 0;
@@ -270,7 +274,7 @@ class WPConsent_Scanner {
 					$total_pages
 				);
 
-				$this->save_scan_data( $final_results );
+				$this->save_scan_data( $response );
 				// Delete the temp option.
 				delete_option( 'wpconsent_scanner_' . $request_id );
 			} else {

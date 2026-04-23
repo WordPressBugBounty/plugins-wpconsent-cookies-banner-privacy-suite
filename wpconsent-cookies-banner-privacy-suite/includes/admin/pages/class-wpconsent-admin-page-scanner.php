@@ -64,9 +64,10 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 	 */
 	public function page_hooks() {
 		$this->views = array(
-			'scanner'  => __( 'Scanner', 'wpconsent-cookies-banner-privacy-suite' ),
-			'history'  => __( 'History', 'wpconsent-cookies-banner-privacy-suite' ),
-			'settings' => __( 'Auto Scanning', 'wpconsent-cookies-banner-privacy-suite' ),
+			'scanner'   => __( 'Scanner', 'wpconsent-cookies-banner-privacy-suite' ),
+			'inspector' => __( 'Inspector', 'wpconsent-cookies-banner-privacy-suite' ),
+			'history'   => __( 'History', 'wpconsent-cookies-banner-privacy-suite' ),
+			'settings'  => __( 'Auto Scanning', 'wpconsent-cookies-banner-privacy-suite' ),
 		);
 	}
 
@@ -167,6 +168,11 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 	 * @return void
 	 */
 	public function output_content() {
+		if ( 'inspector' === $this->view ) {
+			$this->output_view_inspector();
+			return;
+		}
+
 		$this->metabox(
 			esc_html__( 'Scan Overview', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->get_scan_overview()
@@ -180,8 +186,680 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 
 		$this->metabox(
 			__( 'Detailed Report', 'wpconsent-cookies-banner-privacy-suite' ),
-			$this->get_scanner_input()
+			$this->get_scanner_input(),
+			'',
+			'wpconsent-scan-detailed-report'
 		);
+	}
+
+	/**
+	 * Output the inspector review view.
+	 *
+	 * @return void
+	 */
+	public function output_view_inspector() {
+		$pending_cookies = wpconsent()->inspector->get_pending_cookies();
+		$data            = wpconsent()->inspector->get_categories_and_services();
+		$categories      = $data['categories'];
+		$services        = $data['services'];
+		$is_active       = wpconsent()->inspector->is_active();
+		$cookies_url     = admin_url( 'admin.php?page=wpconsent-cookies' );
+		$start_url       = wp_nonce_url(
+			admin_url( 'admin-post.php?action=wpconsent_start_inspector' ),
+			'wpconsent_start_inspector'
+		);
+
+		$title = ! empty( $pending_cookies )
+			? esc_html__( 'Review Cookies', 'wpconsent-cookies-banner-privacy-suite' )
+				. ' <span class="wpconsent-review-progress-badge" id="wpconsent-review-progress-badge">'
+				. '<span id="wpconsent-review-badge-current">1</span> / '
+				. count( $pending_cookies )
+				. '</span>'
+			: esc_html__( 'Cookie Inspector', 'wpconsent-cookies-banner-privacy-suite' );
+
+		$this->metabox(
+			$title,
+			$this->get_inspector_unified_content( $pending_cookies, $is_active, $start_url, $cookies_url )
+		);
+
+		// Output data for the wizard JS (needed when pending cookies exist).
+		if ( ! empty( $pending_cookies ) ) {
+			?>
+			<?php
+			$is_pro = class_exists( 'WPConsent_License' );
+
+			// Get existing blocking rules if available (Pro).
+			$blocking_rules = array();
+			if ( $is_pro && method_exists( wpconsent()->inspector, 'get_blocking_rules' ) ) {
+				$blocking_rules = wpconsent()->inspector->get_blocking_rules();
+			}
+			?>
+			<script>
+				var wpconsentInspectorReview = <?php echo wp_json_encode( array(
+					'cookies'       => $pending_cookies,
+					'categories'    => $categories,
+					'services'      => $services,
+					'blockingRules' => $blocking_rules,
+					'isPro'          => $is_pro,
+					'pagesInspected' => $this->get_inspector_pages_count(),
+					'upgradeUrl'     => wpconsent_utm_url( 'https://wpconsent.com/lite/', 'cookie-inspector', 'script-blocking' ),
+					'nonce'         => wp_create_nonce( 'wpconsent_inspector' ),
+					'ajaxurl'       => admin_url( 'admin-ajax.php' ),
+					'cookiesUrl'    => $cookies_url,
+					'startUrl'      => $start_url,
+					'i18n'          => array(
+						'serviceRequiredForBlocking' => __( 'Please select a service to create a blocking rule, or turn off the Block Script toggle to skip.', 'wpconsent-cookies-banner-privacy-suite' ),
+						'none'                       => __( '— No service (category only) —', 'wpconsent-cookies-banner-privacy-suite' ),
+						'chooseCategory'             => __( '— Choose Category —', 'wpconsent-cookies-banner-privacy-suite' ),
+						'createNewService'           => __( '+ Create new service…', 'wpconsent-cookies-banner-privacy-suite' ),
+						'addFromLibrary'             => __( '→ Add from Library', 'wpconsent-cookies-banner-privacy-suite' ),
+						'addFromLibraryPro'          => __( '→ Add from Library (PRO)', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the cookie category name. */
+						'upgradePrompt'              => __( 'This cookie was loaded before consent. WPConsent Pro can trace some cookies to the script that added them and suggest a custom script blocking rule to prevent the script from loading before consent.', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the blocking rule/service name. */
+						'willBeBlocked'              => __( '✓ Will be blocked by the rule you created for %s', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the blocking rule/service name. */
+						'alreadyBlocked'             => __( '✓ Already blocked by %s', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the cookie category name. */
+						'blockDescription'           => __( 'Prevent this script from running until the visitor consents to %s cookies.', 'wpconsent-cookies-banner-privacy-suite' ),
+						'summarySavedOne'            => __( '1 cookie documented', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the number of cookies. */
+						'summarySavedMany'           => __( '%s cookies documented', 'wpconsent-cookies-banner-privacy-suite' ),
+						'summarySkippedOne'          => __( '1 cookie skipped', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the number of cookies. */
+						'summarySkippedMany'         => __( '%s cookies skipped', 'wpconsent-cookies-banner-privacy-suite' ),
+						'summaryRulesOne'            => __( '1 blocking rule created', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the number of blocking rules. */
+						'summaryRulesMany'           => __( '%s blocking rules created', 'wpconsent-cookies-banner-privacy-suite' ),
+						'summaryPagesOne'            => __( '1 page inspected', 'wpconsent-cookies-banner-privacy-suite' ),
+						/* translators: %s is the number of pages. */
+						'summaryPagesMany'           => __( '%s pages inspected', 'wpconsent-cookies-banner-privacy-suite' ),
+						'loadedBeforeConsent'        => __( 'Loaded before consent', 'wpconsent-cookies-banner-privacy-suite' ),
+					),
+				) ); ?>
+			</script>
+			<?php
+
+			// Output the new service modal template.
+			$this->output_new_service_modal( $categories );
+
+			// Output the service library modal for Pro users.
+			if ( $is_pro ) {
+				$this->output_service_library_modal();
+			}
+		}
+	}
+
+	/**
+	 * Get the unified inspector content based on current state.
+	 *
+	 * @param array  $pending_cookies Pending cookies.
+	 * @param bool   $is_active Whether the inspector is currently running.
+	 * @param string $start_url URL to start the inspector.
+	 * @param string $cookies_url URL to the cookies settings page.
+	 *
+	 * @return string
+	 */
+	public function get_inspector_unified_content( $pending_cookies, $is_active, $start_url, $cookies_url ) {
+		ob_start();
+		$mode = wpconsent()->inspector->get_inspector_mode();
+
+		if ( ! empty( $pending_cookies ) ) {
+			// State: Pending Review -- show the wizard directly.
+			$this->render_inspector_wizard( $pending_cookies, $start_url, $cookies_url );
+		} elseif ( $is_active ) {
+			// State: Active -- inspector is running on the frontend.
+			$this->render_inspector_active( $mode );
+		} else {
+			// State: Ready -- no pending cookies, inspector not running.
+			$this->render_inspector_ready( $start_url, $mode );
+		}
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render the inspector mode badge with a short explanation.
+	 *
+	 * @param string $mode Inspector mode: 'optin', 'optout', or 'discovery'.
+	 *
+	 * @return void
+	 */
+	protected function render_inspector_mode_badge( $mode ) {
+		$labels = array(
+			'optin'     => __( 'Opt-in mode', 'wpconsent-cookies-banner-privacy-suite' ),
+			'optout'    => __( 'Opt-out mode', 'wpconsent-cookies-banner-privacy-suite' ),
+			'discovery' => __( 'Discovery mode', 'wpconsent-cookies-banner-privacy-suite' ),
+		);
+		$descriptions = array(
+			'optin'     => __( 'Scripts are blocked until the visitor consents. Cookies loaded before consent are flagged as violations.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'optout'    => __( 'Scripts are allowed by default. Cookies that persist after the visitor rejects consent are flagged as violations.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'discovery' => __( 'Script blocking is disabled. The inspector detects cookies but does not verify blocking.', 'wpconsent-cookies-banner-privacy-suite' ),
+		);
+
+		$label       = isset( $labels[ $mode ] ) ? $labels[ $mode ] : $labels['optin'];
+		$description = isset( $descriptions[ $mode ] ) ? $descriptions[ $mode ] : $descriptions['optin'];
+		?>
+		<div class="wpconsent-inspector-mode-badge wpconsent-inspector-mode-badge-<?php echo esc_attr( $mode ); ?>">
+			<strong><?php echo esc_html( $label ); ?></strong>
+			<span><?php echo esc_html( $description ); ?></span>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the ready state (no pending cookies, inspector not active).
+	 *
+	 * @param string $start_url URL to start the inspector.
+	 * @param string $mode Inspector mode: 'optin', 'optout', or 'discovery'.
+	 *
+	 * @return void
+	 */
+	protected function render_inspector_ready( $start_url, $mode = 'optin' ) {
+		?>
+		<div id="wpconsent-inspector-state-ready">
+			<?php $this->render_inspector_mode_badge( $mode ); ?>
+			<?php if ( 'discovery' === $mode ) : ?>
+				<div class="wpconsent-inspector-notice wpconsent-inspector-notice-warning">
+					<p>
+						<?php
+						printf(
+							/* translators: %1$s is an opening link tag, %2$s is a closing link tag. */
+							esc_html__( 'Automatic script blocking is currently disabled. The inspector will detect cookies but cannot verify if they are properly blocked before consent. %1$sEnable script blocking%2$s in settings for full compliance testing.', 'wpconsent-cookies-banner-privacy-suite' ),
+							'<a href="' . esc_url( admin_url( 'admin.php?page=wpconsent-cookies' ) ) . '">',
+							'</a>'
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
+			<p>
+				<?php
+				if ( 'optout' === $mode ) {
+					esc_html_e( 'The Cookie Inspector opens your site with a floating panel that tracks every cookie in real time. Your cookies are cleared first so you see the site like a new visitor. Browse your pages, reject cookies on the banner to test if scripts are properly blocked, then click "Review Cookies" in the panel to come back here and document them.', 'wpconsent-cookies-banner-privacy-suite' );
+				} else {
+					esc_html_e( 'The Cookie Inspector opens your site with a floating panel that tracks every cookie in real time. Your cookies are cleared first so you see the site like a new visitor. Browse your pages, accept the consent banner to check what loads before and after consent, then click "Review Cookies" in the panel to come back here and document them.', 'wpconsent-cookies-banner-privacy-suite' );
+				}
+				?>
+			</p>
+			<p>
+				<?php
+				if ( 'optout' === $mode ) {
+					esc_html_e( 'For each detected cookie you can set the category, assign a service, and add a description. Cookies that were not blocked after rejection are flagged so you know exactly what needs fixing.', 'wpconsent-cookies-banner-privacy-suite' );
+				} elseif ( 'discovery' === $mode ) {
+					esc_html_e( 'For each detected cookie you can set the category, assign a service, and add a description. Undocumented cookies are highlighted so you can add them to your cookie database.', 'wpconsent-cookies-banner-privacy-suite' );
+				} else {
+					esc_html_e( 'For each detected cookie you can set the category, assign a service, and add a description. Cookies that loaded before consent are flagged as violations so you know exactly what needs fixing.', 'wpconsent-cookies-banner-privacy-suite' );
+				}
+				?>
+			</p>
+			<?php $this->render_inspector_geolocation_notice(); ?>
+			<?php if ( empty( wpconsent()->scanner->get_scan_data() ) ) : ?>
+				<div class="wpconsent-inspector-notice wpconsent-inspector-notice-info">
+					<p>
+						<?php
+						printf(
+							/* translators: %1$s is an opening link tag, %2$s is a closing link tag. */
+							esc_html__( 'We recommend %1$srunning a scan%2$s before using the inspector. Scanning pre-populates your cookie database so the inspector can identify which cookies are already documented.', 'wpconsent-cookies-banner-privacy-suite' ),
+							'<a href="' . esc_url( admin_url( 'admin.php?page=wpconsent-scanner' ) ) . '">',
+							'</a>'
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
+			<?php $this->metabox_row_separator(); ?>
+			<div class="wpconsent-metabox-form-row">
+				<a href="<?php echo esc_url( $start_url ); ?>" class="wpconsent-button wpconsent-button-primary">
+					<?php esc_html_e( 'Start Inspector', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+				</a>
+			</div>
+			<?php if ( ! class_exists( 'WPConsent_License' ) ) : ?>
+				<div class="wpconsent-inspector-upsell">
+					<div class="wpconsent-inspector-upsell-text">
+						<h4><?php esc_html_e( 'Let WPConsent Pro do the detective work', 'wpconsent-cookies-banner-privacy-suite' ); ?></h4>
+						<p>
+							<?php esc_html_e( 'The inspector finds your cookies. Pro goes a step further and traces them back to the scripts that created them. That means you can block unwanted scripts in a few clicks, without touching any code.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+						</p>
+					</div>
+					<div class="wpconsent-inspector-upsell-action">
+						<a href="<?php echo esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'cookie-inspector', 'script-blocking' ) ); ?>" class="wpconsent-button wpconsent-button-primary" target="_blank" rel="noopener noreferrer">
+							<?php esc_html_e( 'Upgrade to Pro', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+						</a>
+					</div>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the active state (inspector is running on the frontend).
+	 *
+	 * @param string $mode Inspector mode: 'optin', 'optout', or 'discovery'.
+	 *
+	 * @return void
+	 */
+	protected function render_inspector_active( $mode = 'optin' ) {
+		?>
+		<div id="wpconsent-inspector-state-active">
+			<?php $this->render_inspector_mode_badge( $mode ); ?>
+			<?php if ( 'discovery' === $mode ) : ?>
+				<div class="wpconsent-inspector-notice wpconsent-inspector-notice-warning">
+					<p>
+						<?php
+						printf(
+							/* translators: %1$s is an opening link tag, %2$s is a closing link tag. */
+							esc_html__( 'Automatic script blocking is disabled. Cookies will load freely regardless of consent. %1$sEnable script blocking%2$s for full compliance testing.', 'wpconsent-cookies-banner-privacy-suite' ),
+							'<a href="' . esc_url( admin_url( 'admin.php?page=wpconsent-cookies' ) ) . '">',
+							'</a>'
+						);
+						?>
+					</p>
+				</div>
+			<?php endif; ?>
+			<p>
+				<?php
+				if ( 'optout' === $mode ) {
+					esc_html_e( 'The inspector is active on your site. Browse your pages and reject cookies on the banner — cookies loaded before and after rejection are tracked separately. When you\'re done, click "Review Cookies" in the floating panel to come back here and review them.', 'wpconsent-cookies-banner-privacy-suite' );
+				} else {
+					esc_html_e( 'The inspector is active on your site. Browse your pages and accept the consent banner — cookies loaded before and after consent are tracked separately. When you\'re done, click "Review Cookies" in the floating panel to come back here and review them.', 'wpconsent-cookies-banner-privacy-suite' );
+				}
+				?>
+			</p>
+			<?php $this->render_inspector_geolocation_notice(); ?>
+			<?php $this->metabox_row_separator(); ?>
+			<div class="wpconsent-metabox-form-row">
+				<a href="<?php echo esc_url( home_url() ); ?>" class="wpconsent-button wpconsent-button-primary">
+					<?php esc_html_e( 'Go to Site', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+				</a>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render the geolocation notice for the inspector.
+	 *
+	 * Overridden in Pro to show a notice when geolocation rules are configured.
+	 *
+	 * @return void
+	 */
+	protected function render_inspector_geolocation_notice() {
+		// No-op in lite. Pro overrides this.
+	}
+
+	/**
+	 * Render the wizard for reviewing pending cookies.
+	 *
+	 * @param array  $pending_cookies Pending cookies.
+	 * @param string $start_url URL to start the inspector.
+	 * @param string $cookies_url URL to the cookies settings page.
+	 *
+	 * @return void
+	 */
+	protected function render_inspector_wizard( $pending_cookies, $start_url, $cookies_url ) {
+		?>
+		<!-- Wizard -->
+		<div id="wpconsent-inspector-review-wizard">
+			<div id="wpconsent-inspector-review-loading">
+				<p><?php esc_html_e( 'Loading cookies...', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+			</div>
+			<div id="wpconsent-inspector-review-form" style="display: none;">
+			<div class="wpconsent-review-intro">
+				<p>
+					<?php
+					printf(
+						/* translators: %d is the number of cookies pending review. */
+						esc_html( _n(
+							'%d cookie was detected that is not yet documented in your settings. Review it below.',
+							'%d cookies were detected that are not yet documented in your settings. Review them below.',
+							count( $pending_cookies ),
+							'wpconsent-cookies-banner-privacy-suite'
+						) ),
+						count( $pending_cookies )
+					);
+					?>
+				</p>
+			</div>
+
+			<!-- Cookie name hero with consent state badge. -->
+			<div class="wpconsent-review-cookie-hero">
+				<span class="wpconsent-review-cookie-hero-label"><?php esc_html_e( 'Cookie Name', 'wpconsent-cookies-banner-privacy-suite' ); ?></span>
+				<div class="wpconsent-review-cookie-hero-row">
+					<code id="wpconsent-review-cookie-name" class="wpconsent-review-cookie-hero-name"></code>
+					<span id="wpconsent-review-consent-badge" class="wpconsent-review-consent-badge" style="display: none;"></span>
+				</div>
+			</div>
+
+			<div class="wpconsent-review-section-header">
+				<h4><?php esc_html_e( 'Detected Information', 'wpconsent-cookies-banner-privacy-suite' ); ?></h4>
+				<p><?php esc_html_e( 'Where and how this cookie was found on your site.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+			</div>
+
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label><?php esc_html_e( 'Detected On', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<div id="wpconsent-review-cookie-pages"></div>
+				</div>
+			</div>
+
+			<div class="wpconsent-metabox-form-row" id="wpconsent-review-source-row" style="display: none;">
+				<div class="wpconsent-metabox-form-row-label">
+					<label><?php esc_html_e( 'Likely Source', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<code id="wpconsent-review-source-pattern"></code>
+					<span class="wpconsent-input-area-description" id="wpconsent-review-source-url" style="display: block;"></span>
+				</div>
+			</div>
+
+			<div class="wpconsent-review-section-header wpconsent-review-section-header--action">
+				<h4><?php esc_html_e( 'Cookie Settings', 'wpconsent-cookies-banner-privacy-suite' ); ?></h4>
+				<p><?php esc_html_e( 'Assign a category so this cookie is listed in your consent banner and privacy policy.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+			</div>
+
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="wpconsent-review-category"><?php esc_html_e( 'Category', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<select id="wpconsent-review-category" class="wpconsent-input-select"></select>
+				</div>
+			</div>
+
+			<div class="wpconsent-metabox-form-row">
+				<div class="wpconsent-metabox-form-row-label">
+					<label for="wpconsent-review-service"><?php esc_html_e( 'Service', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+				</div>
+				<div class="wpconsent-metabox-form-row-input">
+					<select id="wpconsent-review-service" class="wpconsent-input-select"></select>
+				</div>
+			</div>
+
+			<?php
+			$this->metabox_row(
+				__( 'Description', 'wpconsent-cookies-banner-privacy-suite' ),
+				$this->get_input_textarea( 'wpconsent-review-description' ),
+				'wpconsent-review-description'
+			);
+
+			$this->metabox_row(
+				__( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ),
+				'<input type="text" id="wpconsent-review-duration" name="wpconsent-review-duration" class="wpconsent-input-text" style="max-width: 200px;" placeholder="' . esc_attr__( 'e.g. 2 years', 'wpconsent-cookies-banner-privacy-suite' ) . '">',
+				'wpconsent-review-duration'
+			);
+
+			?>
+
+			<?php if ( class_exists( 'WPConsent_License' ) ) : ?>
+				<!-- Pro: Script Blocking Section (shown/hidden by JS based on trace data) -->
+				<div id="wpconsent-review-blocking-section" style="display: none;">
+					<div class="wpconsent-review-section-header wpconsent-review-section-header--action">
+						<h4><?php esc_html_e( 'Script Blocking', 'wpconsent-cookies-banner-privacy-suite' ); ?></h4>
+						<p><?php esc_html_e( 'Control when this script is allowed to run.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+					</div>
+					<div id="wpconsent-review-already-blocked" style="display: none;">
+						<div class="wpconsent-metabox-form-row">
+							<div class="wpconsent-metabox-form-row-label">
+								<label><?php esc_html_e( 'Script Blocking', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+							</div>
+							<div class="wpconsent-metabox-form-row-input">
+								<p id="wpconsent-review-blocked-message" style="color: var(--wpconsent-color-green); margin: 0;"></p>
+							</div>
+						</div>
+					</div>
+
+					<div id="wpconsent-review-create-rule" style="display: none;">
+						<div class="wpconsent-metabox-form-row">
+							<div class="wpconsent-metabox-form-row-label">
+								<label for="wpconsent-review-block-toggle"><?php esc_html_e( 'Block Script', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+							</div>
+							<div class="wpconsent-metabox-form-row-input">
+								<label class="wpconsent-checkbox-toggle">
+									<input type="checkbox" id="wpconsent-review-block-toggle" checked>
+									<span class="wpconsent-checkbox-toggle-slider"></span>
+								</label>
+								<p class="description" id="wpconsent-review-block-description"></p>
+							</div>
+						</div>
+
+						<div id="wpconsent-review-blocking-fields">
+							<div class="wpconsent-metabox-form-row">
+								<div class="wpconsent-metabox-form-row-label">
+									<label for="wpconsent-review-script-tag"><?php esc_html_e( 'Script Tag', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+								</div>
+								<div class="wpconsent-metabox-form-row-input">
+									<input type="text" id="wpconsent-review-script-tag" class="wpconsent-input-text" placeholder="<?php esc_attr_e( 'e.g. connect.facebook.net/en_US/fbevents.js', 'wpconsent-cookies-banner-privacy-suite' ); ?>">
+									<p class="description"><?php esc_html_e( 'Enter a unique string that identifies the script to block.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+								</div>
+							</div>
+							<div class="wpconsent-metabox-form-row">
+								<div class="wpconsent-metabox-form-row-label">
+									<label for="wpconsent-review-script-keywords"><?php esc_html_e( 'Script Keywords (optional)', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+								</div>
+								<div class="wpconsent-metabox-form-row-input">
+									<input type="text" id="wpconsent-review-script-keywords" class="wpconsent-input-text" placeholder="<?php esc_attr_e( 'e.g. fbq, fbq.push', 'wpconsent-cookies-banner-privacy-suite' ); ?>">
+									<p class="description"><?php esc_html_e( 'JavaScript function names to block (comma separated).', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+								</div>
+							</div>
+						</div>
+
+						<!-- Inline Script Source (Pro, shown when inlineScript data exists) -->
+						<div id="wpconsent-review-inline-script-section" style="display: none;">
+							<div class="wpconsent-metabox-form-row">
+								<div class="wpconsent-metabox-form-row-label">
+									<label><?php esc_html_e( 'Inline Script', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+								</div>
+								<div class="wpconsent-metabox-form-row-input">
+									<p class="wpconsent-input-area-description"><?php esc_html_e( 'This cookie was set by the inline script below. Click an identifier to add it as a Script Keyword for blocking.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+									<pre class="wpconsent-inline-script-block" id="wpconsent-review-inline-script-code"></pre>
+								</div>
+							</div>
+						</div>
+
+					</div>
+
+				</div>
+			<?php else : ?>
+				<!-- Lite: Blurred Pro blocking preview with upgrade prompt. -->
+				<div id="wpconsent-review-upgrade-prompt" style="display: none;">
+					<div class="wpconsent-review-section-header wpconsent-review-section-header--action">
+						<h4><?php esc_html_e( 'Script Blocking', 'wpconsent-cookies-banner-privacy-suite' ); ?></h4>
+						<p><?php esc_html_e( 'Control when this script is allowed to run.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+					</div>
+					<div class="wpconsent-review-pro-preview">
+						<div class="wpconsent-review-pro-preview-fields">
+							<div class="wpconsent-metabox-form-row">
+								<div class="wpconsent-metabox-form-row-label">
+									<label><?php esc_html_e( 'Block Script', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+								</div>
+								<div class="wpconsent-metabox-form-row-input">
+									<label class="wpconsent-checkbox-toggle">
+										<input type="checkbox" checked disabled>
+										<span class="wpconsent-checkbox-toggle-slider"></span>
+									</label>
+								</div>
+							</div>
+							<div class="wpconsent-metabox-form-row">
+								<div class="wpconsent-metabox-form-row-label">
+									<label><?php esc_html_e( 'Script Tag', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+								</div>
+								<div class="wpconsent-metabox-form-row-input">
+									<input type="text" class="wpconsent-input-text" value="connect.facebook.net/en_US/fbevents.js" disabled>
+								</div>
+							</div>
+							<div class="wpconsent-metabox-form-row">
+								<div class="wpconsent-metabox-form-row-label">
+									<label><?php esc_html_e( 'Script Keywords', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+								</div>
+								<div class="wpconsent-metabox-form-row-input">
+									<input type="text" class="wpconsent-input-text" value="fbq, fbq.push" disabled>
+								</div>
+							</div>
+						</div>
+						<div class="wpconsent-review-pro-preview-overlay">
+							<div class="wpconsent-inspector-upsell">
+								<div class="wpconsent-inspector-upsell-text">
+									<h4><?php esc_html_e( 'Custom script blocking available with WPConsent Pro.', 'wpconsent-cookies-banner-privacy-suite' ); ?></h4>
+									<p id="wpconsent-review-upgrade-message"></p>
+								</div>
+								<div class="wpconsent-inspector-upsell-action">
+									<a href="<?php echo esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'cookie-inspector', 'script-blocking' ) ); ?>" class="wpconsent-button wpconsent-button-primary" target="_blank" rel="noopener noreferrer">
+										<?php esc_html_e( 'Upgrade to Pro', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			<?php endif; ?>
+
+			<div class="wpconsent-review-actions">
+				<button type="button" class="wpconsent-button wpconsent-button-primary" id="wpconsent-review-save"><?php esc_html_e( 'Save & Next', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+				<button type="button" class="wpconsent-button wpconsent-button-text" id="wpconsent-review-skip"><?php esc_html_e( 'Skip — I\'ll handle this later', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+			</div>
+			</div><!-- /#wpconsent-inspector-review-form -->
+		</div>
+
+		<!-- Complete state (shown by JS after all cookies reviewed) -->
+		<div id="wpconsent-inspector-review-complete" style="display:none;">
+			<p><?php esc_html_e( 'Review complete!', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+			<div id="wpconsent-inspector-review-summary" class="wpconsent-inspector-review-summary"></div>
+			<?php $this->metabox_row_separator(); ?>
+			<div class="wpconsent-metabox-form-row" style="gap: 8px;">
+				<a href="<?php echo esc_url( $cookies_url ); ?>" class="wpconsent-button wpconsent-button-primary">
+					<?php esc_html_e( 'Go to Cookie Settings', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+				</a>
+				<a href="<?php echo esc_url( $start_url ); ?>" class="wpconsent-button wpconsent-button-secondary">
+					<?php esc_html_e( 'Run Another Inspection', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+				</a>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the new service modal template.
+	 *
+	 * @param array $categories Available categories.
+	 *
+	 * @return void
+	 */
+	protected function output_new_service_modal( $categories ) {
+		?>
+		<div class="wpconsent-modal" id="wpconsent-modal-inspector-service">
+			<div class="wpconsent-modal-inner">
+				<form action="">
+					<div class="wpconsent-modal-header">
+						<h2><?php esc_html_e( 'Add New Service', 'wpconsent-cookies-banner-privacy-suite' ); ?></h2>
+						<button class="wpconsent-modal-close wpconsent-button wpconsent-button-just-icon" type="button">
+							<span class="dashicons dashicons-no-alt"></span>
+						</button>
+					</div>
+					<div class="wpconsent-modal-content">
+						<div class="wpconsent-metabox-form-row">
+							<div class="wpconsent-metabox-form-row-label">
+								<label for="inspector_service_category"><?php esc_html_e( 'Category', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+							</div>
+							<div class="wpconsent-metabox-form-row-input">
+								<select id="inspector_service_category" name="service_category" class="wpconsent-input-select">
+									<?php foreach ( $categories as $cat ) : ?>
+										<option value="<?php echo esc_attr( $cat['id'] ); ?>"><?php echo esc_html( $cat['name'] ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</div>
+						</div>
+						<div class="wpconsent-metabox-form-row">
+							<div class="wpconsent-metabox-form-row-label">
+								<label for="inspector_service_name"><?php esc_html_e( 'Service Name', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+							</div>
+							<div class="wpconsent-metabox-form-row-input">
+								<input type="text" id="inspector_service_name" name="service_name" class="wpconsent-input-text" required>
+							</div>
+						</div>
+						<div class="wpconsent-metabox-form-row">
+							<div class="wpconsent-metabox-form-row-label">
+								<label for="inspector_service_description"><?php esc_html_e( 'Description', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+							</div>
+							<div class="wpconsent-metabox-form-row-input">
+								<textarea id="inspector_service_description" name="service_description" class="wpconsent-input-textarea"></textarea>
+							</div>
+						</div>
+						<div class="wpconsent-metabox-form-row">
+							<div class="wpconsent-metabox-form-row-label">
+								<label for="inspector_service_url"><?php esc_html_e( 'Privacy Policy URL', 'wpconsent-cookies-banner-privacy-suite' ); ?></label>
+							</div>
+							<div class="wpconsent-metabox-form-row-input">
+								<input type="text" id="inspector_service_url" name="service_url" class="wpconsent-input-text" placeholder="https://">
+							</div>
+						</div>
+						<div class="wpconsent-modal-buttons">
+							<button class="wpconsent-button wpconsent-button-primary" type="submit"><?php esc_html_e( 'Save', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+							<button class="wpconsent-button wpconsent-button-secondary" type="button"><?php esc_html_e( 'Cancel', 'wpconsent-cookies-banner-privacy-suite' ); ?></button>
+						</div>
+					</div>
+					<input type="hidden" name="action" value="wpconsent_manage_service">
+					<input type="hidden" name="post_id" value="">
+					<?php wp_nonce_field( 'wpconsent_manage_service', 'wpconsent_manage_service_nonce' ); ?>
+				</form>
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Output the service library modal HTML for the inspector page.
+	 *
+	 * @return void
+	 */
+	protected function output_service_library_modal() {
+		?>
+		<div class="wpconsent-modal" id="wpconsent-modal-add-service-from-library">
+			<div class="wpconsent-modal-inner">
+				<div class="wpconsent-modal-header">
+					<h2><?php esc_html_e( 'Add Service From Library', 'wpconsent-cookies-banner-privacy-suite' ); ?></h2>
+					<button class="wpconsent-modal-close wpconsent-button wpconsent-button-just-icon" type="button">
+						<span class="dashicons dashicons-no-alt"></span>
+					</button>
+				</div>
+				<div class="wpconsent-modal-content">
+					<div class="wpconsent-service-library-search">
+						<input type="text"
+							   class="wpconsent-input-text"
+							   id="wpconsent-service-library-search"
+							   placeholder="<?php esc_attr_e( 'Search services...', 'wpconsent-cookies-banner-privacy-suite' ); ?>"
+						>
+					</div>
+					<div class="wpconsent-service-library-list">
+						<div class="wpconsent-service-library-loading">
+							<?php esc_html_e( 'Loading services...', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+						</div>
+						<div class="wpconsent-service-library-items">
+						</div>
+					</div>
+					<div class="wpconsent-modal-buttons">
+						<button class="wpconsent-button wpconsent-button-secondary" type="button">
+							<?php esc_html_e( 'Cancel', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+						</button>
+					</div>
+				</div>
+				<input type="hidden" name="action" value="wpconsent_add_service_from_library">
+				<input type="hidden" name="category_id" value="">
+			</div>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Get the number of pages inspected in the current pending review session.
+	 *
+	 * @return int
+	 */
+	protected function get_inspector_pages_count() {
+		return wpconsent()->inspector->get_pending_pages_count();
 	}
 
 	/**

@@ -261,6 +261,10 @@ abstract class WPConsent_Admin_Page {
 		>
 			<?php wpconsent_icon( 'inbox', 15, 16 ); ?>
 		</button>
+		<button class="wpconsent-text-button-icon wpconsent-show-help" type="button">
+			<?php wpconsent_icon( 'help', 21 ); ?>
+			<?php esc_html_e( 'Help', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+		</button>
 		<?php
 	}
 
@@ -339,7 +343,56 @@ abstract class WPConsent_Admin_Page {
 	 * @return void
 	 */
 	public function output_footer() {
+		$support_url = wpconsent_utm_url( 'https://wpconsent.com/contact/', 'help-overlay', 'support-url' );
 		?>
+		<div class="wpconsent-docs-overlay" id="wpconsent-docs-overlay">
+			<div id="wpconsent-help-logo">
+				<?php $this->logo_image(); ?>
+			</div>
+			<button id="wpconsent-help-close" class="wpconsent-button-just-icon" type="button">
+				<?php wpconsent_icon( 'close', 19, 19 ); ?>
+			</button>
+			<div class="wpconsent-docs-content">
+				<div id="wpconsent-help-search" class="wpconsent-search-empty">
+					<label>
+						<span class="screen-reader-text"><?php esc_html_e( 'Search docs', 'wpconsent-cookies-banner-privacy-suite' ); ?></span>
+						<?php wpconsent_icon( 'search' ); ?>
+						<input type="text" class="wpconsent-input-text"/>
+					</label>
+					<div id="wpconsent-help-search-clear" title="<?php esc_attr_e( 'Clear', 'wpconsent-cookies-banner-privacy-suite' ); ?>">
+						<?php wpconsent_icon( 'close', 14, 14 ); ?>
+					</div>
+				</div>
+				<div id="wpconsent-help-no-result" style="display: none;">
+					<ul class="wpconsent-help-docs">
+						<li>
+							<span><?php esc_html_e( 'No docs found', 'wpconsent-cookies-banner-privacy-suite' ); ?></span>
+						</li>
+					</ul>
+				</div>
+				<div id="wpconsent-help-result">
+					<ul class="wpconsent-help-docs"></ul>
+				</div>
+				<?php
+				$docs = new WPConsent_Docs();
+				$docs->get_categories_accordion();
+				?>
+				<div class="wpconsent-help-footer">
+					<div class="wpconsent-help-footer-box">
+						<?php wpconsent_icon( 'file', 48, 48 ); ?>
+						<h3><?php esc_html_e( 'View Documentation', 'wpconsent-cookies-banner-privacy-suite' ); ?></h3>
+						<p><?php esc_html_e( 'Browse documentation, reference material, and tutorials for WPConsent.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+						<a class="wpconsent-button wpconsent-button-secondary" href="<?php echo esc_url( wpconsent_utm_url( 'https://wpconsent.com/docs/', 'help-overlay', 'docs', 'footer' ) ); ?>" target="_blank"><?php esc_html_e( 'View All Documentation', 'wpconsent-cookies-banner-privacy-suite' ); ?></a>
+					</div>
+					<div class="wpconsent-help-footer-box">
+						<?php wpconsent_icon( 'support', 48, 48 ); ?>
+						<h3><?php esc_html_e( 'Get Support', 'wpconsent-cookies-banner-privacy-suite' ); ?></h3>
+						<p><?php esc_html_e( 'Submit a ticket and our world class support team will be in touch soon.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+						<a class="wpconsent-button wpconsent-button-secondary" href="<?php echo esc_url( $support_url ); ?>" target="_blank"><?php esc_html_e( 'Submit a Support Ticket', 'wpconsent-cookies-banner-privacy-suite' ); ?></a>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div class="wpconsent-notifications-drawer" id="wpconsent-notifications-drawer">
 			<div class="wpconsent-notifications-header">
 				<h3 id="wpconsent-active-title">
@@ -589,14 +642,15 @@ abstract class WPConsent_Admin_Page {
 	 * @param string $title The metabox title.
 	 * @param string $content The metabox content.
 	 * @param string $help The helper text (optional) - if set, a help icon will show up next to the title.
+	 * @param string $id The metabox id attribute (optional).
 	 *
 	 * @return void
 	 */
-	public function metabox( $title, $content, $help = '' ) {
+	public function metabox( $title, $content, $help = '', $id = '' ) {
 		// translators: %s is the title of the metabox.
 		$button_title = sprintf( __( 'Collapse Metabox %s', 'wpconsent-cookies-banner-privacy-suite' ), $title )
 		?>
-		<div class="wpconsent-metabox">
+		<div class="wpconsent-metabox" <?php echo ! empty( $id ) ? 'id="' . esc_attr( $id ) . '"' : ''; ?>>
 			<div class="wpconsent-metabox-title">
 				<div class="wpconsent-metabox-title-text">
 					<?php echo wp_kses_post( $title ); ?>

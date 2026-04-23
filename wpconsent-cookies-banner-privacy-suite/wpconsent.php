@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPConsent
  * Description: Improve your WordPress website privacy compliance. Custom cookie banner, website scanner, automatic script blocking, and easy cookie configuration.
- * Version:     1.1.4
+ * Version:     1.1.5
  * Author:      WPConsent
  * Author URI:  https://wpconsent.com
  * License:     GPL v2 or later
@@ -195,6 +195,27 @@ class WPConsent {
 	public $script_blocker;
 
 	/**
+	 * The dashboard instance.
+	 *
+	 * @var WPConsent_Dashboard
+	 */
+	public $dashboard;
+
+	/**
+	 * The recommended plugins instance.
+	 *
+	 * @var WPConsent_Recommended_Plugins
+	 */
+	public $recommended_plugins;
+
+	/**
+	 * The inspector instance.
+	 *
+	 * @var WPConsent_Inspector
+	 */
+	public $inspector;
+
+	/**
 	 * The scanner instance.
 	 *
 	 * @var WPConsent_Scanner
@@ -297,6 +318,7 @@ class WPConsent {
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-notifications.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-reminders.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-privacy-integration.php';
+			require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-recommended-plugins.php';
 			require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-scanner.php';
 		}
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-file-cache.php';
@@ -308,6 +330,8 @@ class WPConsent {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-banner.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-content-placeholder.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-cookie-blocking.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-inspector.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-dashboard.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/frontend-scripts.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-script-blocker.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/cookie-policy-shortcode.php';
@@ -336,6 +360,8 @@ class WPConsent {
 			// Load the reminders.
 			new WPConsent_Reminders();
 			new WPConsent_Usage_Tracking_Lite();
+
+			$this->recommended_plugins = new WPConsent_Recommended_Plugins();
 		}
 		$this->file_cache = new WPConsent_File_Cache();
 		$this->strings    = new WPConsent_Strings();
@@ -346,6 +372,8 @@ class WPConsent {
 		$this->script_blocker = new WPConsent_Script_Blocker();
 		// Load the cookie blocking functionality.
 		$this->cookie_blocking = new WPConsent_Cookie_Blocking();
+		$this->inspector       = new WPConsent_Inspector();
+		$this->dashboard       = new WPConsent_Dashboard();
 	}
 }
 

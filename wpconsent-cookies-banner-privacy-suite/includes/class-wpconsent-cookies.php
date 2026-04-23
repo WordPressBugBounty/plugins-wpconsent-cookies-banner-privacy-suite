@@ -724,8 +724,10 @@ class WPConsent_Cookies {
 	 * @return void
 	 */
 	public function clear_cookies_cache() {
-		// Delete transient wpconsent_needs_google_consent.
+		// Delete service detection transients.
 		delete_transient( 'wpconsent_needs_google_consent' );
+		delete_transient( 'wpconsent_has_google_services' );
+		delete_transient( 'wpconsent_has_embeddable_services' );
 		// Delete transient wpconsent_cookies.
 		delete_transient( 'wpconsent_preference_cookies' );
 		// Delete transient wpconsent_preference_slugs.

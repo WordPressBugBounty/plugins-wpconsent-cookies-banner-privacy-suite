@@ -24,6 +24,7 @@
 @import './admin/geolocation-groups.css';
 @import './admin/tools.css';
 @import './admin/footer.css';
+@import './admin/help.css';
 
 /** Import for preview **/
 @import './frontend/banner.css';

@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-trait WPCOnsent_Language_Picker {
+trait WPConsent_Language_Picker {
 
 	/**
 	 * Get the language picker button.

@@ -4,7 +4,7 @@ Tags: consent, cookie, cookie notice, cookie consent, gdpr
 Requires at least: 5.6
 Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 1.1.4
+Stable tag: 1.1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -135,6 +135,11 @@ After activating the WPConsent plugin, you can scan your website for cookies by 
 
 
 == Changelog ==
+
+= 1.1.5 =
+* New: Get a clear picture of every cookie your site sets. The new Cookie Inspector walks you through your site in a fresh-visitor session, shows each cookie as it's set, and guides you through documenting every one with category, service, description, and an auto-filled duration.
+* New: See your privacy setup at a glance on the redesigned dashboard. A compliance score surfaces what you already have configured and what's worth enabling next, with inline buttons to turn on the banner, script blocking, and generate your cookie policy page without leaving the dashboard.
+* New: Find help without leaving WordPress. Every WPConsent admin screen now has a Help button in the header that opens a searchable documentation overlay with setup, customization, and troubleshooting articles.
 
 = 1.1.4 =
 * New: Added compatibility with Avada Live Builder to prevent script blocking in the editor.

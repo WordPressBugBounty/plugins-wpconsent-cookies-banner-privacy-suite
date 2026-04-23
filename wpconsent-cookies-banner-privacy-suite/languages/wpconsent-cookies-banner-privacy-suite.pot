@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPConsent 1.1.4\n"
+"Project-Id-Version: WPConsent 1.1.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpconsent-cookies-banner-privacy-suite\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-19T10:56:41+00:00\n"
+"POT-Creation-Date: 2026-04-23T10:38:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: wpconsent-cookies-banner-privacy-suite\n"
@@ -27,124 +27,137 @@ msgstr ""
 msgid "https://wpconsent.com"
 msgstr ""
 
-#: includes/admin/admin-ajax.php:58
+#: includes/admin/admin-ajax.php:48
+#: includes/admin/admin-ajax.php:82
+#: includes/admin/admin-ajax.php:122
+#: includes/admin/admin-ajax.php:158
+#: includes/admin/admin-ajax.php:219
+#: includes/admin/admin-ajax.php:284
+#: includes/admin/admin-ajax.php:322
+#: includes/admin/admin-ajax.php:359
+#: includes/admin/admin-ajax.php:397
+#: includes/admin/admin-ajax.php:438
+#: includes/admin/admin-ajax.php:478
+#: includes/admin/admin-ajax.php:520
+#: includes/admin/admin-ajax.php:546
+#: includes/admin/admin-ajax.php:619
+#: includes/admin/admin-ajax.php:661
+#: includes/admin/admin-ajax.php:693
+#: includes/admin/admin-ajax.php:719
+#: includes/admin/admin-ajax.php:748
+#: includes/admin/class-wpconsent-privacy-integration.php:98
+#: includes/class-wpconsent-dashboard.php:54
+#: includes/class-wpconsent-dashboard.php:84
+#: includes/class-wpconsent-inspector.php:152
+msgid "You do not have permission to perform this action."
+msgstr ""
+
+#: includes/admin/admin-ajax.php:66
 msgid "There was an error adding the category."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:78
-#: includes/admin/admin-ajax.php:108
+#: includes/admin/admin-ajax.php:94
+#: includes/admin/admin-ajax.php:132
 msgid "Category ID is required."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:91
+#: includes/admin/admin-ajax.php:107
 msgid "There was an error updating the category."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:118
+#: includes/admin/admin-ajax.php:142
 msgid "There was an error deleting the category."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:141
-msgid "Service  name and category are required."
+#: includes/admin/admin-ajax.php:173
+msgid "Service name and category are required."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:150
+#: includes/admin/admin-ajax.php:182
 msgid "Service updated successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:151
+#: includes/admin/admin-ajax.php:183
 msgid "Failed to update service."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:156
+#: includes/admin/admin-ajax.php:188
 msgid "Service added successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:157
+#: includes/admin/admin-ajax.php:189
 msgid "Failed to add Service."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:196
+#: includes/admin/admin-ajax.php:236
 msgid "Cookie name and category are required."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:206
+#: includes/admin/admin-ajax.php:246
 msgid "Cookie updated successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:207
+#: includes/admin/admin-ajax.php:247
 msgid "Failed to update cookie."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:212
+#: includes/admin/admin-ajax.php:252
 msgid "Cookie added successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:213
+#: includes/admin/admin-ajax.php:253
 msgid "Failed to add cookie."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:245
+#: includes/admin/admin-ajax.php:293
 msgid "Cookie ID is required."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:253
+#: includes/admin/admin-ajax.php:301
 msgid "Cookie deleted successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:257
+#: includes/admin/admin-ajax.php:305
 msgid "Failed to delete cookie."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:275
+#: includes/admin/admin-ajax.php:331
 msgid "Service ID is required."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:283
+#: includes/admin/admin-ajax.php:339
 msgid "Service deleted successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:287
+#: includes/admin/admin-ajax.php:343
 msgid "Failed to delete service."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:331
+#: includes/admin/admin-ajax.php:403
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:976
 msgid "No service"
 msgstr ""
 
-#: includes/admin/admin-ajax.php:366
-#: includes/admin/admin-ajax.php:406
-#: includes/admin/admin-ajax.php:448
-#: includes/admin/admin-ajax.php:474
-#: includes/admin/admin-ajax.php:605
-#: includes/admin/admin-ajax.php:631
-#: includes/admin/admin-ajax.php:660
-#: includes/admin/class-wpconsent-privacy-integration.php:98
-msgid "You do not have permission to perform this action."
-msgstr ""
-
-#: includes/admin/admin-ajax.php:390
+#: includes/admin/admin-ajax.php:462
 msgid "Services and cookies added successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:431
+#: includes/admin/admin-ajax.php:503
 msgid "Banner layout saved successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:457
+#: includes/admin/admin-ajax.php:529
 msgid "Onboarding completed successfully."
 msgstr ""
 
 #. Translators: This is a default text for the cookie policy generated by WPConsent. %1$s is the opening anchor tag, %2$s is the closing anchor tag.
-#: includes/admin/admin-ajax.php:480
+#: includes/admin/admin-ajax.php:552
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:843
 msgid "This page provides comprehensive information about how we use cookies on our website to enhance your browsing experience, improve website performance, and deliver personalized content. Cookies are small text files that are stored on your device when you visit our site. They help us understand how visitors interact with our website, allowing us to offer a smoother and more efficient user experience. In the table below, you will find detailed information about each type of cookie we use, their purpose, and how long they remain on your device. We are committed to respecting your privacy and providing transparency about the data we collect through cookies. For more information on how we handle your personal data, please see our %1$sPrivacy Policy.%2$s"
 msgstr ""
 
-#: includes/admin/admin-ajax.php:502
+#: includes/admin/admin-ajax.php:574
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:423
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:98
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:865
 #: includes/class-wpconsent-banner.php:440
 #: includes/class-wpconsent-banner.php:447
@@ -152,41 +165,41 @@ msgstr ""
 msgid "Cookie Policy"
 msgstr ""
 
-#: includes/admin/admin-ajax.php:511
+#: includes/admin/admin-ajax.php:583
 msgid "Failed to generate cookie policy page."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:512
+#: includes/admin/admin-ajax.php:584
 msgid "We encountered an error when generating the cookie policy page, please make sure you can create new pages and try again."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:528
+#: includes/admin/admin-ajax.php:600
 msgid "Cookie policy page generated successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:529
+#: includes/admin/admin-ajax.php:601
 msgid "Your new cookie policy page has been created and configured. The new page uses a default cookie policy text and the WPConsent shortcode to list out the cookie information as configured in the WPConsent settings. Please review the page."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:531
+#: includes/admin/admin-ajax.php:603
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1022
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:499
 msgid "View Page"
 msgstr ""
 
-#: includes/admin/admin-ajax.php:588
+#: includes/admin/admin-ajax.php:676
 msgid "Items saved successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:643
+#: includes/admin/admin-ajax.php:731
 msgid "Usage tracking preference saved successfully."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:670
+#: includes/admin/admin-ajax.php:758
 msgid "Success! Your server can make SSL connections."
 msgstr ""
 
-#: includes/admin/admin-ajax.php:677
+#: includes/admin/admin-ajax.php:765
 msgid "There was an error and the connection failed. Please contact your web host with the technical details below."
 msgstr ""
 
@@ -213,6 +226,14 @@ msgid "OK"
 msgstr ""
 
 #: includes/admin/admin-scripts.php:55
+msgid "Installing..."
+msgstr ""
+
+#: includes/admin/admin-scripts.php:56
+msgid "Activated!"
+msgstr ""
+
+#: includes/admin/admin-scripts.php:57
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:695
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:711
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:741
@@ -222,132 +243,139 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:56
+#: includes/admin/admin-scripts.php:58
 msgid "Please wait..."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:57
+#: includes/admin/admin-scripts.php:59
 msgid "Testing..."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:58
+#: includes/admin/admin-scripts.php:60
 msgid "Scan completed"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:59
+#: includes/admin/admin-scripts.php:61
 msgid "Scan error"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:60
+#: includes/admin/admin-scripts.php:62
 msgid "Scanning website..."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:63
+#: includes/admin/admin-scripts.php:65
 msgid "Already purchased?"
 msgstr ""
 
 #. Translators: %1$s and %2$s are strong tags, %3$s and %4$s are strong tags with a class.
-#: includes/admin/admin-scripts.php:66
+#: includes/admin/admin-scripts.php:68
 msgid "%1$sBonus:%2$s WPConsent Lite users get %3$s50%% off%4$s the regular price, automatically applied at checkout."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:72
+#: includes/admin/admin-scripts.php:74
 msgid "Upgrade to PRO"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:74
+#: includes/admin/admin-scripts.php:76
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1070
 msgid "Multilanguage + Automatic Translations"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:75
+#: includes/admin/admin-scripts.php:77
 msgid "Upgrade to WPConsent PRO today and unlock the ability to show your cookie banner in multiple languages. Automatic AI-powered translations get you set up with a new language in minutes."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:78
+#: includes/admin/admin-scripts.php:80
 msgid "Warning: Import Settings"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:79
+#: includes/admin/admin-scripts.php:81
 msgid "This action will overwrite all your current settings. This cannot be undone. We recommend exporting your current settings as a backup before proceeding."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:80
+#: includes/admin/admin-scripts.php:82
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:177
 #: includes/admin/pages/class-wpconsent-admin-page-tools.php:279
 msgid "Import Settings"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:81
+#: includes/admin/admin-scripts.php:83
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:849
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:906
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:956
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:801
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:845
 msgid "Cancel"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:82
+#: includes/admin/admin-scripts.php:84
 msgid "Warning: Reset To Defaults"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:83
+#: includes/admin/admin-scripts.php:85
 msgid "This action will reset all banner content and default categories/cookies to the default English state. This cannot be undone. We recommend exporting your current settings as a backup before proceeding."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:84
+#: includes/admin/admin-scripts.php:86
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1596
 msgid "Reset to Defaults"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:86
+#: includes/admin/admin-scripts.php:88
 msgid "Service Library Import is a PRO feature"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:87
+#: includes/admin/admin-scripts.php:89
 msgid "Upgrade to WPConsent PRO today and 1-click import cookie data for any service in our library."
 msgstr ""
 
 #. Translators: %1$s and %2$s are strong tags, %3$s is the target language name, %4$s is the closing strong tag, %5$s is the languages admin URL, %6$s is the link closing tag.
-#: includes/admin/admin-scripts.php:92
+#: includes/admin/admin-scripts.php:94
 msgid "%1$sTranslation Complete!%2$s Your WPConsent content has been successfully translated to %1$s%3$s%4$s. Please %5$sreview the translation%6$s for accuracy."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:100
+#: includes/admin/admin-scripts.php:102
 msgid "Start Translation Process"
 msgstr ""
 
 #. Translators: %1$s and %2$s are strong tags, %3$s and %4$s are strong tags.
-#: includes/admin/admin-scripts.php:103
+#: includes/admin/admin-scripts.php:105
 msgid "This will automatically translate all content into the selected language. This process runs in the background and may take several minutes to complete. %1$s%2$sPlease Note:%3$s%1$s This will overwrite any existing content in the target language and cannot be undone. Automated translations may contain errors - please review for accuracy when complete.%4$s"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:109
+#: includes/admin/admin-scripts.php:111
 msgid "Continue Translation"
 msgstr ""
 
-#: includes/admin/admin-scripts.php:110
+#: includes/admin/admin-scripts.php:112
 msgid "A translation is currently running in the background. Please wait for it to complete before starting a new translation."
 msgstr ""
 
-#: includes/admin/admin-scripts.php:111
+#: includes/admin/admin-scripts.php:113
 msgid "Translation In Progress"
 msgstr ""
 
 #. Translators: %1$s and %2$s are strong tags, %3$s is the target language name, %4$s is the closing strong tag, %5$s is the languages admin URL, %6$s is the link closing tag.
-#: includes/admin/admin-scripts.php:114
+#: includes/admin/admin-scripts.php:116
 msgid "%1$sTranslation Failed%2$s - The translation to %1$s%3$s%4$s could not be completed. You can manually %5$smanage your languages%6$s to add content."
 msgstr ""
 
-#: includes/admin/class-wpconsent-admin-page-loader.php:195
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:30
+#: includes/admin/class-wpconsent-admin-page-loader.php:196
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:51
 msgid "Dashboard"
 msgstr ""
 
-#: includes/admin/class-wpconsent-admin-page-loader.php:210
+#: includes/admin/class-wpconsent-admin-page-loader.php:211
 msgid "Upgrade to WPConsent Pro"
 msgstr ""
 
-#: includes/admin/class-wpconsent-admin-page-loader.php:211
+#: includes/admin/class-wpconsent-admin-page-loader.php:212
 msgid "Get WPConsent Pro"
+msgstr ""
+
+#. Translators: Placeholder for the category name.
+#: includes/admin/class-wpconsent-docs.php:168
+msgid "View All %s Docs"
 msgstr ""
 
 #. Translators: Human-Readable time to display.
@@ -377,6 +405,114 @@ msgstr ""
 
 #: includes/admin/class-wpconsent-privacy-integration.php:106
 msgid "Cookie Policy page updated successfully."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:64
+msgid "AIOSEO"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:65
+msgid "Powerful SEO plugin to optimize your site, boost your rankings, and increase organic traffic."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:71
+msgid "Duplicator"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:72
+msgid "Simple way to move WordPress sites, create reliable backups, or clone a site for staging."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:78
+msgid "Search & Replace Everything"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:79
+msgid "Search and replace text, media, and URLs across your entire WordPress database with ease."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:85
+msgid "WPCode"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:86
+msgid "The most popular code snippets plugin for WordPress, used by over 3 million websites."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:93
+msgid "Uncanny Automator"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:94
+msgid "The easiest and most powerful way to automate your WordPress site with no code."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:100
+msgid "WP Mail SMTP"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:101
+msgid "Fix email deliverability issues by reconfiguring WordPress to use a proper mailer."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:107
+msgid "SeedProd"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:108
+msgid "Drag-and-drop WordPress builder for landing pages, coming soon, and maintenance mode pages."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:114
+msgid "Reviews Feed"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:115
+msgid "Display Google, Yelp, and Facebook reviews on your site to build trust and drive more sales."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:282
+msgid "Recommended Plugins"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:305
+msgid "Installed"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:313
+msgid "Install"
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:339
+msgid "Plugin activated."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:361
+msgid "You do not have permission to install plugins. Please ask your site administrator to install it for you."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:369
+msgid "Plugin installation is not allowed on this site. Please ask your site administrator to install it for you."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:379
+msgid "Invalid plugin."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:403
+msgid "Plugin already active."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:432
+msgid "Plugin installation failed. Please try again."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:441
+msgid "Plugin installed but could not be activated."
+msgstr ""
+
+#: includes/admin/class-wpconsent-recommended-plugins.php:449
+msgid "Plugin installed and activated."
 msgstr ""
 
 #: includes/admin/class-wpconsent-reminders.php:39
@@ -477,6 +613,7 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:846
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:903
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:953
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:800
 msgid "Save"
 msgstr ""
 
@@ -693,6 +830,7 @@ msgid "Button Icon"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:557
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:560
 #: includes/class-wpconsent-banner.php:893
 msgid "Cookie Settings"
 msgstr ""
@@ -852,8 +990,8 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:1145
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:161
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:344
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:492
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:535
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1170
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1213
 msgid "Status"
 msgstr ""
 
@@ -891,8 +1029,8 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1679
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:77
 #: includes/admin/pages/class-wpconsent-admin-page-geolocation.php:51
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:123
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:136
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:124
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:137
 msgid "Learn more about all the features"
 msgstr ""
 
@@ -974,6 +1112,7 @@ msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:45
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:59
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:833
 msgid "Settings"
 msgstr ""
 
@@ -1063,7 +1202,6 @@ msgid "License Key"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:306
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:202
 msgid "Consent Banner"
 msgstr ""
 
@@ -1072,13 +1210,16 @@ msgid "Enable displaying the consent banner on your website."
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:322
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:601
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:607
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:670
 msgid "Script Blocking"
 msgstr ""
 
 #. translators: %1$s is an opening link tag, %2$s is a closing link tag.
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:328
 #: includes/admin/pages/class-wpconsent-admin-page-onboarding.php:289
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:229
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:907
 msgid "Prevent known scripts from adding cookies before consent is given. %1$sLearn More%2$s"
 msgstr ""
 
@@ -1087,6 +1228,7 @@ msgid "Script blocking is not available without displaying the banner"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:343
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:363
 msgid "Google Consent Mode"
 msgstr ""
 
@@ -1169,6 +1311,8 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:840
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:893
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:943
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:584
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:785
 #: includes/class-wpconsent-strings.php:41
 msgid "Description"
 msgstr ""
@@ -1191,6 +1335,7 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:668
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:760
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:885
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:528
 msgid "Cookie Name"
 msgstr ""
 
@@ -1205,6 +1350,7 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:671
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:763
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:897
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:590
 #: includes/class-wpconsent-strings.php:42
 msgid "Duration"
 msgstr ""
@@ -1213,8 +1359,8 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:672
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:764
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1505
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:493
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:536
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1171
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1214
 msgid "Actions"
 msgstr ""
 
@@ -1227,6 +1373,7 @@ msgid "Add A Service"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:786
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:823
 msgid "Add Service From Library"
 msgstr ""
 
@@ -1244,22 +1391,28 @@ msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:881
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1501
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:575
 msgid "Service"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:921
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:757
 msgid "Add New Service"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:935
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:566
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:765
 msgid "Category"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:939
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:777
 msgid "Service Name"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:947
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:793
 msgid "Privacy Policy URL"
 msgstr ""
 
@@ -1270,7 +1423,7 @@ msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1007
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:484
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:415
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1093
 msgid "Choose Page"
 msgstr ""
 
@@ -1652,6 +1805,7 @@ msgid "Search"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-cookies.php:1964
+#: includes/admin/pages/class-wpconsent-admin-page.php:362
 msgid "Clear"
 msgstr ""
 
@@ -1688,115 +1842,322 @@ msgstr ""
 msgid "Showing %d vendors"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:74
-msgid "Website Scan"
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:125
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:639
+#: includes/admin/pages/class-wpconsent-admin-page.php:555
+msgid "Dismiss"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:75
-msgid "Scan your website for known scripts and automatically configure cookies and info."
+#. translators: %d: number of additional alerts.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:132
+msgid "and %d more..."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:78
-msgid "Scan Website"
+#. translators: %d: number of cookies awaiting review.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:157
+msgid "Inspector found %d cookies awaiting review."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:79
-msgid "View Scan Results"
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:158
+msgid "Review"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:82
-msgid "Cookie Banner"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:83
-msgid "Configure how the cookie banner looks and enable displaying it on the frontend of your website."
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:86
-msgid "Activate Banner"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:87
-msgid "Active"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:90
-msgid "Automatic Script Blocking"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:91
-msgid "Prevent known tracking scripts from adding cookies on your website before consent is given."
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:94
-msgid "Enable"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:95
-msgid "Enabled"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:99
-msgid "Configure your site's Cookie Policy to inform users about how cookies are used, stored, and managed."
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:102
-msgid "Configure"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:103
-msgid "Configured"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:109
-msgid "Get Started with WPConsent"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:110
-msgid "Welcome to WPConsent! Get started by configuring the main features below."
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:145
-msgid "Not yet scanned"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:159
-msgid "Scan Report Summary"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:164
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:324
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:489
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:532
-msgid "Services Detected"
-msgstr ""
-
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:168
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:328
-msgid "Cookies In Use"
+#. translators: %d: number of days since last scan.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:171
+msgid "Your last scan was %d days ago. Your site may have changed."
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:172
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:332
-msgid "Last Successful Scan"
+msgid "Scan Now"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:176
-msgid "Cookie Status"
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:257
+msgid "Consent banner enabled"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:184
-#: includes/admin/pages/class-wpconsent-admin-page-onboarding.php:208
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:369
-msgid "Scan Your Website"
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:261
+msgid "Your consent banner is active and showing to visitors."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:186
-msgid "View Full Report"
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:262
+msgid "Enable a consent banner to inform visitors about cookies."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:211
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:268
+msgid "Script blocking enabled"
+msgstr ""
+
+#. translators: %d: number of scripts being managed.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:273
+msgid "%d scripts managed."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:274
+msgid "Block tracking scripts until visitors give consent."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:280
+msgid "Cookie policy configured"
+msgstr ""
+
+#. translators: %s: the cookie policy page title.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:285
+msgid "Linked to \"%s\"."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:286
+msgid "Set a cookie policy page so visitors can learn more."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:292
+msgid "Cookie categories configured"
+msgstr ""
+
+#. translators: %d: number of cookies documented.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:297
+msgid "%d cookies documented."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:298
+msgid "Document cookies so visitors know what data is collected."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:305
+msgid "Website scanned recently"
+msgstr ""
+
+#. translators: %s: formatted date of last scan.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:310
+msgid "Last scan: %s."
+msgstr ""
+
+#. translators: %d: days since last scan.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:313
+msgid "Last scan was %d days ago. Run a new scan to check for changes."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:314
+msgid "Scan your website to detect cookies and tracking scripts."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:321
+msgid "Inspector completed"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:325
+msgid "Inspector has been run to verify cookie detection."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:326
+msgid "Run the Cookie Inspector to detect cookies in real-time."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:332
+msgid "All findings reviewed"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:336
+msgid "No pending findings to review."
+msgstr ""
+
+#. translators: %d: number of cookies pending review.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:338
+msgid "%d cookies need categorization."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:348
+msgid "Content blocking enabled"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:352
+msgid "Embedded content is blocked until visitors give consent."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:353
+msgid "Block iframes and embeds like YouTube and Google Maps until consent is given."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:367
+msgid "Google services respect visitor consent choices."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:368
+msgid "Let Google Analytics and Ads respect consent before tracking."
+msgstr ""
+
+#. translators: %d: number of cookies documented.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:480
+msgid "%d cookies documented"
+msgstr ""
+
+#. translators: %d: number of days since plugin activation.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:485
+msgid "Active for %d days"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:558
+msgid "Excellent. All recommended features enabled."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:561
+msgid "Good. Core setup done, more features available."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:564
+msgid "Getting there. A few steps to complete."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:567
+msgid "Just getting started. Let's set things up."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:573
+msgid "Site Consent Health"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:605
+msgid "The quickest way to get set up is our guided wizard. It takes about two minutes."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:607
+msgid "Run the Setup Wizard"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:613
+msgid "To improve your score"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:631
+msgid "Suggestions"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:642
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:690
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:857
+msgid "Set up"
+msgstr ""
+
+#. translators: %1$d: earned count, %2$d: total count.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:657
+msgid "%1$d of %2$d items complete · Show details"
+msgstr ""
+
+#. translators: %1$d: earned count, %2$d: total count.
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:659
+msgid "%1$d of %2$d items complete · Hide details"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:680
+msgid "Dismissed suggestions"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:719
+msgid "Geolocation rules"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:721
+msgid "Show the right consent experience per region."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:727
+msgid "Consent logging enabled"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:729
+msgid "Keep a log of visitor consent choices."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:735
+msgid "Auto-scanning enabled"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:737
+msgid "Automatically detect new cookies as your site changes."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:747
+msgid "Automatic translations"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:749
+msgid "Automatically translate your consent banner for multilingual visitors."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:817
+msgid "pts"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:830
+msgid "Enable"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:837
+msgid "Generate page"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:840
+msgid "Choose page"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:845
+msgid "Configure from scan"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:849
+msgid "Configure manually"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:855
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:427
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:711
+#: includes/admin/pages/trait-wpconsent-services-upsell.php:56
+#: includes/lite/admin/class-wpconsent-admin-page-loader-lite.php:39
+#: includes/lite/admin/class-wpconsent-admin-page-loader-lite.php:40
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:880
+msgid "Your Consent Banner"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:884
+msgid "Banner is not active."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:894
 msgid "Customize Banner"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:894
+msgid "Enable Banner"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:911
+msgid "What's New"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:930
+msgid "Visit our blog"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:938
+msgid "View all articles"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:1074
+msgid "Help & Documentation"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:1078
+msgid "Recommended for you"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:1090
+msgid "Browse our documentation for guides, tutorials, and troubleshooting."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-dashboard.php:1096
+msgid "Browse all documentation"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:35
@@ -2025,7 +2386,7 @@ msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:727
 #: includes/admin/pages/class-wpconsent-admin-page-do-not-track.php:755
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:750
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1428
 msgid "Email Notifications"
 msgstr ""
 
@@ -2099,6 +2460,8 @@ msgid "Consent Mode"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-geolocation.php:150
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:618
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:677
 msgid "Block Script"
 msgstr ""
 
@@ -2115,7 +2478,7 @@ msgid "Edit"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-geolocation.php:174
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:523
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1201
 msgid "Delete"
 msgstr ""
 
@@ -2224,9 +2587,14 @@ msgstr ""
 msgid "Scan your website to quickly identify and manage all active cookies, ensuring transparency and better compliance from the start."
 msgstr ""
 
+#: includes/admin/pages/class-wpconsent-admin-page-onboarding.php:208
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1047
+msgid "Scan Your Website"
+msgstr ""
+
 #. translators: %1$s is an opening link tag, %2$s is a closing link tag, %3$s is an opening link tag.
 #: includes/admin/pages/class-wpconsent-admin-page-onboarding.php:214
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:375
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1053
 msgid "Please Note: By continuing with the website scan, you agree to send website data to our API for processing. This data is utilized to improve scanning accuracy and provide updated service and cookie descriptions. For details, please review our %1$sPrivacy Policy%2$s and %3$sTerms of Service%2$s."
 msgstr ""
 
@@ -2293,228 +2661,534 @@ msgid "Scanner"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-scanner.php:68
-msgid "History"
+msgid "Inspector"
 msgstr ""
 
 #: includes/admin/pages/class-wpconsent-admin-page-scanner.php:69
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:700
+msgid "History"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:70
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1378
 msgid "Auto Scanning"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:116
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:117
 msgid "Scanning History is a PRO feature"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:117
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:118
 msgid "Upgrade to WPConsent PRO to track all website scans over time. View detected services, monitor changes, and get notified when new services are found on your website."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:119
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:120
 msgid "Upgrade to PRO and Unlock \"Scanning History\""
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:129
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:130
 msgid "Scheduled Automatic Scans is a PRO feature"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:130
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:131
 msgid "Upgrade to WPConsent PRO to automatically update your cookie configuration when new services are detected. Get email notifications and control how long scan history is retained."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:132
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:133
 msgid "Upgrade to PRO and Unlock \"Scanner Settings\""
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:171
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:177
 msgid "Scan Overview"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:182
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:188
 msgid "Detailed Report"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:202
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:213
+#: includes/class-wpconsent-inspector.php:330
+msgid "Review Cookies"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:218
+msgid "Cookie Inspector"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:251
+msgid "Please select a service to create a blocking rule, or turn off the Block Script toggle to skip."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:252
+msgid "— No service (category only) —"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:253
+msgid "— Choose Category —"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:254
+msgid "+ Create new service…"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:255
+msgid "→ Add from Library"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:256
+msgid "→ Add from Library (PRO)"
+msgstr ""
+
+#. translators: %s is the cookie category name.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:258
+msgid "This cookie was loaded before consent. WPConsent Pro can trace some cookies to the script that added them and suggest a custom script blocking rule to prevent the script from loading before consent."
+msgstr ""
+
+#. translators: %s is the blocking rule/service name.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:260
+msgid "✓ Will be blocked by the rule you created for %s"
+msgstr ""
+
+#. translators: %s is the blocking rule/service name.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:262
+msgid "✓ Already blocked by %s"
+msgstr ""
+
+#. translators: %s is the cookie category name.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:264
+msgid "Prevent this script from running until the visitor consents to %s cookies."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:265
+msgid "1 cookie documented"
+msgstr ""
+
+#. translators: %s is the number of cookies.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:267
+msgid "%s cookies documented"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:268
+msgid "1 cookie skipped"
+msgstr ""
+
+#. translators: %s is the number of cookies.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:270
+msgid "%s cookies skipped"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:271
+msgid "1 blocking rule created"
+msgstr ""
+
+#. translators: %s is the number of blocking rules.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:273
+msgid "%s blocking rules created"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:274
+msgid "1 page inspected"
+msgstr ""
+
+#. translators: %s is the number of pages.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:276
+msgid "%s pages inspected"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:277
+msgid "Loaded before consent"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:330
+#: includes/class-wpconsent-inspector.php:353
+msgid "Opt-in mode"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:331
+#: includes/class-wpconsent-inspector.php:354
+msgid "Opt-out mode"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:332
+#: includes/class-wpconsent-inspector.php:355
+msgid "Discovery mode"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:335
+msgid "Scripts are blocked until the visitor consents. Cookies loaded before consent are flagged as violations."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:336
+msgid "Scripts are allowed by default. Cookies that persist after the visitor rejects consent are flagged as violations."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:337
+msgid "Script blocking is disabled. The inspector detects cookies but does not verify blocking."
+msgstr ""
+
+#. translators: %1$s is an opening link tag, %2$s is a closing link tag.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:368
+msgid "Automatic script blocking is currently disabled. The inspector will detect cookies but cannot verify if they are properly blocked before consent. %1$sEnable script blocking%2$s in settings for full compliance testing."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:379
+msgid "The Cookie Inspector opens your site with a floating panel that tracks every cookie in real time. Your cookies are cleared first so you see the site like a new visitor. Browse your pages, reject cookies on the banner to test if scripts are properly blocked, then click \"Review Cookies\" in the panel to come back here and document them."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:381
+msgid "The Cookie Inspector opens your site with a floating panel that tracks every cookie in real time. Your cookies are cleared first so you see the site like a new visitor. Browse your pages, accept the consent banner to check what loads before and after consent, then click \"Review Cookies\" in the panel to come back here and document them."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:388
+msgid "For each detected cookie you can set the category, assign a service, and add a description. Cookies that were not blocked after rejection are flagged so you know exactly what needs fixing."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:390
+msgid "For each detected cookie you can set the category, assign a service, and add a description. Undocumented cookies are highlighted so you can add them to your cookie database."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:392
+msgid "For each detected cookie you can set the category, assign a service, and add a description. Cookies that loaded before consent are flagged as violations so you know exactly what needs fixing."
+msgstr ""
+
+#. translators: %1$s is an opening link tag, %2$s is a closing link tag.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:403
+msgid "We recommend %1$srunning a scan%2$s before using the inspector. Scanning pre-populates your cookie database so the inspector can identify which cookies are already documented."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:414
+msgid "Start Inspector"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:420
+msgid "Let WPConsent Pro do the detective work"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:422
+msgid "The inspector finds your cookies. Pro goes a step further and traces them back to the scripts that created them. That means you can block unwanted scripts in a few clicks, without touching any code."
+msgstr ""
+
+#. translators: %1$s is an opening link tag, %2$s is a closing link tag.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:453
+msgid "Automatic script blocking is disabled. Cookies will load freely regardless of consent. %1$sEnable script blocking%2$s for full compliance testing."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:464
+msgid "The inspector is active on your site. Browse your pages and reject cookies on the banner — cookies loaded before and after rejection are tracked separately. When you're done, click \"Review Cookies\" in the floating panel to come back here and review them."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:466
+msgid "The inspector is active on your site. Browse your pages and accept the consent banner — cookies loaded before and after consent are tracked separately. When you're done, click \"Review Cookies\" in the floating panel to come back here and review them."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:474
+msgid "Go to Site"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:506
+msgid "Loading cookies..."
+msgstr ""
+
+#. translators: %d is the number of cookies pending review.
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:514
+msgid "%d cookie was detected that is not yet documented in your settings. Review it below."
+msgid_plural "%d cookies were detected that are not yet documented in your settings. Review them below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:536
+msgid "Detected Information"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:537
+msgid "Where and how this cookie was found on your site."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:542
+msgid "Detected On"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:551
+msgid "Likely Source"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:561
+msgid "Assign a category so this cookie is listed in your consent banner and privacy policy."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:591
+msgid "e.g. 2 years"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:602
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:671
+msgid "Control when this script is allowed to run."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:632
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:688
+msgid "Script Tag"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:635
+msgid "e.g. connect.facebook.net/en_US/fbevents.js"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:636
+msgid "Enter a unique string that identifies the script to block."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:641
+msgid "Script Keywords (optional)"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:644
+msgid "e.g. fbq, fbq.push"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:645
+msgid "JavaScript function names to block (comma separated)."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:654
+msgid "Inline Script"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:657
+msgid "This cookie was set by the inline script below. Click an identifier to add it as a Script Keyword for blocking."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:696
+msgid "Script Keywords"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:706
+msgid "Custom script blocking available with WPConsent Pro."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:721
+msgid "Save & Next"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:722
+msgid "Skip — I'll handle this later"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:729
+msgid "Review complete!"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:734
+msgid "Go to Cookie Settings"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:737
+msgid "Run Another Inspection"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:833
+msgid "Search services..."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:838
+msgid "Loading services..."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:880
 msgid "Below you can see a list of scripts and integrations detected on your website that use cookies and that WPConsent can automatically detect. We recommend adding cookie information for all of them. Once added, you can edit the details on the settings page."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:236
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:914
 msgid "Automatically Configure Cookies"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:264
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:942
 #: includes/class-wpconsent-strings.php:43
 msgid "Service URL"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:267
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:945
 msgid "Hide Cookies"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:267
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:945
 msgid "View Cookies"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:270
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:948
 msgid "Hide Script"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:270
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:948
 msgid "View Script"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:315
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:993
 msgid "Not Scheduled"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:336
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1002
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1167
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1210
+msgid "Services Detected"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1006
+msgid "Cookies In Use"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1010
+msgid "Last Successful Scan"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1014
 msgid "Cookies Configured"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:340
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1018
 msgid "Next Scheduled Scan"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:410
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1088
 msgid "Select content to scan:"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:414
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1092
 msgid "Search for a post/page..."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:431
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1109
 msgid "Home Page"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:432
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1110
 msgid "Always Scanned"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:476
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1154
 msgid "View the history of all website scans. Track new services detected over time and monitor changes to your website's cookie usage."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:479
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1157
 msgid "Export CSV"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:482
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1160
 msgid "items"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:488
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:531
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1166
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1209
 msgid "Scan Date"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:490
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:533
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1168
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1211
 msgid "New Services"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:491
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:534
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1169
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1212
 msgid "Removed Services"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:522
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1200
 msgid "View Details"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:545
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1223
 msgid "Scan History"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:565
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:581
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:617
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:645
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:669
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1243
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1259
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1295
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1323
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1347
 msgid "Auto-Updated"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:569
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:621
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:657
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1247
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1299
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1335
 msgid "Email Sent"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:593
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:605
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:633
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:681
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1271
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1283
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1311
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1359
 msgid "Completed"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:707
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1385
 msgid "Automatically scan your website in the background to detect services that may track your visitors."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:716
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1394
 msgid "Scan Interval"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:720
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1398
 msgid "Daily"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:721
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1399
 msgid "Weekly"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:722
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1400
 msgid "Monthly"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:724
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1402
 msgid "Choose how often to automatically scan your website for tracking services."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:733
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1411
 msgid "Auto-Update Services"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:740
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1418
 msgid "Automatically add newly detected services to your cookie configuration."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:741
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1419
 msgid "Note:"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:741
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1419
 msgid "The scanner only adds new services, it never removes existing ones. This is by design since some services may only load on pages that are not scanned."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:757
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1435
 msgid "Send email notifications when new services are detected on your website."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:764
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1442
 msgid "Notification Email Addresses"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:768
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1446
 msgid "Comma-separated list of email addresses to receive notifications. Leave empty to use the admin email."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:770
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1448
 msgid "Send Test Email"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:780
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1458
 msgid "History Retention (Days)"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:784
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1462
 msgid "How long to keep scan history records. Set to 0 to keep forever."
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:789
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1467
 msgid "Save Settings"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:796
+#: includes/admin/pages/class-wpconsent-admin-page-scanner.php:1474
 msgid "Scanner Settings"
 msgstr ""
 
@@ -2771,47 +3445,79 @@ msgstr ""
 msgid "You do not have permission to access this page."
 msgstr ""
 
+#: includes/admin/pages/class-wpconsent-admin-page.php:266
+msgid "Help"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:358
+msgid "Search docs"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:369
+msgid "No docs found"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:383
+msgid "View Documentation"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:384
+msgid "Browse documentation, reference material, and tutorials for WPConsent."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:385
+msgid "View All Documentation"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:389
+msgid "Get Support"
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:390
+msgid "Submit a ticket and our world class support team will be in touch soon."
+msgstr ""
+
+#: includes/admin/pages/class-wpconsent-admin-page.php:391
+msgid "Submit a Support Ticket"
+msgstr ""
+
 #. Translators: Placeholder for the number of active notifications.
-#: includes/admin/pages/class-wpconsent-admin-page.php:350
+#: includes/admin/pages/class-wpconsent-admin-page.php:403
 msgid "New Notifications (%s)"
 msgstr ""
 
 #. Translators: Placeholder for the number of dismissed notifications.
-#: includes/admin/pages/class-wpconsent-admin-page.php:361
+#: includes/admin/pages/class-wpconsent-admin-page.php:414
 msgid "Notifications (%s)"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page.php:368
+#: includes/admin/pages/class-wpconsent-admin-page.php:421
 msgid "Dismissed Notifications"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page.php:371
+#: includes/admin/pages/class-wpconsent-admin-page.php:424
 msgid "Active Notifications"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page.php:394
+#: includes/admin/pages/class-wpconsent-admin-page.php:447
 msgid "Dismiss all"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page.php:411
+#: includes/admin/pages/class-wpconsent-admin-page.php:464
 msgid "Support"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page.php:416
+#: includes/admin/pages/class-wpconsent-admin-page.php:469
 msgid "Docs"
 msgstr ""
 
 #. Translators: %1$s - love symbol (e.g., heart), %2$s - team name.
-#: includes/admin/pages/class-wpconsent-admin-page.php:431
+#: includes/admin/pages/class-wpconsent-admin-page.php:484
 msgid "Made with %1$s by the %2$s team"
 msgstr ""
 
-#: includes/admin/pages/class-wpconsent-admin-page.php:502
-msgid "Dismiss"
-msgstr ""
-
 #. translators: %s is the title of the metabox.
-#: includes/admin/pages/class-wpconsent-admin-page.php:597
+#: includes/admin/pages/class-wpconsent-admin-page.php:651
 msgid "Collapse Metabox %s"
 msgstr ""
 
@@ -2844,12 +3550,6 @@ msgstr ""
 #. translators: %1$s is an opening link tag, %2$s is a closing link tag.
 #: includes/admin/pages/trait-wpconsent-services-upsell.php:45
 msgid "%1$sPro Tip:%2$s You can manually configure cookie data for any plugin using our free library: %3$s CookieLibrary.org %4$s"
-msgstr ""
-
-#: includes/admin/pages/trait-wpconsent-services-upsell.php:56
-#: includes/lite/admin/class-wpconsent-admin-page-loader-lite.php:39
-#: includes/lite/admin/class-wpconsent-admin-page-loader-lite.php:40
-msgid "Upgrade to Pro"
 msgstr ""
 
 #: includes/class-wpconsent-banner.php:234
@@ -2903,7 +3603,7 @@ msgstr ""
 
 #: includes/class-wpconsent-banner.php:888
 #: includes/class-wpconsent-cookies.php:375
-#: includes/class-wpconsent-cookies.php:809
+#: includes/class-wpconsent-cookies.php:811
 #: includes/class-wpconsent-strings.php:31
 #: includes/preferences-button-shortcode.php:35
 msgid "Cookie Preferences"
@@ -2916,7 +3616,7 @@ msgstr ""
 
 #. translators: %s: The category name (e.g., analytics, marketing)
 #: includes/class-wpconsent-content-placeholder.php:195
-#: includes/class-wpconsent-cookie-blocking.php:438
+#: includes/class-wpconsent-cookie-blocking.php:462
 msgid "Click here to accept %s cookies and load this content"
 msgstr ""
 
@@ -2945,8 +3645,194 @@ msgid "Marketing cookies are used to follow visitors to websites. The intention 
 msgstr ""
 
 #: includes/class-wpconsent-cookies.php:376
-#: includes/class-wpconsent-cookies.php:810
+#: includes/class-wpconsent-cookies.php:812
 msgid "This cookie is used to store the user's cookie consent preferences."
+msgstr ""
+
+#: includes/class-wpconsent-dashboard.php:62
+msgid "Invalid setting."
+msgstr ""
+
+#: includes/class-wpconsent-dashboard.php:94
+msgid "Invalid suggestion."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:183
+msgid "You do not have permission to use the inspector."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:228
+msgid "Cookie ID, name, and category are required."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:325
+msgid "Browse your site to detect cookies. Navigate to different pages to get a complete picture."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:326
+msgid "Click Review Cookies to configure them."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:327
+msgid "Unknown cookie loaded before consent"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:328
+msgid "Loaded before consent — blocking rule may be missing"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:329
+msgid "Finish Inspection"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:331
+msgid "Needs Attention"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:332
+msgid "Undocumented"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:333
+msgid "Working Correctly"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:334
+msgid "Admin only cookies"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:335
+msgid "Only set when logged-in users access the WordPress admin. Regular visitors never see them. Document them only if needed."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:336
+msgid "Admin only"
+msgstr ""
+
+#. translators: Used as "1 page" in cookie metadata.
+#: includes/class-wpconsent-inspector.php:338
+msgid "page"
+msgstr ""
+
+#. translators: Used as "3 pages" in cookie metadata.
+#: includes/class-wpconsent-inspector.php:340
+msgid "pages"
+msgstr ""
+
+#. translators: Used as "1 cookie" in guidance messages.
+#: includes/class-wpconsent-inspector.php:342
+msgid "cookie"
+msgstr ""
+
+#. translators: Used as "3 cookies" in guidance messages.
+#: includes/class-wpconsent-inspector.php:344
+msgid "cookies"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:345
+msgid "This page looks good! Use ↻ to reset the banner and re-check, or visit more pages."
+msgstr ""
+
+#. translators: Preceded by a number, e.g. "3 pages inspected — all looking good!"
+#: includes/class-wpconsent-inspector.php:347
+msgid "pages inspected — looking good! Visit more pages or finish below."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:348
+msgid "Visit next:"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:349
+msgid "Minimize to browse your site"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:350
+msgid "Minimize — keep browsing"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:351
+msgid "WPConsent Cookie Inspector"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:352
+msgid "Reset cookies and show the banner again"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:359
+msgid "detected. Script blocking is disabled — cookies are expected to load freely."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:360
+msgid "No issues so far. Accept cookies on the banner to continue detection."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:361
+msgid "found. Review them to add them to your cookie database."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:362
+msgid "All detected cookies are documented. Enable script blocking for full compliance verification."
+msgstr ""
+
+#. translators: %1$s is an opening link tag, %2$s is a closing link tag.
+#: includes/class-wpconsent-inspector.php:365
+msgid "Script blocking is disabled. %1$sEnable it in your settings%2$s for compliance testing."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:370
+msgid "loading as expected. Reject cookies on the banner to test if blocking works after rejection."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:371
+msgid "Cookies are loading as expected. Reject cookies on the banner to verify blocking works."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:372
+msgid "not blocked after rejection. Review them to fix your blocking rules."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:373
+msgid "All cookies were properly blocked after rejection. Your site looks good!"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:374
+msgid "Unknown cookie — not yet documented"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:375
+msgid "Not blocked after rejection — blocking rule may be missing"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:378
+msgid "loaded before consent. Accept cookies on the banner to check what loads after consent."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:379
+msgid "Looking good so far. Accept cookies on the banner to see what loads after consent."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:380
+msgid "detected. Click Review Cookies to configure them."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:381
+msgid "All cookies are properly documented and blocked before consent. Your site looks good!"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:496
+msgid "Home"
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:552
+msgid "No cookies to save."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:608
+msgid "Cookie name is required."
+msgstr ""
+
+#: includes/class-wpconsent-inspector.php:694
+msgid "Filter must return an array of cookie-name prefixes."
 msgstr ""
 
 #: includes/class-wpconsent-scanner.php:212
@@ -2958,38 +3844,38 @@ msgid "Could not get permalink for the provided page ID."
 msgstr ""
 
 #. translators: %1$d: number of scanned pages, %2$d: total number of pages
-#: includes/class-wpconsent-scanner.php:268
+#: includes/class-wpconsent-scanner.php:272
 msgid "(%1$d of %2$d pages scanned)"
 msgstr ""
 
 #. translators: %s: error message
-#: includes/class-wpconsent-scanner.php:393
+#: includes/class-wpconsent-scanner.php:397
 msgid "The scanner endpoint could not be reached: %s"
 msgstr ""
 
 #. translators: %d: HTTP response code
-#: includes/class-wpconsent-scanner.php:405
+#: includes/class-wpconsent-scanner.php:409
 msgid "The scanner endpoint returned an error: HTTP %d"
 msgstr ""
 
-#: includes/class-wpconsent-scanner.php:416
+#: includes/class-wpconsent-scanner.php:420
 msgid "The scanner endpoint returned an empty response."
 msgstr ""
 
-#: includes/class-wpconsent-scanner.php:425
+#: includes/class-wpconsent-scanner.php:429
 msgid "The scanner endpoint returned an invalid response format."
 msgstr ""
 
-#: includes/class-wpconsent-scanner.php:552
+#: includes/class-wpconsent-scanner.php:556
 msgid "No known scripts were found on your website."
 msgstr ""
 
 #. translators: %1$d: number of scripts, %2$d: number of cookies
-#: includes/class-wpconsent-scanner.php:556
+#: includes/class-wpconsent-scanner.php:560
 msgid "We found %1$d services on your website that set %2$d cookies."
 msgstr ""
 
-#: includes/class-wpconsent-scanner.php:564
+#: includes/class-wpconsent-scanner.php:568
 msgid "Please review them in the Detailed Report and choose the ones you want to automatically configure cookies for."
 msgstr ""
 

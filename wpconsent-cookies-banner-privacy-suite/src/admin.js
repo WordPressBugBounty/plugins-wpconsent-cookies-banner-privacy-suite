@@ -28,3 +28,7 @@ import './admin/banner-admin.js';
 import './admin/tools.js';
 import './admin/iab-tcf-vendors.js';
 import './admin/iab-tcf-vendors.css';
+import './admin/inspector-review.js';
+import './admin/dashboard.js';
+import './admin/help.js';
+import './admin/install-plugin.js';

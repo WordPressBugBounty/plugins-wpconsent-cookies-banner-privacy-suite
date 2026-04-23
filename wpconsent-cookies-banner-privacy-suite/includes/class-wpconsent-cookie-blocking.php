@@ -43,6 +43,7 @@ class WPConsent_Cookie_Blocking {
 	public function hooks() {
 		add_action( 'template_redirect', array( $this, 'maybe_buffer_start' ) );
 		add_action( 'shutdown', array( $this, 'buffer_end' ) );
+		add_filter( 'wpconsent_skip_script_blocking', array( $this, 'maybe_skip_own_scripts' ), 1, 5 );
 		add_filter( 'wpconsent_skip_script_blocking', array( $this, 'maybe_skip_for_google_consent' ), 10, 5 );
 		add_filter( 'wpconsent_skip_script_blocking', array( $this, 'maybe_skip_for_clarity_consent' ), 10, 5 );
 		add_filter( 'wpconsent_skip_script_blocking', array( $this, 'maybe_skip_for_wp_consent_api' ), 10, 5 );
@@ -310,6 +311,29 @@ class WPConsent_Cookie_Blocking {
 	 */
 	public function get_clarity_consent_mode() {
 		return absint( wpconsent()->settings->get_option( 'clarity_consent_mode', true ) ) === 1;
+	}
+
+	/**
+	 * Skip script blocking for our own plugin scripts.
+	 *
+	 * Prevents the blocker from disabling WPConsent's own inline localization
+	 * data when its content happens to match a known blocking pattern.
+	 *
+	 * @param bool   $skip     Whether to skip the script blocking.
+	 * @param string $src      The script source.
+	 * @param string $name     The name of the known script.
+	 * @param string $category The category of the known script.
+	 * @param object $script   The script DOM element.
+	 *
+	 * @return bool
+	 */
+	public function maybe_skip_own_scripts( $skip, $src, $name, $category, $script ) {
+		$script_id = $script->getAttribute( 'id' );
+		if ( $script_id && 0 === strpos( $script_id, 'wpconsent-' ) ) {
+			return true;
+		}
+
+		return $skip;
 	}
 
 	/**

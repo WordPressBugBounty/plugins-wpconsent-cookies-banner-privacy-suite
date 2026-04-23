@@ -42,6 +42,14 @@ add_action( 'wp_ajax_wpconsent_verify_ssl', 'wpconsent_ajax_verify_ssl' );
 function wpconsent_ajax_add_category() {
 	check_admin_referer( 'wpconsent_add_category', 'wpconsent_add_category_nonce' );
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
 	$category_name        = isset( $_POST['category_name'] ) ? sanitize_text_field( wp_unslash( $_POST['category_name'] ) ) : '';
 	$category_description = isset( $_POST['category_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['category_description'] ) ) : '';
 
@@ -67,6 +75,14 @@ function wpconsent_ajax_add_category() {
  */
 function wpconsent_ajax_edit_category() {
 	check_admin_referer( 'wpconsent_add_category', 'wpconsent_add_category_nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
 
 	$category_id          = isset( $_POST['category_id'] ) ? intval( $_POST['category_id'] ) : 0;
 	$category_name        = isset( $_POST['category_name'] ) ? sanitize_text_field( wp_unslash( $_POST['category_name'] ) ) : '';
@@ -100,9 +116,17 @@ function wpconsent_ajax_edit_category() {
 function wpconsent_ajax_delete_category() {
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
 	$category_id = isset( $_POST['category_id'] ) ? intval( $_POST['category_id'] ) : 0;
 
-	// Error if category ID is not set
+	// Error if category ID is not set.
 	if ( empty( $category_id ) ) {
 		wp_send_json_error( array(
 			'message' => esc_html__( 'Category ID is required.', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -128,6 +152,14 @@ function wpconsent_ajax_delete_category() {
 function wpconsent_ajax_manage_service() {
 	check_admin_referer( 'wpconsent_manage_service', 'wpconsent_manage_service_nonce' );
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
 	// Get and sanitize all input fields.
 	$post_id             = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
 	$service_name        = isset( $_POST['service_name'] ) ? sanitize_text_field( wp_unslash( $_POST['service_name'] ) ) : '';
@@ -138,7 +170,7 @@ function wpconsent_ajax_manage_service() {
 	// Validate required fields.
 	if ( empty( $service_name ) || empty( $service_category ) ) {
 		wp_send_json_error( array(
-			'message' => esc_html__( 'Service  name and category are required.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'message' => esc_html__( 'Service name and category are required.', 'wpconsent-cookies-banner-privacy-suite' ),
 		) );
 	}
 
@@ -180,6 +212,14 @@ function wpconsent_ajax_manage_service() {
  */
 function wpconsent_ajax_manage_cookie() {
 	check_admin_referer( 'wpconsent_manage_cookie', 'wpconsent_manage_cookie_nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
 
 	// Get and sanitize all input fields
 	$post_id            = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
@@ -238,6 +278,14 @@ function wpconsent_ajax_manage_cookie() {
 function wpconsent_ajax_delete_cookie() {
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
 	$cookie_id = isset( $_POST['cookie_id'] ) ? intval( $_POST['cookie_id'] ) : 0;
 
 	if ( empty( $cookie_id ) ) {
@@ -268,6 +316,14 @@ function wpconsent_ajax_delete_cookie() {
 function wpconsent_ajax_delete_service() {
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
 	$service_id = isset( $_POST['service_id'] ) ? intval( $_POST['service_id'] ) : 0;
 
 	if ( empty( $service_id ) ) {
@@ -296,6 +352,14 @@ function wpconsent_ajax_delete_service() {
  */
 function wpconsent_ajax_search_pages() {
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
 
 	$search = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
 
@@ -326,6 +390,14 @@ function wpconsent_ajax_search_pages() {
 function wpconsent_ajax_get_services() {
 	// Nonce check.
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
 
 	$services_options = array(
 		'0' => esc_html__( 'No service', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -376,8 +448,8 @@ function wpconsent_ajax_auto_configure() {
 	// Let's mark the scan as configured.
 	wpconsent()->scanner->mark_scan_as_configured();
 
-	// Delete transient wpconsent_needs_google_consent.
-	delete_transient( 'wpconsent_needs_google_consent' );
+	// Clear cached service detection data.
+	wpconsent()->cookies->clear_cookies_cache();
 
 	// Let's update script blocking.
 	wpconsent()->settings->bulk_update_options(
@@ -541,6 +613,14 @@ function wpconsent_ajax_generate_cookie_policy() {
 function wpconsent_ajax_search_content() {
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
 
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
 	$search = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
 
 	// Query both posts and pages with search term and order by relevance.
@@ -575,7 +655,15 @@ function wpconsent_ajax_search_content() {
 function wpconsent_ajax_save_scanner_items() {
 	check_ajax_referer( 'wpconsent_admin', 'nonce' );
 
-	$items = isset( $_POST['items'] ) ? array_map( 'intval', $_POST['items'] ) : array();
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
+	$items = isset( $_POST['items'] ) ? array_map( 'intval', wp_unslash( $_POST['items'] ) ) : array();
 
 	// Remove duplicates and ensure all values are integers.
 	$unique_items = array_unique( $items );
@@ -679,3 +767,4 @@ function wpconsent_ajax_verify_ssl() {
 		)
 	);
 }
+

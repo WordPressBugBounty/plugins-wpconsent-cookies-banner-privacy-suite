@@ -52,6 +52,8 @@ function wpconsent_admin_scripts() {
 				'yes'                       => esc_html__( 'Yes', 'wpconsent-cookies-banner-privacy-suite' ),
 				'no'                        => esc_html__( 'No', 'wpconsent-cookies-banner-privacy-suite' ),
 				'ok'                        => esc_html__( 'OK', 'wpconsent-cookies-banner-privacy-suite' ),
+				'installing'                => esc_html__( 'Installing...', 'wpconsent-cookies-banner-privacy-suite' ),
+				'activated'                 => esc_html__( 'Activated!', 'wpconsent-cookies-banner-privacy-suite' ),
 				'error'                     => esc_html__( 'Error', 'wpconsent-cookies-banner-privacy-suite' ),
 				'please_wait'               => esc_html__( 'Please wait...', 'wpconsent-cookies-banner-privacy-suite' ),
 				'testing'                   => esc_html__( 'Testing...', 'wpconsent-cookies-banner-privacy-suite' ),
