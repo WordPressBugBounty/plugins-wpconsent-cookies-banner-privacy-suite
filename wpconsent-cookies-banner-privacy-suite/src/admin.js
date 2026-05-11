@@ -21,6 +21,7 @@ import './admin/spinner.js';
 import './admin/generate-cookie-policy.js';
 import './admin/reset-to-defaults.js';
 import './admin/script-blocking.js';
+import './admin/google-consent-mode.js';
 import './admin/upsells.js';
 import './admin/manual-scan-input.js';
 import './admin/import-confirm.js';

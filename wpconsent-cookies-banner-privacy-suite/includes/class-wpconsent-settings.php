@@ -103,6 +103,8 @@ class WPConsent_Settings {
 				'scanner_email_notifications'     => 0,
 				'scanner_email_addresses'         => '',
 				'scanner_history_retention'       => 90,
+				'gcm_url_passthrough'             => 0,
+				'gcm_ads_data_redaction'          => 0,
 			),
 			$default_strings
 		);

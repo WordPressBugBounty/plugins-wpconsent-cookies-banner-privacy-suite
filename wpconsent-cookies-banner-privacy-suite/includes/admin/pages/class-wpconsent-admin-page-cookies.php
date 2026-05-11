@@ -178,7 +178,9 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 					'enable_consent_banner'             => isset( $_POST['enable_consent_banner'] ) ? 1 : 0,
 					'cookie_policy_page'                => isset( $_POST['cookie_policy_page'] ) ? intval( $_POST['cookie_policy_page'] ) : 0,
 					'enable_script_blocking'            => ( isset( $_POST['enable_script_blocking'] ) && isset( $_POST['enable_consent_banner'] ) ) ? 1 : 0,
-					'google_consent_mode'               => ( isset( $_POST['google_consent_mode'] ) && isset( $_POST['google_consent_mode'] ) ) ? 1 : 0,
+					'google_consent_mode'               => isset( $_POST['google_consent_mode'] ) ? 1 : 0,
+					'gcm_url_passthrough'               => isset( $_POST['gcm_url_passthrough'] ) ? 1 : 0,
+					'gcm_ads_data_redaction'            => isset( $_POST['gcm_ads_data_redaction'] ) ? 1 : 0,
 					'enable_consent_floating'           => isset( $_POST['enable_consent_floating'] ) ? 1 : 0,
 					'default_allow'                     => isset( $_POST['default_allow'] ) ? 1 : 0,
 					'manual_toggle_services'            => isset( $_POST['manual_toggle_services'] ) ? 1 : 0,
@@ -340,27 +342,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		);
 
 		$this->metabox_row(
-				esc_html__( 'Google Consent Mode', 'wpconsent-cookies-banner-privacy-suite' ),
-				$this->get_checkbox_toggle(
-						wpconsent()->settings->get_option( 'google_consent_mode', true ),
-						'google_consent_mode',
-						sprintf(
-						// translators: %1$s is an opening link tag, %2$s is a closing link tag.
-								esc_html__( 'Use services like Google Analytics and Google ads without cookies until consent is given. %1$sLearn More%2$s', 'wpconsent-cookies-banner-privacy-suite' ),
-								'<a target="_blank" rel="noopener noreferrer" href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/docs/google-consent-mode', 'settings', 'google-consent-mode' ) ) . '">',
-								'</a>'
-						)
-				) . $this->help_icon( __( 'Google Consent Mode will not be loaded if the banner is disabled.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
-				'google_consent_mode',
-				'',
-				'',
-				'',
-				false,
-				'',
-				$this->is_tcf_field_locked( 'google_consent_mode' )
-		);
-
-		$this->metabox_row(
 				esc_html__( 'Settings Button', 'wpconsent-cookies-banner-privacy-suite' ),
 				$this->get_checkbox_toggle(
 						wpconsent()->settings->get_option( 'enable_consent_floating' ),
@@ -413,6 +394,8 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				$this->is_tcf_field_locked( 'manual_toggle_services' )
 		);
 
+		$this->metabox_row_separator();
+		$this->google_consent_mode_section();
 		$this->metabox_row_separator();
 		$this->metabox_row(
 				esc_html__( 'Cookie Categories', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -477,6 +460,68 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		$this->records_of_consent_input();
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Render the Google Consent Mode section.
+	 *
+	 * @return void
+	 */
+	public function google_consent_mode_section() {
+		?>
+		<div class="wpconsent-admin-settings-section">
+			<h2 class="wpconsent-preferences-section-title">
+				<?php esc_html_e( 'Google Consent Mode', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+			</h2>
+			<div class="wpconsent-form-fields-section-description">
+				<p>
+					<?php
+					printf(
+						// translators: %1$s opening <a>, %2$s closing </a>.
+						esc_html__( 'Google Consent Mode reports visitor consent to Google services such as Analytics, Ads, and Tag Manager using the v2 consent signals (ad_storage, analytics_storage, ad_user_data, ad_personalization, and personalization_storage). Each signal\'s default state follows your "Default Allow" setting and is updated when the visitor responds to the banner. %1$sLearn more about Google Consent Mode%2$s.', 'wpconsent-cookies-banner-privacy-suite' ),
+						'<a target="_blank" rel="noopener noreferrer" href="' . esc_url( wpconsent_utm_url( 'https://wpconsent.com/docs/google-consent-mode', 'settings', 'google-consent-mode-section' ) ) . '">',
+						'</a>'
+					);
+					?>
+				</p>
+			</div>
+		</div>
+		<?php
+
+		$this->metabox_row(
+				esc_html__( 'Google Consent Mode', 'wpconsent-cookies-banner-privacy-suite' ),
+				$this->get_checkbox_toggle(
+						wpconsent()->settings->get_option( 'google_consent_mode', true ),
+						'google_consent_mode'
+				) . $this->help_icon( __( 'Google Consent Mode will not be loaded if the banner is disabled.', 'wpconsent-cookies-banner-privacy-suite' ), false ),
+				'google_consent_mode',
+				'',
+				'',
+				'',
+				false,
+				'',
+				$this->is_tcf_field_locked( 'google_consent_mode' )
+		);
+
+		$this->metabox_row(
+				esc_html__( 'URL Passthrough', 'wpconsent-cookies-banner-privacy-suite' ),
+				$this->get_checkbox_toggle(
+						wpconsent()->settings->get_option( 'gcm_url_passthrough', 0 ),
+						'gcm_url_passthrough',
+						esc_html__( 'Pass advertising identifiers (such as gclid) across pages via URL parameters so conversion attribution keeps working when ad cookies are denied.', 'wpconsent-cookies-banner-privacy-suite' )
+				),
+				'gcm_url_passthrough'
+		);
+
+		$this->metabox_row(
+				esc_html__( 'Ads Data Redaction', 'wpconsent-cookies-banner-privacy-suite' ),
+				$this->get_checkbox_toggle(
+						wpconsent()->settings->get_option( 'gcm_ads_data_redaction', 0 ),
+						'gcm_ads_data_redaction',
+						esc_html__( 'When ad storage is denied, route Google ad measurement through cookieless domains and strip ad-click identifiers from network requests.', 'wpconsent-cookies-banner-privacy-suite' )
+				),
+				'gcm_ads_data_redaction'
+		);
 	}
 
 	/**

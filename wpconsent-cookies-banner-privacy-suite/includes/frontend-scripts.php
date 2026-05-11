@@ -95,8 +95,18 @@ function wpconsent_google_consent_script() {
 		return;
 	}
 
-	$default_allow = intval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
-	$default_state = $default_allow ? 'granted' : 'denied';
+	$default_allow      = intval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
+	$default_state      = $default_allow ? 'granted' : 'denied';
+	$url_passthrough    = (bool) wpconsent()->settings->get_option( 'gcm_url_passthrough', 0 );
+	$ads_data_redaction = (bool) wpconsent()->settings->get_option( 'gcm_ads_data_redaction', 0 );
+
+	$extra_gtag = '';
+	if ( $url_passthrough ) {
+		$extra_gtag .= "\n\t\t\tgtag('set', 'url_passthrough', true);\n";
+	}
+	if ( $ads_data_redaction ) {
+		$extra_gtag .= "\n\t\t\tgtag('set', 'ads_data_redaction', true);\n";
+	}
 
 	// We need to load the Google consent script earlier than other tracking scripts for it to take effect correctly.
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -105,14 +115,14 @@ function wpconsent_google_consent_script() {
 			window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}
 
 			// Set the developer ID.
-			gtag('set', 'developer_id.dMmRkYz', true);
-
+			gtag('set', 'developer_id.dMmRkYz', true);{$extra_gtag}
 			// Set default consent state based on plugin settings.
 			gtag('consent', 'default', {
 				'ad_storage': '{$default_state}',
 				'analytics_storage': '{$default_state}',
 				'ad_user_data': '{$default_state}',
 				'ad_personalization': '{$default_state}',
+				'personalization_storage': '{$default_state}',
 				'security_storage': 'granted',
 				'functionality_storage': 'granted',
 				'wait_for_update': 500,

@@ -618,7 +618,8 @@ window.WPConsent = {
 				'ad_storage': preferences.marketing ? 'granted' : 'denied',
 				'analytics_storage': preferences.statistics ? 'granted' : 'denied',
 				'ad_user_data': preferences.marketing ? 'granted' : 'denied',
-				'ad_personalization': preferences.marketing ? 'granted' : 'denied'
+				'ad_personalization': preferences.marketing ? 'granted' : 'denied',
+				'personalization_storage': preferences.marketing ? 'granted' : 'denied'
 			}
 		);
 
