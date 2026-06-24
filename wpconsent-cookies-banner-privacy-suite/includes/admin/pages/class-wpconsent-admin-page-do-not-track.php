@@ -469,7 +469,7 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 			'order'   => 'ASC',
 		);
 		if ( ! empty( $selected_page_id ) ) {
-			$pages_args['exclude'] = array( $selected_page_id );
+			$pages_args['exclude'] = array( $selected_page_id ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excludes the single selected page from a 20-item admin dropdown.
 		}
 		// Let's pre-load 20 pages.
 		$pages = get_pages( $pages_args );

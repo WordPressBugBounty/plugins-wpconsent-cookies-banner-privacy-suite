@@ -4,6 +4,103 @@
  * @package WPConsent
  */
 
+// Fallback styles injected into the shadow root when the banner stylesheet
+// fails to load, so the consent UI stays usable (#192). Colors come from the
+// inline --wpconsent-* props on #wpconsent-root, which survive the failure.
+const WPCONSENT_FALLBACK_CSS = `
+#wpconsent-banner-holder {
+	display: none;
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: var(--wpconsent-z-index, 900000);
+}
+#wpconsent-banner-holder.wpconsent-banner-visible {
+	display: block;
+}
+#wpconsent-banner-holder .wpconsent-banner {
+	box-sizing: border-box;
+	margin: 10px;
+	padding: var(--wpconsent-padding, 15px 20px);
+	background: var(--wpconsent-background, #ffffff);
+	color: var(--wpconsent-text, #1a1a1a);
+	border-radius: 10px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+	font-size: var(--wpconsent-font-size, 14px);
+	line-height: 1.4;
+}
+#wpconsent-banner-holder .wpconsent-banner-footer {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 12px;
+}
+#wpconsent-banner-holder button,
+#wpconsent-preferences-modal button {
+	cursor: pointer;
+	padding: 8px 16px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	border-radius: 4px;
+	font-size: inherit;
+}
+#wpconsent-banner-holder .wpconsent-accept-all,
+#wpconsent-preferences-modal .wpconsent-accept-all {
+	background: var(--wpconsent-accept-bg, #2563eb);
+	color: var(--wpconsent-accept-color, #ffffff);
+	border-color: transparent;
+}
+#wpconsent-banner-holder .wpconsent-cancel-cookies,
+#wpconsent-preferences-modal .wpconsent-cancel-cookies {
+	background: var(--wpconsent-cancel-bg, #f3f4f6);
+	color: var(--wpconsent-cancel-color, #1a1a1a);
+}
+#wpconsent-preferences-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	z-index: 10202020;
+	align-items: center;
+	justify-content: center;
+}
+#wpconsent-preferences-modal .wpconsent-preferences-content {
+	box-sizing: border-box;
+	width: 800px;
+	max-width: 90%;
+	max-height: 90vh;
+	margin: auto;
+	padding: 20px;
+	overflow: auto;
+	background: var(--wpconsent-background, #ffffff);
+	color: var(--wpconsent-text, #1a1a1a);
+	border-radius: 10px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+}
+#wpconsent-consent-floating {
+	display: none;
+	position: fixed;
+	bottom: 20px;
+	left: 20px;
+	z-index: 9999;
+	cursor: pointer;
+}
+#wpconsent-gpc-toast {
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	max-width: 280px;
+	padding: 10px 14px;
+	z-index: calc(var(--wpconsent-z-index, 900000) + 1);
+	background: var(--wpconsent-background, #ffffff);
+	color: var(--wpconsent-text, #1a1a1a);
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+`;
+
 // Define global WPConsent namespace
 window.WPConsent = {
 	// Hook system for display checks
@@ -17,6 +114,10 @@ window.WPConsent = {
 	// 1. Add storage for the listener and the last known state
 	listeners: [],
 	lastPreferences: null,
+
+	// Lazy CSS loading state: the shadow-root stylesheet is fetched on first
+	// reveal of any UI element that needs it, then cached so it loads at most once.
+	cssPromise: null,
 
 	// 2. The Registration function GTM will call.
 	registerListener: function( callback ) {
@@ -123,42 +224,45 @@ window.WPConsent = {
 	 * @param {number} duration - Duration in milliseconds (default 2500)
 	 */
 	showToast: function( message, duration = 2500 ) {
-		const toast = this.shadowRoot.querySelector( '#wpconsent-gpc-toast' );
-		if ( ! toast ) {
-			return;
-		}
+		// The toast is a shadow-root element; ensure styles are present first.
+		this.ensureCSS().then( () => {
+			const toast = this.shadowRoot.querySelector( '#wpconsent-gpc-toast' );
+			if ( ! toast ) {
+				return;
+			}
 
-		// Update message
-		const messageEl = toast.querySelector( '.wpconsent-toast-message' );
-		if ( messageEl && message ) {
-			messageEl.textContent = message;
-		}
+			// Update message
+			const messageEl = toast.querySelector( '.wpconsent-toast-message' );
+			if ( messageEl && message ) {
+				messageEl.textContent = message;
+			}
 
-		// Show toast
-		toast.style.display = 'block';
-		setTimeout( () => {
-			toast.classList.add( 'wpconsent-toast-visible' );
-		}, 10 );
-
-		// Auto-hide after duration
-		const hideToast = () => {
-			toast.classList.remove( 'wpconsent-toast-visible' );
+			// Show toast
+			toast.style.display = 'block';
 			setTimeout( () => {
-				toast.style.display = 'none';
-			}, 300 ); // Match CSS transition duration
-		};
+				toast.classList.add( 'wpconsent-toast-visible' );
+			}, 10 );
 
-		// Set auto-hide timer
-		const timer = setTimeout( hideToast, duration );
-
-		// Close button functionality
-		const closeBtn = toast.querySelector( '.wpconsent-toast-close' );
-		if ( closeBtn ) {
-			closeBtn.onclick = () => {
-				clearTimeout( timer );
-				hideToast();
+			// Auto-hide after duration
+			const hideToast = () => {
+				toast.classList.remove( 'wpconsent-toast-visible' );
+				setTimeout( () => {
+					toast.style.display = 'none';
+				}, 300 ); // Match CSS transition duration
 			};
-		}
+
+			// Set auto-hide timer
+			const timer = setTimeout( hideToast, duration );
+
+			// Close button functionality
+			const closeBtn = toast.querySelector( '.wpconsent-toast-close' );
+			if ( closeBtn ) {
+				closeBtn.onclick = () => {
+					clearTimeout( timer );
+					hideToast();
+				};
+			}
+		} );
 	},
 
 	/**
@@ -357,70 +461,77 @@ window.WPConsent = {
 	},
 
 	showPreferences: function () {
-		const modal = this.shadowRoot?.querySelector( '#wpconsent-preferences-modal' );
-		if ( modal ) {
-			modal.style.display = 'flex';
-			// Set up focus trap for the preferences modal
-			this.setupFocusTrap( modal );
+		// The preferences modal lives in the shadow root, so ensure its styles are
+		// loaded before display. On consented pageviews with the floating button
+		// disabled this is the first (and only) time the CSS is fetched.
+		// Returns the promise so callers can act after the modal is populated (e.g.
+		// the GPC override flow that pre-checks specific boxes after the restore).
+		return this.ensureCSS().then( () => {
+			const modal = this.shadowRoot?.querySelector( '#wpconsent-preferences-modal' );
+			if ( modal ) {
+				modal.style.display = 'flex';
+				// Set up focus trap for the preferences modal
+				this.setupFocusTrap( modal );
 
-			// Run afterShowPreferences hooks for extensions.
-			this.runHooks( 'afterShowPreferences' );
+				// Run afterShowPreferences hooks for extensions.
+				this.runHooks( 'afterShowPreferences' );
 
-			// Focus the preferences title
-			const modalTitle = this.shadowRoot?.querySelector( '#wpconsent-preferences-title' );
-			if ( modalTitle ) {
-				setTimeout( () => {
-					modalTitle.focus( {preventScroll: true} );
-					// Set this as our tracked element
-					this.lastFocusedElement = modalTitle;
-				}, 100 );
-			}
+				// Focus the preferences title
+				const modalTitle = this.shadowRoot?.querySelector( '#wpconsent-preferences-title' );
+				if ( modalTitle ) {
+					setTimeout( () => {
+						modalTitle.focus( {preventScroll: true} );
+						// Set this as our tracked element
+						this.lastFocusedElement = modalTitle;
+					}, 100 );
+				}
 
-			// Set checkbox states based on saved preferences
-			const preferences = this.getCookie( 'wpconsent_preferences' );
-			if ( preferences ) {
-				try {
-					const savedPreferences = JSON.parse( preferences );
-					const checkboxes = this.shadowRoot.querySelectorAll( '#wpconsent-preferences-modal input[type="checkbox"]' );
-					checkboxes.forEach( checkbox => {
-						let preferenceKey = null;
+				// Set checkbox states based on saved preferences
+				const preferences = this.getCookie( 'wpconsent_preferences' );
+				if ( preferences ) {
+					try {
+						const savedPreferences = JSON.parse( preferences );
+						const checkboxes = this.shadowRoot.querySelectorAll( '#wpconsent-preferences-modal input[type="checkbox"]' );
+						checkboxes.forEach( checkbox => {
+							let preferenceKey = null;
 
-						// Handle category checkboxes (ID: cookie-category-{slug})
-						if ( checkbox.id.startsWith( 'cookie-category-' ) ) {
-							preferenceKey = checkbox.id.replace( 'cookie-category-', '' );
+							// Handle category checkboxes (ID: cookie-category-{slug})
+							if ( checkbox.id.startsWith( 'cookie-category-' ) ) {
+								preferenceKey = checkbox.id.replace( 'cookie-category-', '' );
+							}
+							// Handle service checkboxes (ID: cookie-service-{slug})
+							else if ( checkbox.id.startsWith( 'cookie-service-' ) ) {
+								preferenceKey = checkbox.id.replace( 'cookie-service-', '' );
+							}
+							// Fallback to using value attribute for other patterns
+							else {
+								preferenceKey = checkbox.value;
+							}
+
+							if ( preferenceKey && preferenceKey in savedPreferences ) {
+								checkbox.checked = savedPreferences[preferenceKey];
+							}
+						} );
+
+						// Handle GPC override toggle visibility
+						const gpcOverrideContainer = this.shadowRoot.querySelector( '#wpconsent-gpc-override-container' );
+						if ( gpcOverrideContainer ) {
+							const hasGPCSignal = navigator.globalPrivacyControl === true;
+							const respectGPCInPrefs = savedPreferences && savedPreferences.respect_gpc === true;
+
+							// Show toggle if GPC signal exists and was previously honored
+							if ( hasGPCSignal && respectGPCInPrefs ) {
+								gpcOverrideContainer.style.display = 'block';
+							} else {
+								gpcOverrideContainer.style.display = 'none';
+							}
 						}
-						// Handle service checkboxes (ID: cookie-service-{slug})
-						else if ( checkbox.id.startsWith( 'cookie-service-' ) ) {
-							preferenceKey = checkbox.id.replace( 'cookie-service-', '' );
-						}
-						// Fallback to using value attribute for other patterns
-						else {
-							preferenceKey = checkbox.value;
-						}
-
-						if ( preferenceKey && preferenceKey in savedPreferences ) {
-							checkbox.checked = savedPreferences[preferenceKey];
-						}
-					} );
-
-					// Handle GPC override toggle visibility
-					const gpcOverrideContainer = this.shadowRoot.querySelector( '#wpconsent-gpc-override-container' );
-					if ( gpcOverrideContainer ) {
-						const hasGPCSignal = navigator.globalPrivacyControl === true;
-						const respectGPCInPrefs = savedPreferences && savedPreferences.respect_gpc === true;
-
-						// Show toggle if GPC signal exists and was previously honored
-						if ( hasGPCSignal && respectGPCInPrefs ) {
-							gpcOverrideContainer.style.display = 'block';
-						} else {
-							gpcOverrideContainer.style.display = 'none';
-						}
+					} catch ( e ) {
+						console.error( 'Error parsing WPConsent preferences:', e );
 					}
-				} catch ( e ) {
-					console.error( 'Error parsing WPConsent preferences:', e );
 				}
 			}
-		}
+		} );
 	},
 
 	closePreferences: function () {
@@ -443,7 +554,12 @@ window.WPConsent = {
 		}
 
 		const banner = this.shadowRoot?.querySelector( '#wpconsent-banner-holder' );
-		if ( banner ) {
+		if ( !banner ) {
+			return;
+		}
+
+		// Load the stylesheet before revealing so the banner never flashes unstyled.
+		this.ensureCSS().then( () => {
 			// Run beforeShowBanner hooks for extensions.
 			this.runHooks( 'beforeShowBanner' );
 
@@ -455,7 +571,7 @@ window.WPConsent = {
 
 			// Run afterShowBanner hooks for extensions.
 			this.runHooks( 'afterShowBanner' );
-		}
+		} );
 	},
 
 	hideBanner: function () {
@@ -684,6 +800,11 @@ window.WPConsent = {
 			const container = document.getElementById( 'wpconsent-container' );
 			const template = document.getElementById( 'wpconsent-template' );
 
+			// Container and template are absent when wpconsent_banner_output suppresses output_banner() (EDD receipts, builder previews).
+			if ( !container || !template ) {
+				return;
+			}
+
 			// Get existing shadow root or create new one
 			this.shadowRoot = container.shadowRoot;
 			if ( !this.shadowRoot ) {
@@ -697,12 +818,13 @@ window.WPConsent = {
 				this.initializeAccordions();
 				this.initializeKeyboardHandlers();
 
-				// Run all display checks before proceeding with banner initialization
+				// Run all display checks before proceeding with banner initialization.
+				// CSS is no longer pre-loaded here: it is fetched lazily by the reveal
+				// methods (showBanner / showPreferences / showToast /
+				// showFloatingButtonIfEnabled) only when a shadow-root element is
+				// actually shown, so consented visitors who see nothing never fetch it.
 				this.runDisplayChecks().then( () => {
-					// Only load CSS and potentially show banner after all checks have passed
-					this.loadExternalCSS( container ).then( () => {
-						this.processBannerDisplay();
-					} );
+					this.processBannerDisplay();
 				} );
 			} else {
 				// If shadow root already exists, run display checks then process banner display
@@ -784,28 +906,116 @@ window.WPConsent = {
 		window.dispatchEvent( new CustomEvent( 'wpconsent_banner_initialized' ) );
 	},
 
-	// Load external CSS using a <link> element to avoid CORS issues with fetch() on subdomain setups.
+	// Ensure the shadow-root stylesheet is loaded exactly once.
+	// Returns a promise that resolves when the CSS is ready (or failed gracefully).
+	// Safe to call from every reveal path; subsequent calls reuse the first promise.
+	ensureCSS: function () {
+		if ( this.cssPromise ) {
+			return this.cssPromise;
+		}
+		const container = document.getElementById( 'wpconsent-container' );
+		this.cssPromise = this.loadExternalCSS( container );
+		return this.cssPromise;
+	},
+
+	// Reveal the shadow host. Safe to call multiple times.
+	revealContainer: function ( container ) {
+		if ( container ) {
+			container.style.display = 'block';
+		}
+	},
+
+	// Load the stylesheet with a retry + timeout guard; fall back to injected styles on failure (#192).
 	loadExternalCSS: function ( container ) {
 		return new Promise( ( resolve ) => {
-			try {
-				const cssUrl = `${wpconsent.css_url}?ver=${wpconsent.css_version}`;
+			// Guard against a duplicate <link> if this is ever reached twice.
+			if ( this.shadowRoot && this.shadowRoot.querySelector( 'link[data-wpconsent-css]' ) ) {
+				this.revealContainer( container );
+				resolve();
+				return;
+			}
+
+			if ( ! this.shadowRoot ) {
+				resolve();
+				return;
+			}
+
+			const baseUrl = `${wpconsent.css_url}?ver=${wpconsent.css_version}`;
+			const maxAttempts = 2; // Initial try + one retry.
+			const loadTimeout = 5000; // ms before treating a hung request as failed.
+			let settled = false;
+
+			const finish = () => {
+				if ( settled ) {
+					return;
+				}
+				settled = true;
+				resolve();
+			};
+
+			const attempt = ( n ) => {
+				let timer = null;
 				const link = document.createElement( 'link' );
 				link.rel = 'stylesheet';
-				link.href = cssUrl;
-				link.onload = function () {
-					container.style.display = 'block';
-					resolve();
+				// Cache-bust the retry so a negatively-cached first failure is bypassed.
+				link.href = n === 1 ? baseUrl : `${baseUrl}&wpcretry=${n}`;
+				link.setAttribute( 'data-wpconsent-css', '' );
+
+				const cleanup = () => {
+					if ( timer ) {
+						clearTimeout( timer );
+						timer = null;
+					}
+					link.onload = null;
+					link.onerror = null;
 				};
-				link.onerror = function () {
-					console.error( 'Failed to load WPConsent styles' );
-					resolve();
+
+				const onFailure = ( fromTimeout ) => {
+					cleanup();
+					// Drop the dead <link> so the retry's dedupe guard and the DOM stay clean.
+					if ( link.parentNode ) {
+						link.parentNode.removeChild( link );
+					}
+					// Retry a hard error once; a timeout means the host is unreachable, so fall back now.
+					if ( n < maxAttempts && ! fromTimeout ) {
+						attempt( n + 1 );
+					} else {
+						this.applyCSSFallback( container, baseUrl );
+						finish();
+					}
 				};
-				this.shadowRoot.appendChild( link );
-			} catch ( error ) {
-				console.error( 'Failed to load WPConsent styles:', error );
-				resolve();
-			}
+
+				link.onload = () => {
+					cleanup();
+					this.revealContainer( container );
+					finish();
+				};
+				link.onerror = () => onFailure( false );
+				timer = setTimeout( () => onFailure( true ), loadTimeout );
+
+				try {
+					this.shadowRoot.appendChild( link );
+				} catch ( error ) {
+					console.error( 'WPConsent: failed to inject stylesheet link:', error );
+					onFailure();
+				}
+			};
+
+			attempt( 1 );
 		} );
+	},
+
+	// Inject fallback styles into the shadow root and reveal the host. Idempotent.
+	applyCSSFallback: function ( container, cssUrl ) {
+		if ( this.shadowRoot && ! this.shadowRoot.querySelector( 'style[data-wpconsent-css-fallback]' ) ) {
+			const style = document.createElement( 'style' );
+			style.setAttribute( 'data-wpconsent-css-fallback', '' );
+			style.textContent = WPCONSENT_FALLBACK_CSS;
+			this.shadowRoot.appendChild( style );
+		}
+		this.revealContainer( container );
+		console.error( `WPConsent: failed to load styles from ${cssUrl}; showing the consent UI with fallback styling.` );
+		window.dispatchEvent( new CustomEvent( 'wpconsent_css_failed', { detail: { url: cssUrl } } ) );
 	},
 
 	// Initialize event listeners
@@ -866,30 +1076,33 @@ window.WPConsent = {
 
 					// If GPC is active, user needs to see preference panel with GPC override
 					if ( wpconsent.respect_gpc && hasGPCSignal && respectGPCInPrefs ) {
-						// Open preference panel
-						this.showPreferences();
-
-						// Pre-check the category/service checkboxes
-						const categoryCheckbox = this.shadowRoot.querySelector( `#cookie-category-${category}` );
-						if ( categoryCheckbox ) {
-							categoryCheckbox.checked = true;
-						}
-
-						if ( service ) {
-							const serviceCheckbox = this.shadowRoot.querySelector( `#cookie-service-${service}` );
-							if ( serviceCheckbox ) {
-								serviceCheckbox.checked = true;
+						// Open preference panel, then pre-check the relevant boxes.
+						// showPreferences is async (it awaits the lazy CSS load and then
+						// restores saved checkbox states), so these overrides must run in
+						// its resolution callback or the restore would clobber them.
+						this.showPreferences().then( () => {
+							// Pre-check the category/service checkboxes
+							const categoryCheckbox = this.shadowRoot.querySelector( `#cookie-category-${category}` );
+							if ( categoryCheckbox ) {
+								categoryCheckbox.checked = true;
 							}
-						}
 
-						// Show and highlight the GPC override toggle
-						const gpcContainer = this.shadowRoot.querySelector( '#wpconsent-gpc-override-container' );
-						if ( gpcContainer ) {
-							gpcContainer.style.display = 'block';
-						}
+							if ( service ) {
+								const serviceCheckbox = this.shadowRoot.querySelector( `#cookie-service-${service}` );
+								if ( serviceCheckbox ) {
+									serviceCheckbox.checked = true;
+								}
+							}
 
-						// Highlight the toggle with attention-grabbing styling
-						this.highlightGPCOverride();
+							// Show and highlight the GPC override toggle
+							const gpcContainer = this.shadowRoot.querySelector( '#wpconsent-gpc-override-container' );
+							if ( gpcContainer ) {
+								gpcContainer.style.display = 'block';
+							}
+
+							// Highlight the toggle with attention-grabbing styling
+							this.highlightGPCOverride();
+						} );
 					} else {
 						// No GPC active, directly save preferences
 						const newPreferences = {
@@ -1315,14 +1528,19 @@ window.WPConsent = {
 		document.dispatchEvent( event );
 	},
 
-	// Show the floating button if enabled in settings
+	// Show the floating button if enabled in settings.
 	showFloatingButtonIfEnabled: function () {
-		if ( wpconsent.enable_consent_floating ) {
+		if ( !wpconsent.enable_consent_floating ) {
+			return;
+		}
+		// The floating button is part of the shadow root, so it needs the
+		// stylesheet. Load it before revealing to avoid an unstyled flash.
+		this.ensureCSS().then( () => {
 			const floatingButton = this.shadowRoot?.querySelector( '#wpconsent-consent-floating' );
 			if ( floatingButton ) {
 				floatingButton.style.display = 'block';
 			}
-		}
+		} );
 	},
 
 	// Show or hide buttons based on settings

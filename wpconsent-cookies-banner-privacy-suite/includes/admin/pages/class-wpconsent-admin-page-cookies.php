@@ -193,6 +193,18 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 
 		wpconsent()->settings->bulk_update_options( $settings );
 
+		// Keep the preferences cookie duration label in sync with the consent duration setting.
+		if ( isset( $settings['consent_duration'] ) ) {
+			wpconsent()->cookies->update_preferences_cookie_duration();
+
+			/**
+			 * Fires after the Consent Duration setting is saved so dependent cookie labels can re-sync.
+			 *
+			 * @since 1.1.7
+			 */
+			do_action( 'wpconsent_consent_duration_updated' );
+		}
+
 		wp_safe_redirect( $this->get_page_action_url() );
 		exit;
 	}
@@ -1037,7 +1049,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				'order'   => 'ASC',
 		);
 		if ( ! empty( $selected_page_id ) ) {
-			$pages_args['exclude'] = array( $selected_page_id );
+			$pages_args['exclude'] = array( $selected_page_id ); // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excludes the single selected page from a 20-item admin dropdown.
 		}
 		// Let's pre-load 20 pages.
 		$pages = get_pages( $pages_args );
@@ -1715,7 +1727,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			<?php
 			echo WPConsent_Admin_Page::get_upsell_box( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					esc_html__( 'IAB TCF is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
-					'<p>' . esc_html__( 'Upgrade to WPConsent PRO today to enable IAB Transparency & Consent Framework v2.2 support. Manage vendor consents, publisher restrictions, and ensure compliance with the TCF specification.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
+					'<p>' . esc_html__( 'Upgrade to WPConsent PRO today to enable IAB Transparency & Consent Framework v2.3 support. Manage vendor consents, publisher restrictions, and ensure compliance with the TCF specification.', 'wpconsent-cookies-banner-privacy-suite' ) . '</p>',
 					array(
 							'text' => esc_html__( 'Upgrade to PRO and Unlock IAB TCF', 'wpconsent-cookies-banner-privacy-suite' ),
 							'url'  => esc_url( wpconsent_utm_url( 'https://wpconsent.com/lite/', 'iab-tcf-page', 'main' ) ),

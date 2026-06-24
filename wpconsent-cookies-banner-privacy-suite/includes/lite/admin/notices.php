@@ -84,7 +84,7 @@ function wpconsent_upgrade_to_pro_notice() {
 	$html .= '<ul>';
 	$html .= '<li>' . esc_html__( 'Automatic translations powered by AI make it easier than ever to set up in your local language.', 'wpconsent-cookies-banner-privacy-suite' ) . '</li>';
 	$html .= '<li>' . esc_html__( 'Setting up cookie information is faster with our extended cookie library that includes popular plugins.', 'wpconsent-cookies-banner-privacy-suite' ) . '</li>';
-	$html .= '<li>' . esc_html__( 'Maximize ad revenue with a IAB Europe TCF v2.2 integrations (CMP ID 482).', 'wpconsent-cookies-banner-privacy-suite' ) . '</li>';
+	$html .= '<li>' . esc_html__( 'Maximize ad revenue with a IAB Europe TCF v2.3 integrations (CMP ID 482).', 'wpconsent-cookies-banner-privacy-suite' ) . '</li>';
 	$html .= '</ul>';
 	$html .= '</div>';
 	$html .= sprintf(

@@ -129,7 +129,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				<div class="wpconsent-alert-bar-overflow">
 					<?php
 					/* translators: %d: number of additional alerts. */
-					printf( esc_html__( 'and %d more...', 'wpconsent-cookies-banner-privacy-suite' ), $overflow );
+					printf( esc_html__( 'and %d more...', 'wpconsent-cookies-banner-privacy-suite' ), (int) $overflow );
 					?>
 				</div>
 			<?php endif; ?>
@@ -210,7 +210,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 			'post_status'    => 'publish',
 			'posts_per_page' => 1,
 			'fields'         => 'ids',
-			'meta_query'     => array(
+			'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Filtering cookie posts by meta is required; admin-only, runs once per dashboard load.
 				'relation' => 'OR',
 				array(
 					'key'     => 'wpconsent_cookie_id',

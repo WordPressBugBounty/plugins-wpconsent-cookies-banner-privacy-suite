@@ -154,6 +154,11 @@ class WPConsent_Cookies {
 		);
 		$category_array = $this->get_default_categories();
 
+		// Taxonomy may not be registered yet (e.g. EDD's init@10 receipt render); return defaults so the DB-write loop below doesn't also fail.
+		if ( ! is_array( $categories ) ) {
+			return apply_filters( 'wpconsent_get_categories', $category_array );
+		}
+
 		foreach ( $categories as $category ) {
 			$category_data = array(
 				'name'        => $category->name,
@@ -301,7 +306,7 @@ class WPConsent_Cookies {
 			array(
 				'post_type'      => $this->post_type,
 				'posts_per_page' => - 1,
-				'tax_query'      => array(
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required to find posts in a term; runs only on the rare delete-category admin action.
 					array(
 						'taxonomy' => $this->taxonomy,
 						'terms'    => $category_id,
@@ -333,7 +338,7 @@ class WPConsent_Cookies {
 			array(
 				'post_type'      => $this->post_type,
 				'posts_per_page' => - 1,
-				'tax_query'      => array(
+				'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Querying posts by taxonomy term is intrinsic to fetching cookies in a category.
 					array(
 						'taxonomy' => $this->taxonomy,
 						'terms'    => $category,
@@ -375,7 +380,7 @@ class WPConsent_Cookies {
 				__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ),
 				__( 'This cookie is used to store the user\'s cookie consent preferences.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'essential',
-				'30 days'
+				$this->get_consent_duration_label()
 			);
 
 			if ( ! is_wp_error( $post_id ) ) {
@@ -790,11 +795,49 @@ class WPConsent_Cookies {
 		}
 
 		// Reset default preferences cookie - find it by cookie_id meta.
+		$preferences_cookie = $this->get_preferences_cookie_post();
+
+		if ( $preferences_cookie ) {
+			$this->update_cookie(
+				$preferences_cookie->ID,
+				'wpconsent_preferences',
+				__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ),
+				__( 'This cookie is used to store the user\'s cookie consent preferences.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'essential',
+				$this->get_consent_duration_label()
+			);
+		}
+
+		$this->clear_cookies_cache();
+	}
+
+	/**
+	 * Get the human-readable duration label for the consent cookie based on the consent_duration setting.
+	 *
+	 * @return string E.g. "30 days" or "1 day".
+	 */
+	public function get_consent_duration_label() {
+		$days = absint( wpconsent()->settings->get_option( 'consent_duration', 30 ) );
+
+		if ( empty( $days ) ) {
+			$days = 30;
+		}
+
+		/* translators: %d: number of days the consent cookie is stored. */
+		return sprintf( _n( '%d day', '%d days', $days, 'wpconsent-cookies-banner-privacy-suite' ), $days );
+	}
+
+	/**
+	 * Get the post storing the wpconsent_preferences cookie data, if it exists.
+	 *
+	 * @return WP_Post|null
+	 */
+	public function get_preferences_cookie_post() {
 		$preferences_cookies = get_posts(
 			array(
 				'post_type'      => $this->post_type,
 				'posts_per_page' => 1,
-				'meta_query'     => array(
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Locating the preferences cookie by its meta key; bounded to a single result.
 					array(
 						'key'   => 'wpconsent_cookie_id',
 						'value' => 'wpconsent_preferences',
@@ -803,17 +846,22 @@ class WPConsent_Cookies {
 			)
 		);
 
-		if ( ! empty( $preferences_cookies ) ) {
-			$preferences_cookie = $preferences_cookies[0];
-			$post_id            = $this->update_cookie(
-				$preferences_cookie->ID,
-				'wpconsent_preferences',
-				__( 'Cookie Preferences', 'wpconsent-cookies-banner-privacy-suite' ),
-				__( 'This cookie is used to store the user\'s cookie consent preferences.', 'wpconsent-cookies-banner-privacy-suite' ),
-				'essential',
-				'30 days'
-			);
+		return empty( $preferences_cookies ) ? null : $preferences_cookies[0];
+	}
+
+	/**
+	 * Update the duration label of the wpconsent_preferences cookie to match the consent_duration setting.
+	 *
+	 * @return void
+	 */
+	public function update_preferences_cookie_duration() {
+		$preferences_cookie = $this->get_preferences_cookie_post();
+
+		if ( ! $preferences_cookie ) {
+			return;
 		}
+
+		update_post_meta( $preferences_cookie->ID, 'wpconsent_cookie_duration', $this->get_consent_duration_label() );
 
 		$this->clear_cookies_cache();
 	}

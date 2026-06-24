@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WPConsent
  * Description: Improve your WordPress website privacy compliance. Custom cookie banner, website scanner, automatic script blocking, and easy cookie configuration.
- * Version:     1.1.6
+ * Version:     1.1.7
  * Author:      WPConsent
  * Author URI:  https://wpconsent.com
  * License:     GPL v2 or later
  * Requires at least: 5.6
  * Requires PHP: 7.0
- * Tested up to: 6.9
+ * Tested up to: 7.0
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wpconsent-cookies-banner-privacy-suite
  * Domain Path: /languages

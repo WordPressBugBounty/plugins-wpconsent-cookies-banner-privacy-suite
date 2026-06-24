@@ -32,6 +32,12 @@ function wpconsent_frontend_scripts() {
 		return;
 	}
 
+	// Respect the same filter that gates banner HTML output, so compat shims
+	// (EDD receipt page, Avada/Bricks/Divi builder previews) suppress the script too.
+	if ( ! apply_filters( 'wpconsent_banner_output', true ) ) {
+		return;
+	}
+
 	$default_allow          = boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
 	$manual_toggle_services = boolval( wpconsent()->settings->get_option( 'manual_toggle_services', 0 ) );
 	$slugs                  = $manual_toggle_services ? wpconsent()->cookies->get_preference_slugs() : array(

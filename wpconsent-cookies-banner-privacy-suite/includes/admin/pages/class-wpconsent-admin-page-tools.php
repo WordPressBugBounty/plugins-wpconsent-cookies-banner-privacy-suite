@@ -807,6 +807,9 @@ class WPConsent_Admin_Page_Tools extends WPConsent_Admin_Page {
 		$this->import_cookies( $import_data );
 		$this->import_custom_scripts( $import_data );
 
+		// Keep the preferences cookie duration label in sync with the imported consent duration setting.
+		wpconsent()->cookies->update_preferences_cookie_duration();
+
 		wp_safe_redirect( add_query_arg( 'message', 'import_success', $this->get_page_action_url() ) );
 		exit;
 	}

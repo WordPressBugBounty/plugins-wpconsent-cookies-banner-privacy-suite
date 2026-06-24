@@ -111,7 +111,7 @@ class WPConsent_Banner {
 		$css_vars = $this->get_css_variables( $colors );
 
 		// Create the Shadow DOM container with CSS variables.
-		echo '<div id="wpconsent-root" style="' . esc_attr( $css_vars ) . '">';
+		echo '<div id="wpconsent-root" data-nosnippet="true" style="' . esc_attr( $css_vars ) . '">';
 		echo '<div id="wpconsent-container" style="display: none;"></div>';
 
 

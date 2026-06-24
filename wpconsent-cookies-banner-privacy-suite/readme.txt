@@ -1,14 +1,14 @@
-=== WPConsent - Cookie Consent Banner for Privacy Compliance (GDPR / CCPA) ===
+=== WPConsent – Cookie Banner & Cookie Consent for Privacy Compliance (GDPR / CCPA / EU Compliance Cookie Notice) ===
 Contributors: WPbeginner, smub, gripgrip, wpcodeteam
 Tags: cookie consent, cookie banner, gdpr, ccpa, cookie notice
 Requires at least: 5.6
-Tested up to: 6.9
+Tested up to: 7.0
 Requires PHP: 7.0
-Stable tag: 1.1.6
+Stable tag: 1.1.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Cookie consent banner plugin with automatic script blocking, cookies scanner, and cookie consent management for GDPR, CCPA & privacy compliance.
+Cookie consent banner with cookie scanner & script blocking. Manage cookie consent, cookie notice & cookie policy for GDPR, CCPA & privacy compliance.
 
 == Description ==
 
@@ -16,24 +16,24 @@ Cookie consent banner plugin with automatic script blocking, cookies scanner, an
 
 [WPConsent](https://wpconsent.com/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) is the easiest cookie consent banner plugin for WordPress. Add a customizable cookie banner, automatically block third-party cookies and tracking scripts, scan your website for cookies, and comply with GDPR, CCPA / CPRA, ePrivacy, DSGVO, TTDSG, LGPD, POPIA, APA, RGPD, PIPEDA, and other global privacy regulations - all without writing a line of code.
 
-Unlike SaaS cookie consent tools that charge per pageview and store your consent records on their servers, WPConsent is a fully self-hosted cookie consent management plugin. Every cookie consent record lives in your own WordPress database, so you own your consent data with no monthly cookie consent platform fees and no pageview caps.
+Unlike SaaS cookie consent tools that charge per pageview and store your consent records on their servers, WPConsent is a fully self-hosted cookie consent management plugin (CMP). Every cookie consent record lives in your own WordPress database, so you own your consent data with no monthly cookie consent platform fees and no pageview caps.
 
 > <strong>WPConsent Pro</strong><br />
-> This plugin is the Lite version of WPConsent Pro, which comes with smart geolocation cookie banners, automatic translations, IAB TCF v2.2 consent framework, automatic cookie scanning, eCommerce auto-configuration, "Do Not Sell" CCPA addon, and more. [Click here to purchase the best premium WordPress cookie consent plugin now!](https://wpconsent.com/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin)
+> This plugin is the Lite version of WPConsent Pro, which comes with smart geolocation cookie banners, automatic translations, IAB TCF v2.3 consent framework, automatic cookie scanning, eCommerce auto-configuration, "Do Not Sell" CCPA addon, and more. [Click here to purchase the best premium WordPress cookie consent plugin now!](https://wpconsent.com/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin)
 
 https://www.youtube.com/watch?v=7fcP9QO8bKQ&rel=0
 
-= Fully Customizable Cookie Banner =
+= Fully Customizable GDPR Cookie Banner & Cookie Popup =
 
 Your [cookie consent banner](https://wpconsent.com/features/customizable-cookie-banner/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) is often the first thing a visitor sees, so it should look like part of your brand - not a generic cookie notice bolted on. WPConsent gives you a fully customizable cookie consent banner that matches your WordPress site's design while still meeting GDPR cookie consent and CCPA notice requirements.
 
-Pick from multiple cookie banner layouts and positions, adjust every color and text string, drop in your logo, and choose button styles that match your theme. WPConsent's cookie banner is built for performance, so adding cookie compliance won't slow your WordPress site down or hurt Core Web Vitals.
+Pick from multiple cookie banner layouts and positions (including cookie popup, cookie modal, & consent banner), adjust every color and text string, drop in your logo, and choose button styles that match your theme. WPConsent's cookie banner is built for performance, so adding cookie compliance won't slow your WordPress site down or hurt Core Web Vitals.
 
 Inside the preferences panel, visitors can accept or reject cookies by category - essential, statistics, and marketing cookies - with granular cookie control they actually understand. Per-service consent toggles let privacy-conscious visitors approve or block individual tracking services.
 
 = Automatic Script Blocking for True Cookie Compliance =
 
-The hardest part of real cookie consent compliance isn't the banner, it's stopping third-party cookies from firing before visitors say yes. A cookie notice that only warns users while Google Analytics and Facebook Pixel still drop cookies underneath is not GDPR compliance, it's a liability. WPConsent handles true cookie & script blocking automatically.
+The hardest part of real cookie consent compliance isn't the cookie popup banner, it's stopping third-party cookies from firing before visitors say yes. A cookie notice that only warns users while Google Analytics and Facebook Pixel still drop cookies underneath is not GDPR compliance, it's a liability. WPConsent handles true cookie & script blocking automatically.
 
 You don't need to change how you install your tracking scripts. WPConsent's [automatic script blocking](https://wpconsent.com/features/automatic-script-blocking/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) detects the most common third-party cookies and blocks them until the user grants cookie consent, so no tracking cookies are set without consent - as required by GDPR, CCPA, and other privacy regulations.
 
@@ -50,7 +50,7 @@ WPConsent integrates with Google Consent Mode v2, so your Google Analytics and G
 
 = Website Cookie Scanner & Cookie Inspector =
 
-You can't get cookie consent compliance right if you don't know what cookies your WordPress site is actually setting. WPConsent includes a [full website cookie scanner](https://wpconsent.com/features/compliance-scanner/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) that crawls your site, detects running services, and builds a complete cookie inventory automatically.
+You can't get GDPR cookie consent compliance right if you don't know what cookies your WordPress site is actually setting. WPConsent includes a [full website cookie scanner](https://wpconsent.com/features/compliance-scanner/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) that crawls your site, detects running services, and builds a complete cookie inventory automatically.
 
 Our smart cookie scanner API gives you detailed information about each service and cookie it finds, so your cookie policy and consent banner always match what's really happening on your site:
 
@@ -67,9 +67,9 @@ Embedded content is one of the biggest sources of silent third-party cookies on 
 
 For YouTube, Vimeo, and DailyMotion, WPConsent shows dynamic placeholder images loaded from your own website, so the content blocking experience feels branded and intentional, not broken. Choose which embedded cookies content is blocked and customize the placeholders from the WPConsent admin area.
 
-= Google Consent Mode v2 & IAB TCF v2.2 Consent Framework =
+= Google Consent Mode v2 & IAB TCF v2.3 Consent Framework =
 
-Modern cookie consent means integrating with the signals advertisers and analytics tools actually use. WPConsent ships with [Google Consent Mode v2](https://wpconsent.com/features/google-consent-mode-v2/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) and Microsoft Clarity Consent Mode out of the box, and WPConsent Pro adds the full [IAB TCF v2.2](https://wpconsent.com/features/iab-tcf-wordpress-plugin/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) Transparency and Consent Framework for programmatic advertising compliance.
+Modern cookie consent means integrating with the signals advertisers and analytics tools actually use. WPConsent ships with [Google Consent Mode v2](https://wpconsent.com/features/google-consent-mode-v2/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) and Microsoft Clarity Consent Mode out of the box, and WPConsent Pro adds the full [IAB TCF v2.3](https://wpconsent.com/features/iab-tcf-wordpress-plugin/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) Transparency and Consent Framework for programmatic advertising compliance.
 
 WPConsent also supports [Global Privacy Control (GPC)](https://wpconsent.com/features/global-privacy-control/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin), so visitors sending a GPC signal have their cookie consent preferences respected automatically with a clear message displayed to meet updated CCPA regulations. WPConsent integrates with the official WordPress Consent API, so other privacy-aware plugins can read your cookie consent state.
 
@@ -79,7 +79,7 @@ Different regions have different cookie consent rules. GDPR requires prior opt-i
 
 Serve a strict GDPR cookie banner to EU traffic, a CCPA-style "Do Not Sell or Share My Personal Information" notice to California residents, and a lighter cookie notice elsewhere - all from one WordPress cookie consent plugin.
 
-= Cookie Consent Logs & Records of Consent =
+= GDPR Cookie Consent Logs & Records of Consent =
 
 GDPR and similar cookie laws don't just ask you to collect consent, they ask you to prove it. WPConsent stores searchable, exportable [cookie consent logs](https://wpconsent.com/features/user-consent-logs/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) directly in your WordPress database, so you always have records of consent when regulators, customers, or auditors ask.
 
@@ -93,18 +93,18 @@ WPConsent includes a built-in [cookie policy generator](https://wpconsent.com/fe
 
 WPConsent works for any WordPress site that needs cookie consent management, from solo blogs to multi-site agencies:
 
-* **Bloggers & Publishers** - Cookie consent banner for WordPress blogs and news sites that run [Google Analytics](https://wpconsent.com/features/google-analytics/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) and display ads.
+* **Bloggers & Publishers** - GDPR cookie consent banner for WordPress blogs and news sites that run [Google Analytics](https://wpconsent.com/features/google-analytics/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) and display ads.
 * **eCommerce & WooCommerce Stores** - Cookie compliance for [WooCommerce](https://wpconsent.com/features/woocommerce/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) with [Facebook Pixel](https://wpconsent.com/features/facebook-pixel/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin), Google Ads, and checkout tracking.
 * **Membership & Online Course Sites** - Cookie consent records for every registered member in one searchable log.
-* **Agencies & Freelancers** - Deploy consistent cookie consent management across dozens of client WordPress sites.
+* **Agencies & Freelancers** - Deploy consistent cookie consent management (CMP) across dozens of client WordPress sites.
 * **SaaS & Startups** - Professional GDPR cookie banner without expensive Cookiebot or OneTrust subscriptions.
-* **News & Media Sites** - IAB TCF v2.2 consent framework for programmatic advertising revenue.
+* **News & Media Sites** - IAB TCF v2.3 consent framework for programmatic advertising revenue.
 
 = Supports Every Major Global Privacy Regulation =
 
-WPConsent is a flexible cookie consent plugin built for global privacy compliance. Our WordPress consent management platform is designed to help you address cookie law, data protection, and privacy regulations around the world, including:
+WPConsent is a flexible cookie consent plugin built for global privacy compliance. Our WordPress consent management platform (CMP) is designed to help you address cookie law, data protection, and privacy regulations around the world, including:
 
-* GDPR - General Data Protection Regulation, ePrivacy Directive, ePrivacy Regulation (European Union)
+* GDPR - General Data Protection Regulation (GDPR), ePrivacy Directive, ePrivacy Regulation (European Union)
 * UK GDPR and PECR - Privacy and Electronic Communications Regulations (United Kingdom)
 * CCPA / CPRA - California Consumer Privacy Act and California Privacy Rights Act (United States)
 * VCDPA, CPA, CTDPA, UCPA - state privacy laws for Virginia, Colorado, Connecticut, and Utah
@@ -119,7 +119,7 @@ WPConsent is a flexible cookie consent plugin built for global privacy complianc
 
 The free WPConsent plugin comes loaded with everything most WordPress sites need to add a cookie consent banner and pass basic GDPR and CCPA cookie compliance checks:
 
-* Customizable cookie consent banner with multiple layouts and positions
+* Customizable cookie consent banner with multiple layouts and positions including cookie popup
 * Automatic script blocking for Google Analytics, Google Ads, Facebook Pixel, Microsoft Clarity, Pinterest Tag, and more
 * Website cookies scanner with full cookie inventory
 * Cookie Inspector for fresh-visitor cookie auditing
@@ -134,11 +134,11 @@ The free WPConsent plugin comes loaded with everything most WordPress sites need
 
 = Pro Cookie Consent Features =
 
-WPConsent Pro adds advanced cookie consent management features designed for agencies, ecommerce stores, and WordPress sites with international traffic:
+WPConsent Pro adds advanced cookie consent management (CMP) features designed for agencies, ecommerce stores, and WordPress sites with international traffic:
 
 * **Smart Geolocation Cookie Banners** - Show different cookie consent banners by visitor country or region.
 * **Automatic Translations** - Translate your cookie consent banner automatically for multilingual WordPress sites.
-* **IAB TCF v2.2 Consent Framework** - Full Transparency and Consent Framework for programmatic advertising.
+* **IAB TCF v2.3 Consent Framework** - Full Transparency and Consent Framework for programmatic advertising.
 * **Automatic Cookie Scanning** - Schedule recurring website cookie scans with auto-scan alerts.
 * **eCommerce Auto-Configuration** - Pre-configured cookie consent rules for WooCommerce and online stores.
 * **"Do Not Sell" Addon** - Full CCPA / CPRA opt-out workflow with Do Not Sell page.
@@ -159,7 +159,7 @@ WPConsent Pro adds advanced cookie consent management features designed for agen
 * [User Consent Logs](https://wpconsent.com/features/user-consent-logs/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - Searchable and exportable records of consent stored natively in WordPress (Pro).
 * [Automatic Translations](https://wpconsent.com/features/automatic-translations/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - Multilingual cookie consent banners without manual translation work (Pro).
 * [Google Consent Mode v2](https://wpconsent.com/features/google-consent-mode-v2/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - Native Google Consent Mode v2 integration for Google Analytics 4 and Google Ads.
-* [IAB TCF v2.2 Framework](https://wpconsent.com/features/iab-tcf-wordpress-plugin/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - IAB Transparency and Consent Framework v2.2 for programmatic advertising (Pro).
+* [IAB TCF v2.3 Framework](https://wpconsent.com/features/iab-tcf-wordpress-plugin/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - IAB Transparency and Consent Framework v2.3 for programmatic advertising (Pro).
 * [Global Privacy Control](https://wpconsent.com/features/global-privacy-control/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - Automatic GPC signal detection and handling for CCPA compliance.
 * [Google Analytics Cookie Consent](https://wpconsent.com/features/google-analytics/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - Block Google Analytics cookies until consent and pass consent signals through Consent Mode.
 * [Facebook Pixel Cookie Consent](https://wpconsent.com/features/facebook-pixel/?utm_source=wprepo&utm_medium=link&utm_campaign=liteplugin) - Block Facebook Pixel (Meta Pixel) until visitors give cookie consent.
@@ -184,7 +184,7 @@ When you install WPConsent, you get the same engineering, support, and long-term
 
 = Better Than Cookiebot, CookieYes, OneTrust & Other SaaS Cookie Consent Tools =
 
-If you've researched cookie consent management platforms, you've probably seen Cookiebot, CookieYes, OneTrust, Iubenda, Termly, Usercentrics, TrustArc, Complianz, Didomi, Osano, Enzuzo, Quantcast Choice, Secure Privacy, Clym, Ketch, Piwik PRO Consent Manager, Real Cookie Banner, Cookie Notice & Compliance, and GDPR Cookie Compliance by Moove Agency. Capable tools, but most come with tradeoffs: rising subscription fees, pageview caps, external consent servers, or enterprise pricing.
+If you've researched cookie consent management platforms (CMP), you've probably seen Cookiebot, CookieYes, OneTrust, Iubenda, Termly, Usercentrics, TrustArc, Complianz, Didomi, Osano, Enzuzo, Quantcast Choice, Secure Privacy, Clym, Ketch, Piwik PRO Consent Manager, Real Cookie Banner, Cookie Notice & Compliance, and GDPR Cookie Compliance by Moove Agency. Capable tools, but most come with tradeoffs: rising subscription fees, pageview caps, external consent servers, or enterprise pricing.
 
 WPConsent is a true WordPress-native cookie consent plugin. Your consent data lives on your WordPress database, pricing is flat (no per-pageview surprises), and the team behind WPBeginner stands behind it. If you've been searching for a Cookiebot alternative, a CookieYes alternative, a better Iubenda or Termly replacement, or a self-hosted OneTrust alternative for WordPress, WPConsent is built for you.
 
@@ -267,6 +267,11 @@ All WPConsent cookie consent data, including records of consent and cookie confi
 Yes. Every text string in the cookie consent banner is translatable from the admin. WPConsent Pro adds automatic translations for multilingual WordPress sites.
 
 == Changelog ==
+
+= 1.1.7 =
+* New: The cookie banner's stylesheet now loads only when the banner actually needs to display, so visitors who have already consented no longer download unused CSS. We also added built-in fallback styles.
+* Tweak: Added the data-nosnippet attribute to the cookie banner so search engines no longer pull its text into your search result snippets.
+* Fix: The cookie duration shown in the banner preferences now stays in sync with your Consent Duration setting.
 
 = 1.1.6 =
 * Tweak: We adjusted our Google Consent Mode v2 implementation to send the personalization_storage signal and to expose URL Passthrough and Ads Data Redaction toggles.

@@ -1079,7 +1079,7 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 			'order'   => 'ASC',
 		);
 		if ( ! empty( $selected_content_ids ) ) {
-			$pages_args['exclude'] = $selected_content_ids;
+			$pages_args['exclude'] = $selected_content_ids; // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- Excludes already-selected scan targets from a 20-item admin dropdown.
 		}
 		// Let's pre-load 20 pages.
 		$pages = get_pages( $pages_args );
