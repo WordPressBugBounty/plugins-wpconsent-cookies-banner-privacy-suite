@@ -420,7 +420,7 @@ class WPConsent_Banner {
 			$html .= '<span class="wpconsent-preferences-accordion-arrow" aria-hidden="true"></span>';
 			$html .= '<span class="screen-reader-text">' . esc_html(
 				sprintf(
-					/* translators: %s: Cookie policy section title */
+					/* translators: %s: name of the toggled preferences section (cookie policy section, category or service). */
 					__( 'Toggle %s', 'wpconsent-cookies-banner-privacy-suite' ),
 					$cookie_policy_title
 				)
@@ -610,6 +610,17 @@ class WPConsent_Banner {
 	}
 
 	/**
+	 * Public accessor for the cached category→cookies→services structure.
+	 *
+	 * @since 1.1.8
+	 *
+	 * @return array
+	 */
+	public function get_cached_cookies() {
+		return $this->get_cookies_from_cache();
+	}
+
+	/**
 	 * Render a single category item in the preferences modal.
 	 *
 	 * @param string $category_slug The category slug.
@@ -629,7 +640,7 @@ class WPConsent_Banner {
 		$html .= '<span class="wpconsent-preferences-accordion-arrow" aria-hidden="true"></span>';
 		$html .= '<span class="screen-reader-text">' . esc_html(
 			sprintf(
-				/* translators: %s: Category name */
+				/* translators: %s: name of the toggled preferences section (cookie policy section, category or service). */
 				__( 'Toggle %s', 'wpconsent-cookies-banner-privacy-suite' ),
 				$category['name']
 			)
@@ -756,7 +767,7 @@ class WPConsent_Banner {
 					$html .= '<span class="wpconsent-preferences-accordion-arrow" aria-hidden="true"></span>';
 					$html .= '<span class="screen-reader-text">' . esc_html(
 						sprintf(
-							/* translators: %s: Service name */
+							/* translators: %s: name of the toggled preferences section (cookie policy section, category or service). */
 							__( 'Toggle %s', 'wpconsent-cookies-banner-privacy-suite' ),
 							$service['name']
 						)

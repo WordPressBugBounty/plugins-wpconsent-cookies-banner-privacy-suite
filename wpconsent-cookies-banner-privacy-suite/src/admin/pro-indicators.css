@@ -18,6 +18,10 @@
 	}
 }
 
+label[for="wpconsent-consent-logs-auto-delete-lite"] .wpconsent-pro-pill {
+	display: none;
+}
+
 /* PRO indicators for delete log buttons */
 .delete-consent-logs-lite,
 .delete-dnt-logs-lite {

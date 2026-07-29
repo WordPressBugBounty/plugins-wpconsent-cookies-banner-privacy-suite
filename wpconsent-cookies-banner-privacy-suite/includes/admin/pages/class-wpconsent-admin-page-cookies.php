@@ -85,6 +85,11 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				'text'  => esc_html__( 'Upgrade to PRO today and start keeping logs for all visitors that give consent. 100% self-hosted on your WordPress site.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'url'   => wpconsent_utm_url( 'https://wpconsent.com/lite', 'settings', 'consent-logs' ),
 		);
+		$data['consent_logs_auto_cleanup'] = array(
+				'title' => esc_html__( 'Automatic Consent Logs Cleanup is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
+				'text'  => esc_html__( 'Upgrade to PRO today and automatically manage data retention for your consent logs to keep your database lean.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'url'   => wpconsent_utm_url( 'https://wpconsent.com/lite', 'settings', 'consent-logs-auto-cleanup' ),
+		);
 		$data['scanner']             = array(
 				'title' => esc_html__( 'Automatic Scanning is a PRO feature', 'wpconsent-cookies-banner-privacy-suite' ),
 				'text'  => esc_html__( 'Upgrade to PRO today and schedule automatic website scanning to stay up to date with your website\'s consent needs.', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -550,6 +555,19 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 						esc_html__( 'Enable keeping records of consent for all visitors that give consent.', 'wpconsent-cookies-banner-privacy-suite' )
 				),
 				'wpconsent-records-of-consent-lite',
+				'',
+				'',
+				'',
+				true
+		);
+		$this->metabox_row(
+				esc_html__( 'Automatic Cleanup', 'wpconsent-cookies-banner-privacy-suite' ),
+				$this->get_checkbox_toggle(
+						false,
+						'wpconsent-consent-logs-auto-delete-lite',
+						esc_html__( 'Automatically delete consent logs older than a retention period you choose, on a weekly schedule.', 'wpconsent-cookies-banner-privacy-suite' )
+				),
+				'wpconsent-consent-logs-auto-delete-lite',
 				'',
 				'',
 				'',
@@ -1949,7 +1967,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 					<span class="wpconsent-section-count">
 						<?php
 						printf(
-							// Translators: 1: number of selected purposes, 2: total number of available purposes.
+							/* translators: 1: number of selected purposes, 2: total number of available purposes. */
 							esc_html__( '(%1$d/%2$d selected)', 'wpconsent-cookies-banner-privacy-suite' ),
 							count( $purposes_li ),
 							absint( $li_total )
@@ -2209,7 +2227,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 					<span class="wpconsent-section-count">
 						<?php
 						printf(
-							/* translators: 1: number of selected purposes, 2: total number of available purposes */
+							/* translators: 1: number of selected purposes, 2: total number of available purposes. */
 							esc_html__( '(%1$d/%2$d selected)', 'wpconsent-cookies-banner-privacy-suite' ),
 							count( $purposes_li ),
 							absint( $li_total )

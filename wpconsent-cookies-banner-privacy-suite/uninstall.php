@@ -29,6 +29,8 @@ require_once 'wpconsent.php';
 wp_clear_scheduled_hook( 'wpconsent_auto_scanner' );
 wp_clear_scheduled_hook( 'wpconsent_cleanup_scan_history' );
 wp_clear_scheduled_hook( 'wpconsent_usage_tracking_cron' );
+wp_clear_scheduled_hook( 'wpconsent_consent_logs_cleanup' );
+wp_clear_scheduled_hook( 'wpconsent_consent_logs_cleanup_continue' );
 
 // Remove notifications.
 if ( class_exists( 'WPConsent_Notifications' ) ) {

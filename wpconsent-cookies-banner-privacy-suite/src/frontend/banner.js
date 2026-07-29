@@ -672,7 +672,7 @@ window.WPConsent = {
 			if ( service && preferences[service] !== undefined ) {
 				return preferences[service];
 			}
-			return false;
+			return preferences[category] === true;
 		}
 
 		return preferences[category] === true;
@@ -1586,6 +1586,16 @@ window.WPConsent = {
 
 			// Marketing category.
 			wp_set_consent( 'marketing', preferences.marketing ? 'allow' : 'deny' );
+		}
+
+		// Record per-service consent when manual service toggles are enabled.
+		// Only write services explicitly present in preferences so a partial save never fabricates a deny for an absent (e.g. essential/always-active) service.
+		if ( wpconsent.manual_toggle_services && Array.isArray( wpconsent.wpca_services ) && typeof wp_set_service_consent === 'function' ) {
+			wpconsent.wpca_services.forEach( service => {
+				if ( Object.prototype.hasOwnProperty.call( preferences, service.slug ) ) {
+					wp_set_service_consent( service.slug, preferences[ service.slug ] === true );
+				}
+			} );
 		}
 	}
 };

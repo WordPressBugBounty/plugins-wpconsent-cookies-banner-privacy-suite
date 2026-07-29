@@ -18,6 +18,7 @@ function wpconsent_load_compatibility_files() {
 	$compatibility_files = array(
 		'php'                        => 'php.php',
 		'wp-rocket'                  => 'wp-rocket.php',
+		'wp-consent-api'             => 'wp-consent-api.php',
 		'easy-digital-downloads'     => 'easy-digital-downloads.php',
 		'bricks'                     => 'bricks.php',
 		'divi'                       => 'divi.php',

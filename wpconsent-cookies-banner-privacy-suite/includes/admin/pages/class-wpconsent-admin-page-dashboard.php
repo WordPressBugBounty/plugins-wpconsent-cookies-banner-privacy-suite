@@ -62,6 +62,25 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Format a translated string, falling back to the untranslated format
+	 * if the active translation contains an invalid format specifier (a
+	 * malformed community translation would otherwise throw a fatal
+	 * ValueError on PHP 8+ and take down the whole dashboard).
+	 *
+	 * @param string $translated Translated format string.
+	 * @param string $fallback   Untranslated (English) format string.
+	 * @param mixed  ...$args    sprintf() arguments.
+	 * @return string
+	 */
+	protected function safe_sprintf( $translated, $fallback, ...$args ) {
+		try {
+			return vsprintf( $translated, $args );
+		} catch ( \ValueError $e ) {
+			return vsprintf( $fallback, $args );
+		}
+	}
+
+	/**
 	 * Page content — prototype with placeholder data.
 	 *
 	 * @return void
@@ -154,7 +173,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 			$alerts[] = array(
 				'key'     => 'inspector_pending',
 				/* translators: %d: number of cookies awaiting review. */
-				'message' => sprintf( __( 'Inspector found %d cookies awaiting review.', 'wpconsent-cookies-banner-privacy-suite' ), count( $pending ) ),
+				'message' => $this->safe_sprintf( __( 'Inspector found %d cookies awaiting review.', 'wpconsent-cookies-banner-privacy-suite' ), 'Inspector found %d cookies awaiting review.', count( $pending ) ),
 				'action'  => __( 'Review', 'wpconsent-cookies-banner-privacy-suite' ),
 				'url'     => admin_url( 'admin.php?page=wpconsent-scanner&view=inspector' ),
 			);
@@ -168,7 +187,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				$alerts[] = array(
 					'key'     => 'scan_overdue',
 					/* translators: %d: number of days since last scan. */
-					'message' => sprintf( __( 'Your last scan was %d days ago. Your site may have changed.', 'wpconsent-cookies-banner-privacy-suite' ), $days_ago ),
+					'message' => $this->safe_sprintf( __( 'Your last scan was %d days ago. Your site may have changed.', 'wpconsent-cookies-banner-privacy-suite' ), 'Your last scan was %d days ago. Your site may have changed.', $days_ago ),
 					'action'  => __( 'Scan Now', 'wpconsent-cookies-banner-privacy-suite' ),
 					'url'     => admin_url( 'admin.php?page=wpconsent-scanner' ),
 				);
@@ -270,7 +289,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				'earned'      => $script_blocking,
 				'detail'      => $script_blocking
 					/* translators: %d: number of scripts being managed. */
-					? sprintf( __( '%d scripts managed.', 'wpconsent-cookies-banner-privacy-suite' ), $scripts_count )
+					? $this->safe_sprintf( __( '%d scripts managed.', 'wpconsent-cookies-banner-privacy-suite' ), '%d scripts managed.', $scripts_count )
 					: __( 'Block tracking scripts until visitors give consent.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'url'         => admin_url( 'admin.php?page=wpconsent-cookies' ),
 				'action_type' => 'toggle',
@@ -282,7 +301,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				'earned'      => $policy_exists,
 				'detail'      => $policy_exists
 					/* translators: %s: the cookie policy page title. */
-					? sprintf( __( 'Linked to "%s".', 'wpconsent-cookies-banner-privacy-suite' ), get_the_title( $policy_page_id ) )
+					? $this->safe_sprintf( __( 'Linked to "%s".', 'wpconsent-cookies-banner-privacy-suite' ), 'Linked to "%s".', get_the_title( $policy_page_id ) )
 					: __( 'Set a cookie policy page so visitors can learn more.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'url'         => admin_url( 'admin.php?page=wpconsent-cookies' ) . '#cookie-policy-input',
 				'action_type' => 'generate_policy',
@@ -294,7 +313,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				'earned'      => $has_categories,
 				'detail'      => $has_categories
 					/* translators: %d: number of cookies documented. */
-					? sprintf( __( '%d cookies documented.', 'wpconsent-cookies-banner-privacy-suite' ), $cookie_count )
+					? $this->safe_sprintf( __( '%d cookies documented.', 'wpconsent-cookies-banner-privacy-suite' ), '%d cookies documented.', $cookie_count )
 					: __( 'Document cookies so visitors know what data is collected.', 'wpconsent-cookies-banner-privacy-suite' ),
 				'url'         => admin_url( 'admin.php?page=wpconsent-cookies&view=cookies' ),
 				'action_type' => 'configure_cookies',
@@ -307,10 +326,10 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				'earned'      => $scan_recent,
 				'detail'      => $scan_recent
 					/* translators: %s: formatted date of last scan. */
-					? sprintf( __( 'Last scan: %s.', 'wpconsent-cookies-banner-privacy-suite' ), date_i18n( get_option( 'date_format' ), $scan_time ) )
+					? $this->safe_sprintf( __( 'Last scan: %s.', 'wpconsent-cookies-banner-privacy-suite' ), 'Last scan: %s.', date_i18n( get_option( 'date_format' ), $scan_time ) )
 					: ( ! empty( $scan_data['date'] )
 						/* translators: %d: days since last scan. */
-						? sprintf( __( 'Last scan was %d days ago. Run a new scan to check for changes.', 'wpconsent-cookies-banner-privacy-suite' ), $scan_days )
+						? $this->safe_sprintf( __( 'Last scan was %d days ago. Run a new scan to check for changes.', 'wpconsent-cookies-banner-privacy-suite' ), 'Last scan was %d days ago. Run a new scan to check for changes.', $scan_days )
 						: __( 'Scan your website to detect cookies and tracking scripts.', 'wpconsent-cookies-banner-privacy-suite' )
 					),
 				'url'         => admin_url( 'admin.php?page=wpconsent-scanner' ),
@@ -335,7 +354,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				'detail'      => $all_reviewed
 					? __( 'No pending findings to review.', 'wpconsent-cookies-banner-privacy-suite' )
 					/* translators: %d: number of cookies pending review. */
-					: sprintf( __( '%d cookies need categorization.', 'wpconsent-cookies-banner-privacy-suite' ), count( $pending_cookies ) ),
+					: $this->safe_sprintf( __( '%d cookies need categorization.', 'wpconsent-cookies-banner-privacy-suite' ), '%d cookies need categorization.', count( $pending_cookies ) ),
 				'url'         => admin_url( 'admin.php?page=wpconsent-scanner&view=inspector' ),
 				'action_type' => 'link',
 				'action_key'  => '',
@@ -477,12 +496,12 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 
 		$stats = array(
 			/* translators: %d: number of cookies documented. */
-			sprintf( __( '%d cookies documented', 'wpconsent-cookies-banner-privacy-suite' ), $total_cookies ),
+			$this->safe_sprintf( __( '%d cookies documented', 'wpconsent-cookies-banner-privacy-suite' ), '%d cookies documented', $total_cookies ),
 		);
 
 		if ( $days > 0 ) {
 			/* translators: %d: number of days since plugin activation. */
-			$stats[] = sprintf( __( 'Active for %d days', 'wpconsent-cookies-banner-privacy-suite' ), $days );
+			$stats[] = $this->safe_sprintf( __( 'Active for %d days', 'wpconsent-cookies-banner-privacy-suite' ), 'Active for %d days', $days );
 		}
 
 		return $stats;
@@ -654,9 +673,9 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				<?php if ( $has_details ) : ?>
 					<?php
 					/* translators: %1$d: earned count, %2$d: total count. */
-					$show_text = sprintf( esc_html__( '%1$d of %2$d items complete · Show details', 'wpconsent-cookies-banner-privacy-suite' ), $earned_count, $total_count );
+					$show_text = $this->safe_sprintf( esc_html__( '%1$d of %2$d items complete · Show details', 'wpconsent-cookies-banner-privacy-suite' ), '%1$d of %2$d items complete · Show details', $earned_count, $total_count );
 					/* translators: %1$d: earned count, %2$d: total count. */
-					$hide_text = sprintf( esc_html__( '%1$d of %2$d items complete · Hide details', 'wpconsent-cookies-banner-privacy-suite' ), $earned_count, $total_count );
+					$hide_text = $this->safe_sprintf( esc_html__( '%1$d of %2$d items complete · Hide details', 'wpconsent-cookies-banner-privacy-suite' ), '%1$d of %2$d items complete · Hide details', $earned_count, $total_count );
 					?>
 					<div class="wpconsent-score-earned-toggle">
 						<button type="button" class="wpconsent-score-toggle-btn" data-show-text="<?php echo esc_attr( $show_text ); ?>" data-hide-text="<?php echo esc_attr( $hide_text ); ?>">

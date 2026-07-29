@@ -5,6 +5,12 @@ jQuery( function ( $ ) {
 		WPConsentAdminNotices.show_pro_notice( wpconsent.records_of_consent.title, wpconsent.records_of_consent.text, wpconsent.records_of_consent.url );
 	} );
 
+	jQuery( '#wpconsent-consent-logs-auto-delete-lite' ).on( 'change', function () {
+		jQuery( this ).prop( 'checked', false );
+
+		WPConsentAdminNotices.show_pro_notice( wpconsent.consent_logs_auto_cleanup.title, wpconsent.consent_logs_auto_cleanup.text, wpconsent.consent_logs_auto_cleanup.url );
+	} );
+
 	jQuery( '#wpconsent-auto-scanner-lite' ).on( 'change', function () {
 		jQuery( this ).prop( 'checked', false );
 
