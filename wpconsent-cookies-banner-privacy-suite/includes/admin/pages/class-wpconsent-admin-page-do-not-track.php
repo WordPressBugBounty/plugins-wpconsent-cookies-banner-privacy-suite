@@ -60,9 +60,7 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 		?>
 		<div class="wpconsent-blur-area">
 			<?php
-			if ( method_exists( $this, 'output_view_' . $this->view ) ) {
-				call_user_func( array( $this, 'output_view_' . $this->view ) );
-			}
+			parent::output_content();
 			?>
 		</div>
 		<?php
@@ -88,26 +86,6 @@ class WPConsent_Admin_Page_Do_Not_Track extends WPConsent_Admin_Page {
 		);
 	}
 
-
-	/**
-	 * For this page we output a menu.
-	 *
-	 * @return void
-	 */
-	public function output_header_bottom() {
-		?>
-		<ul class="wpconsent-admin-tabs">
-			<?php
-			foreach ( $this->views as $slug => $label ) {
-				$class = $this->view === $slug ? 'active' : '';
-				?>
-				<li>
-					<a href="<?php echo esc_url( $this->get_view_link( $slug ) ); ?>" class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $label ); ?></a>
-				</li>
-			<?php } ?>
-		</ul>
-		<?php
-	}
 
 	/**
 	 * Output the requests view.

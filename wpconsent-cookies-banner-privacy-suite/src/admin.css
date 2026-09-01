@@ -8,6 +8,9 @@
 @import './admin/dashboard.css';
 @import './admin/tabs.css';
 @import './admin/choices.css';
+/* After choices.css so the range picker can override the vendor's option rules,
+   which tie ours on specificity. */
+@import './admin/analytics.css';
 @import 'jquery-confirm/dist/jquery-confirm.min.css';
 @import './admin/jconfirm.css';
 @import './admin/spinner.css';

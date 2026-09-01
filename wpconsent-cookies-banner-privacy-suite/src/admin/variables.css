@@ -36,6 +36,17 @@
 	--wpconsent-color-red-darker: #AB2028;
 	--wpconsent-color-green: #39960D;
 	/**
+	Analytics
+	 */
+	--wpconsent-analytics-accept: var(--wpconsent-color-primary);
+	--wpconsent-analytics-essential: #7FA9F2;
+	--wpconsent-analytics-custom: #FFCD2A;
+	--wpconsent-analytics-ignored: #E1E5EC;
+	--wpconsent-analytics-required: #C8CFD4;
+	/* Explicit stops: the "COLOR 0 4px" two-position shorthand gets collapsed on
+	   the way through the build, which drops the stripe entirely. */
+	--wpconsent-analytics-hatch: repeating-linear-gradient(135deg, #C9D0DC 0px, #C9D0DC 4px, transparent 4px, transparent 8px);
+	/**
 	Font sizes
 	 */
 	--wpconsent-font-size-l: 18px;

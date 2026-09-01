@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 
 	use WPConsent_Banner_Preview;
+	use WPConsent_Analytics_Report;
 
 	/**
 	 * Cached basic compliance items.
@@ -109,6 +110,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				<?php endif; ?>
 			</div>
 			<div class="wpconsent-dashboard-grid-col">
+				<?php $this->analytics_widget(); ?>
 				<?php wpconsent()->recommended_plugins->recommended_plugins_widget(); ?>
 				<?php $this->blog_feed_widget(); ?>
 				<?php $this->banner_preview_box(); ?>
@@ -915,6 +917,106 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Banner analytics widget. Pro overrides get_analytics_widget_state() to
+	 * supply real numbers; the markup lives here only.
+	 *
+	 * @return void
+	 */
+	public function analytics_widget() {
+		$state = wp_parse_args(
+			$this->get_analytics_widget_state(),
+			array(
+				'title'      => '',
+				'pill'       => '',
+				'pill_class' => 'wpconsent-analytics-pill',
+				'message'    => '',
+				'stats'      => '',
+				'funnel'     => '',
+				'button'     => array(),
+			)
+		);
+		?>
+		<div class="wpconsent-dashboard-box wpconsent-analytics-widget">
+			<div class="wpconsent-dashboard-box-title">
+				<h2><?php esc_html_e( 'Banner Analytics', 'wpconsent-cookies-banner-privacy-suite' ); ?></h2>
+			</div>
+			<div class="wpconsent-dashboard-box-content">
+				<?php if ( ! empty( $state['title'] ) ) : ?>
+					<div class="wpconsent-analytics-widget-heading">
+						<span class="wpconsent-analytics-widget-title"><?php echo esc_html( $state['title'] ); ?></span>
+						<?php if ( ! empty( $state['pill'] ) ) : ?>
+							<span class="<?php echo esc_attr( $state['pill_class'] ); ?>"><?php echo esc_html( $state['pill'] ); ?></span>
+						<?php endif; ?>
+					</div>
+				<?php endif; ?>
+
+				<?php if ( ! empty( $state['message'] ) ) : ?>
+					<p><?php echo esc_html( $state['message'] ); ?></p>
+				<?php endif; ?>
+
+				<?php
+				// Both are pre-escaped markup from WPConsent_Analytics_Report.
+				echo $state['stats']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $state['funnel']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
+
+			</div>
+			<?php if ( ! empty( $state['button'] ) ) : ?>
+				<div class="wpconsent-dashboard-box-actions">
+					<a href="<?php echo esc_url( $state['button']['url'] ); ?>" class="wpconsent-button wpconsent-button-<?php echo esc_attr( isset( $state['button']['variant'] ) ? $state['button']['variant'] : 'primary' ); ?>" <?php echo empty( $state['button']['external'] ) ? '' : 'target="_blank" rel="noopener noreferrer"'; ?>>
+						<?php echo esc_html( $state['button']['label'] ); ?>
+					</a>
+				</div>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Describe what the analytics widget should show.
+	 *
+	 * Lite has no collection, so it describes the feature and shows dashes where
+	 * the counters go.
+	 *
+	 * @return array
+	 */
+	protected function get_analytics_widget_state() {
+		return array(
+			'title'      => __( 'Not Collecting Yet', 'wpconsent-cookies-banner-privacy-suite' ),
+			'pill'       => 'PRO',
+			'pill_class' => 'wpconsent-pro-pill',
+			'message'    => __( 'Analytics tells you how many visitors see your banner, how many accept, how many decline and how many ignore it. Data is collected on your own server, with no new cookies before a visitor decides.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'stats'      => $this->get_analytics_placeholder_row(),
+			'button'     => array(
+				'label'    => __( 'Upgrade to Pro', 'wpconsent-cookies-banner-privacy-suite' ),
+				'url'      => wpconsent_utm_url( 'https://wpconsent.com/lite/', 'dashboard', 'analytics-widget' ),
+				'external' => true,
+				'variant'  => 'orange',
+			),
+		);
+	}
+
+	/**
+	 * Dashed counters for the states with nothing to show.
+	 *
+	 * @return string
+	 */
+	protected function get_analytics_placeholder_row() {
+		$labels = array(
+			__( 'Banner Views', 'wpconsent-cookies-banner-privacy-suite' ),
+			__( 'Decisions', 'wpconsent-cookies-banner-privacy-suite' ),
+			__( 'Acceptance Rate', 'wpconsent-cookies-banner-privacy-suite' ),
+		);
+
+		$stats = array();
+		foreach ( $labels as $label ) {
+			$stats[] = $this->analytics_stat( $label, '—' );
+		}
+
+		return $this->analytics_stats_row( $stats, 'empty' );
 	}
 
 	/**

@@ -72,26 +72,6 @@ class WPConsent_Admin_Page_Scanner extends WPConsent_Admin_Page {
 	}
 
 	/**
-	 * For this page we output a menu.
-	 *
-	 * @return void
-	 */
-	public function output_header_bottom() {
-		?>
-		<ul class="wpconsent-admin-tabs">
-			<?php
-			foreach ( $this->views as $slug => $label ) {
-				$class = $this->view === $slug ? 'active' : '';
-				?>
-				<li>
-					<a href="<?php echo esc_url( $this->get_view_link( $slug ) ); ?>" class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $label ); ?></a>
-				</li>
-			<?php } ?>
-		</ul>
-		<?php
-	}
-
-	/**
 	 * Override the output method to handle upsell for History and Settings views.
 	 *
 	 * @return void

@@ -31,6 +31,7 @@ wp_clear_scheduled_hook( 'wpconsent_cleanup_scan_history' );
 wp_clear_scheduled_hook( 'wpconsent_usage_tracking_cron' );
 wp_clear_scheduled_hook( 'wpconsent_consent_logs_cleanup' );
 wp_clear_scheduled_hook( 'wpconsent_consent_logs_cleanup_continue' );
+wp_clear_scheduled_hook( 'wpconsent_analytics_aggregate' );
 
 // Remove notifications.
 if ( class_exists( 'WPConsent_Notifications' ) ) {
@@ -133,4 +134,10 @@ if ( ! empty( $wpconsent_settings['uninstall_data'] ) ) {
 	// Drop the scan history table.
 	$wpconsent_scan_history_table = esc_sql( $wpdb->prefix . 'wpconsent_scan_history' );
 	$wpdb->query( "DROP TABLE IF EXISTS `{$wpconsent_scan_history_table}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+	// Drop the banner analytics tables.
+	foreach ( array( 'wpconsent_analytics_events', 'wpconsent_analytics_daily' ) as $wpconsent_analytics_table ) {
+		$wpconsent_analytics_table = esc_sql( $wpdb->prefix . $wpconsent_analytics_table );
+		$wpdb->query( "DROP TABLE IF EXISTS `{$wpconsent_analytics_table}`" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+	}
 }

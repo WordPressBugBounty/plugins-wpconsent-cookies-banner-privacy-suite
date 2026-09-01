@@ -10,6 +10,10 @@
 	border-bottom: 1px solid var(--wpconsent-border-color);
 	display: flex;
 	justify-content: space-between;
+	/* Stated here rather than inherited from the inert collapse toggle, which is
+	   hidden on headers that carry actions. 60px toggle box + 1px border, so
+	   every header keeps the height it had before. */
+	min-height: 61px;
 }
 
 .wpconsent-metabox-title-text {
@@ -103,6 +107,32 @@
 			min-width: 170px;
 			height: 40px
 		}
+	}
+}
+
+.wpconsent-metabox-title-actions {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-left: auto;
+	padding: 0 var(--wpconsent-space-v);
+
+	/* The collapse toggle is inert and invisible but still reserves 60px, which
+	   would push these actions out of line with the content below. */
+	& ~ .wpconsent-metabox-title-toggle {
+		display: none;
+	}
+
+	.wpconsent-metabox-title-note {
+		font-size: var(--wpconsent-font-size-xs);
+		color: var(--wpconsent-text-color-paragraph);
+	}
+
+	.wpconsent-metabox-title-link {
+		font-size: var(--wpconsent-font-size-s);
+		font-weight: 700;
+		text-decoration: none;
+		white-space: nowrap;
 	}
 }
 

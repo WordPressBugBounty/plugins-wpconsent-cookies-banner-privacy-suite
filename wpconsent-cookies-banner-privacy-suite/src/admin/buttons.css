@@ -58,6 +58,15 @@
 			color: var(--wpconsent-button-secondary-text-hover);
 		}
 
+		&.wpconsent-button-danger {
+			color: var(--wpconsent-color-red);
+
+			&:hover,
+			&:focus {
+				color: var(--wpconsent-color-red-darker);
+			}
+		}
+
 		&.wpconsent-button-secondary-inactive {
 			background-color: var(--wpconsent-button-disabled-bg);
 			border-color: var(--wpconsent-button-disabled-bg);

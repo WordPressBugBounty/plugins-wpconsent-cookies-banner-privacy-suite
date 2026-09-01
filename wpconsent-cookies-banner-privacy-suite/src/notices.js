@@ -62,7 +62,11 @@ var WPConsentAdminWideNotices = window.WPConsentAdminWideNotices || ( function( 
 		 * */
 		dismissNotice: function( e ) {
 
-			if ( e.target.classList.contains( 'wpconsent-notice-dismiss' ) ) {
+			// Test the matched element, not e.target: a dismiss button containing an icon or
+			// span reports the inner node as the target, which would persist the dismissal
+			// below while leaving the notice on screen. Core's own `.notice-dismiss` is
+			// excluded on purpose — common.js already slides those up.
+			if ( $( this ).hasClass( 'wpconsent-notice-dismiss' ) ) {
 				$( this ).closest( '.wpconsent-notice' ).slideUp();
 			}
 

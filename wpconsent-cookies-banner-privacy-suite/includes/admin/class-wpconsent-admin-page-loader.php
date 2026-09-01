@@ -52,12 +52,14 @@ class WPConsent_Admin_Page_Loader {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-banner-preview.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-services-upsell.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-scan-pages.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/trait-wpconsent-analytics-report.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/class-wpconsent-docs.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-dashboard.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-banner.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-cookies.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-scanner.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-analytics.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-onboarding.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-geolocation.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-consent-logs.php';
@@ -144,6 +146,7 @@ class WPConsent_Admin_Page_Loader {
 		$this->pages['dashboard']    = 'WPConsent_Admin_Page_Dashboard';
 		$this->pages['banner']       = 'WPConsent_Admin_Page_Banner';
 		$this->pages['scanner']      = 'WPConsent_Admin_Page_Scanner';
+		$this->pages['analytics']    = 'WPConsent_Admin_Page_Analytics';
 		$this->pages['cookies']      = 'WPConsent_Admin_Page_Cookies';
 		$this->pages['geolocation']  = 'WPConsent_Admin_Page_Geolocation';
 		$this->pages['tools']        = 'WPConsent_Admin_Page_Tools';

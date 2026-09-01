@@ -35,14 +35,31 @@ window.WPConsentInstallPlugin = window.WPConsentInstallPlugin || (
 					{
 						action: 'wpconsent_install_plugin',
 						slug: slug,
+						// Buttons outside the recommended-plugins widget opt out of its
+						// bookkeeping via data-source; the handler defaults the rest.
+						source: $button.data( 'source' ),
 						_wpnonce: wpconsent.nonce,
 					},
 					function ( response ) {
 						if ( response.success ) {
 							$button.text( wpconsent.activated || 'Activated!' );
-							setTimeout( function () {
-								window.location.reload();
-							}, 1500 );
+							setTimeout(
+								function () {
+									// A button inside a form must not reload: the surrounding
+									// settings may hold unsaved edits, and reloading discards
+									// them silently. Retire whatever hosted the button instead
+									// — the install is what stopped it being relevant, so it
+									// will not render on the next load either. slideUp() on an
+									// empty set is a no-op, so a bare in-form button simply
+									// stays put rather than reloading.
+									if ( $button.closest( 'form' ).length ) {
+										$button.closest( '.wpconsent-notice, .wpconsent-alert' ).slideUp();
+										return;
+									}
+									window.location.reload();
+								},
+								1500
+							);
 						} else {
 							$button.prop( 'disabled', false ).text( original_text );
 							if ( response.data && response.data.message ) {

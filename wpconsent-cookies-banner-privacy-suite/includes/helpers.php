@@ -5,6 +5,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Get the current Unix timestamp shifted to the site's timezone.
+ *
+ * Matches values stored with current_time( 'mysql' ), so date math done on
+ * those columns stays on site-local days. Written as a parse of the site-time
+ * string because WPCS discourages current_time( 'timestamp' ).
+ *
+ * @return int
+ */
+function wpconsent_site_time() {
+	return strtotime( current_time( 'mysql' ) );
+}
+
+/**
  * Get a URL with UTM parameters.
  *
  * @param string $url The URL to add the params to.

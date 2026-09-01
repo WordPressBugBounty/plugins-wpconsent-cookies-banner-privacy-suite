@@ -100,37 +100,6 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 	}
 
 	/**
-	 * The page output based on the view.
-	 *
-	 * @return void
-	 */
-	public function output_content() {
-		if ( method_exists( $this, 'output_view_' . $this->view ) ) {
-			call_user_func( array( $this, 'output_view_' . $this->view ) );
-		}
-	}
-
-	/**
-	 * For this page we output a menu.
-	 *
-	 * @return void
-	 */
-	public function output_header_bottom() {
-		?>
-		<ul class="wpconsent-admin-tabs">
-			<?php
-			foreach ( $this->views as $slug => $label ) {
-				$class = $this->view === $slug ? 'active' : '';
-				?>
-				<li>
-					<a href="<?php echo esc_url( $this->get_view_link( $slug ) ); ?>" class="<?php echo esc_attr( $class ); ?>"><?php echo esc_html( $label ); ?></a>
-				</li>
-			<?php } ?>
-		</ul>
-		<?php
-	}
-
-	/**
 	 * Handle the form submission.
 	 *
 	 * @return void

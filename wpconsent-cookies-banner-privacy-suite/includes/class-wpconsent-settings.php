@@ -105,6 +105,10 @@ class WPConsent_Settings {
 				'scanner_history_retention'       => 90,
 				'consent_logs_auto_delete'        => 0,
 				'consent_logs_retention_period'   => '1_year',
+				// Banner analytics settings.
+				'analytics_enabled'               => 1,
+				'analytics_retention'             => 90,
+				'analytics_excluded_roles'        => array( 'administrator', 'editor' ),
 				'gcm_url_passthrough'             => 0,
 				'gcm_ads_data_redaction'          => 0,
 			),
@@ -161,6 +165,37 @@ class WPConsent_Settings {
 		$options = apply_filters( 'wpconsent_save_options', $this->options, $this->load_options() );
 
 		update_option( $this->settings_key, (array) $options );
+	}
+
+	/**
+	 * Check whether any of the given keys differ between two options arrays.
+	 *
+	 * Used by 'wpconsent_save_options' listeners that only need to react when
+	 * specific settings actually change, rather than on every save.
+	 *
+	 * @param array $new_options Options array about to be saved.
+	 * @param array $old_options Options array currently stored.
+	 * @param array $keys        The keys to compare.
+	 *
+	 * @return bool
+	 */
+	public static function keys_changed( $new_options, $old_options, $keys ) {
+		if ( ! is_array( $new_options ) ) {
+			return false;
+		}
+		if ( ! is_array( $old_options ) ) {
+			$old_options = array();
+		}
+
+		foreach ( $keys as $key ) {
+			$old_value = isset( $old_options[ $key ] ) ? $old_options[ $key ] : null;
+			$new_value = isset( $new_options[ $key ] ) ? $new_options[ $key ] : null;
+			if ( $old_value !== $new_value ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

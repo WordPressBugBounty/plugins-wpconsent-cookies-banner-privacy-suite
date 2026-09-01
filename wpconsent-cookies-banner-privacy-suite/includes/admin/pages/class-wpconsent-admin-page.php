@@ -269,15 +269,28 @@ abstract class WPConsent_Admin_Page {
 	}
 
 	/**
-	 * Content of the bottom row of the header.
+	 * Content of the bottom row of the header: the view tabs when the page has
+	 * views, otherwise its title.
 	 *
 	 * @return void
 	 */
 	public function output_header_bottom() {
+		if ( empty( $this->views ) ) {
+			?>
+			<div class="wpconsent-column wpconsent-title-button">
+				<h1><?php echo esc_html( $this->page_title ); ?></h1>
+			</div>
+			<?php
+			return;
+		}
 		?>
-		<div class="wpconsent-column wpconsent-title-button">
-			<h1><?php echo esc_html( $this->page_title ); ?></h1>
-		</div>
+		<ul class="wpconsent-admin-tabs">
+			<?php foreach ( $this->views as $slug => $label ) : ?>
+				<li>
+					<a href="<?php echo esc_url( $this->get_view_link( $slug ) ); ?>" class="<?php echo esc_attr( $this->view === $slug ? 'active' : '' ); ?>"><?php echo esc_html( $label ); ?></a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
 		<?php
 	}
 
@@ -331,11 +344,18 @@ abstract class WPConsent_Admin_Page {
 	}
 
 	/**
-	 * This is the main page content and you can't get away without it.
+	 * This is the main page content.
+	 *
+	 * A page with views only needs an output_view_{slug} method per view; the
+	 * default below dispatches to it. Pages that render one screen override this.
 	 *
 	 * @return void
 	 */
-	abstract public function output_content();
+	public function output_content() {
+		if ( method_exists( $this, 'output_view_' . $this->view ) ) {
+			call_user_func( array( $this, 'output_view_' . $this->view ) );
+		}
+	}
 
 	/**
 	 * Output footer markup, mostly used for overlays that are fixed.
@@ -643,10 +663,11 @@ abstract class WPConsent_Admin_Page {
 	 * @param string $content The metabox content.
 	 * @param string $help The helper text (optional) - if set, a help icon will show up next to the title.
 	 * @param string $id The metabox id attribute (optional).
+	 * @param string $actions Markup shown on the right of the title (optional).
 	 *
 	 * @return void
 	 */
-	public function metabox( $title, $content, $help = '', $id = '' ) {
+	public function metabox( $title, $content, $help = '', $id = '', $actions = '' ) {
 		// translators: %s is the title of the metabox.
 		$button_title = sprintf( __( 'Collapse Metabox %s', 'wpconsent-cookies-banner-privacy-suite' ), $title )
 		?>
@@ -656,6 +677,11 @@ abstract class WPConsent_Admin_Page {
 					<?php echo wp_kses_post( $title ); ?>
 					<?php $this->help_icon( $help ); ?>
 				</div>
+				<?php if ( ! empty( $actions ) ) { ?>
+					<div class="wpconsent-metabox-title-actions">
+						<?php echo wp_kses_post( $actions ); ?>
+					</div>
+				<?php } ?>
 				<div class="wpconsent-metabox-title-toggle">
 					<button class="wpconsent-metabox-button-toggle" type="button" title="<?php echo esc_attr( $button_title ); ?>">
 						<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -965,6 +991,52 @@ abstract class WPConsent_Admin_Page {
 			$args,
 			$this->admin_url( 'admin.php' )
 		);
+	}
+
+	/**
+	 * Whether the active license unlocks a given level.
+	 *
+	 * Lite has no license object at all, so this answers false there.
+	 *
+	 * @param string $level One of basic, plus, pro, elite, bundle.
+	 *
+	 * @return bool
+	 */
+	protected function license_can( $level ) {
+		if ( ! isset( wpconsent()->license ) || ! method_exists( wpconsent()->license, 'license_can' ) ) {
+			return false;
+		}
+
+		return wpconsent()->license->license_can( $level, is_multisite() && is_network_admin() );
+	}
+
+	/**
+	 * Get an enhanced select, matching the other settings screens.
+	 *
+	 * @param string $id       Field name, also the id unless one is given.
+	 * @param array  $options  Value => label map.
+	 * @param mixed  $selected The selected value.
+	 * @param string $input_id Optional id, when it differs from the field name.
+	 *
+	 * @return string
+	 */
+	public function get_choices_select( $id, $options, $selected, $input_id = '' ) {
+		$markup = sprintf(
+			'<select name="%1$s" id="%2$s" class="wpconsent-choices" data-remove-item="false">',
+			esc_attr( $id ),
+			esc_attr( empty( $input_id ) ? $id : $input_id )
+		);
+
+		foreach ( $options as $value => $label ) {
+			$markup .= sprintf(
+				'<option value="%1$s" %2$s>%3$s</option>',
+				esc_attr( $value ),
+				selected( $selected, $value, false ),
+				esc_html( $label )
+			);
+		}
+
+		return $markup . '</select>';
 	}
 
 	/**

@@ -117,6 +117,14 @@ class WPConsent_Recommended_Plugins {
 				'pro_slug'    => 'reviews-feed-pro/sb-reviews-pro.php',
 				'icon'        => 'icon-reviews-feed.png',
 			),
+			// Cross-promo only: allowlisted so it can be installed, filtered out of the widget
+			// by get_recommended(). Carries no name/description/icon because the widget render
+			// loop is the only thing that reads those, and this entry never reaches it — the
+			// display copy lives with the promo in WPConsent_Cross_Promo::define_promos().
+			'universally-language-translation-multilingual-tool' => array(
+				'slug'       => 'universally-language-translation-multilingual-tool/universally.php',
+				'promo_only' => true,
+			),
 		);
 	}
 
@@ -134,15 +142,84 @@ class WPConsent_Recommended_Plugins {
 		$all_plugins   = $this->get_all_plugins();
 
 		foreach ( $all_plugins as $key => $plugin ) {
-			$all_plugins[ $key ]['is_installed'] = isset( $installed_map[ $plugin['slug'] ] ) || isset( $installed_map[ $plugin['pro_slug'] ] );
+			// Cross-promo entries are allowlisted for install but never shown in the widget.
+			if ( ! empty( $plugin['promo_only'] ) ) {
+				unset( $all_plugins[ $key ] );
+				continue;
+			}
+
+			// Same "either edition present" question as is_installed(), answered from the
+			// get_plugins() map because this loop needs it for every entry anyway. Keep the two
+			// in step if the definition of "installed" changes.
+			$pro_slug = isset( $plugin['pro_slug'] ) ? $plugin['pro_slug'] : '';
+
+			$all_plugins[ $key ]['is_installed'] = isset( $installed_map[ $plugin['slug'] ] ) || ( $pro_slug && isset( $installed_map[ $pro_slug ] ) );
 		}
 
+		// The visible set is persisted, so it can name a key that no longer exists here.
 		$result = array();
 		foreach ( $this->get_or_rotate_visible_set( $all_plugins ) as $key ) {
+			if ( ! isset( $all_plugins[ $key ] ) ) {
+				continue;
+			}
+
 			$result[ $key ] = $all_plugins[ $key ];
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Get a single plugin definition by its allowlist key.
+	 *
+	 * Reads the unfiltered list on purpose, so `promo_only` entries resolve here even though
+	 * the widget never shows them.
+	 *
+	 * @param string $key The plugin key, which is also the wordpress.org directory slug.
+	 *
+	 * @return array The definition, or an empty array when the key is unknown.
+	 */
+	private function get_plugin( $key ) {
+		$all_plugins = $this->get_all_plugins();
+
+		return isset( $all_plugins[ $key ] ) ? $all_plugins[ $key ] : array();
+	}
+
+	/**
+	 * Whether either edition of an allowlisted plugin is present on disk, active or not.
+	 *
+	 * Lives here so "either edition counts as installed" is stated next to the allowlist that
+	 * defines the two basenames, rather than restated by each caller.
+	 *
+	 * Checks the file directly instead of get_plugins(), which walks the whole plugin
+	 * directory and parses headers for every plugin found — far more work than a single
+	 * basename lookup needs. Basenames come from the hardcoded allowlist, never user input.
+	 *
+	 * get_recommended() answers the same "either edition present" question from the
+	 * get_plugins() map, since it already needs that map for every entry. Keep the two in step
+	 * if the definition of "installed" changes.
+	 *
+	 * @param string $key The plugin key.
+	 *
+	 * @return bool
+	 */
+	public function is_installed( $key ) {
+		$plugin = $this->get_plugin( $key );
+
+		if ( empty( $plugin['slug'] ) ) {
+			return false;
+		}
+
+		$pro_slug  = isset( $plugin['pro_slug'] ) ? $plugin['pro_slug'] : '';
+		$basenames = array_unique( array_filter( array( $plugin['slug'], $pro_slug ) ) );
+
+		foreach ( $basenames as $basename ) {
+			if ( file_exists( WP_PLUGIN_DIR . '/' . $basename ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -164,6 +241,19 @@ class WPConsent_Recommended_Plugins {
 			return $visible;
 		}
 
+		// A stored key can name a definition that no longer exists — dropped from
+		// define_plugins(), or flipped to promo_only, which get_recommended() filters out
+		// before calling this. Repair the set here rather than leaving it to the rotation
+		// path, so the widget refills on the next load instead of rendering short for up to
+		// 14 days. This also means rotate_visible_set() below never sees a stale key.
+		$repaired = $this->refill_stale_keys( $visible, $all_plugins );
+
+		if ( $repaired !== $visible ) {
+			$visible                          = $repaired;
+			$activated['recommended_visible'] = $visible;
+			update_option( 'wpconsent_activated', $activated );
+		}
+
 		$last_install = isset( $activated['recommended_last_widget_install'] ) ? (int) $activated['recommended_last_widget_install'] : 0;
 
 		if ( ! $last_install || ( time() - $last_install ) < 14 * DAY_IN_SECONDS ) {
@@ -177,6 +267,57 @@ class WPConsent_Recommended_Plugins {
 		update_option( 'wpconsent_activated', $activated );
 
 		return $rotated;
+	}
+
+	/**
+	 * Drop visible-set keys that no longer have a definition and refill to the same size.
+	 *
+	 * Replacements prefer non-installed plugins, matching compute_initial_set(), so a
+	 * reclaimed slot shows something the user can act on where possible.
+	 *
+	 * @param string[] $visible     Current visible plugin keys.
+	 * @param array    $all_plugins Plugin definitions with `is_installed` flags.
+	 *
+	 * @return string[] The repaired set, or $visible unchanged when no key was stale.
+	 */
+	private function refill_stale_keys( $visible, $all_plugins ) {
+		$kept = array();
+		foreach ( $visible as $key ) {
+			if ( isset( $all_plugins[ $key ] ) ) {
+				$kept[] = $key;
+			}
+		}
+
+		if ( count( $kept ) === count( $visible ) ) {
+			return $visible;
+		}
+
+		$non_installed = array();
+		$installed     = array();
+
+		foreach ( $all_plugins as $key => $plugin ) {
+			if ( in_array( $key, $kept, true ) ) {
+				continue;
+			}
+
+			if ( empty( $plugin['is_installed'] ) ) {
+				$non_installed[] = $key;
+			} else {
+				$installed[] = $key;
+			}
+		}
+
+		$target = count( $visible );
+
+		foreach ( array_merge( $non_installed, $installed ) as $key ) {
+			if ( count( $kept ) >= $target ) {
+				break;
+			}
+
+			$kept[] = $key;
+		}
+
+		return $kept;
 	}
 
 	/**
@@ -243,9 +384,19 @@ class WPConsent_Recommended_Plugins {
 	/**
 	 * Stamp the current time to (re)start the 14-day rotation timer.
 	 *
+	 * The timer only governs the recommended-plugins widget's own rotation, so an install
+	 * started somewhere else must not reshuffle it. Guarded here rather than at each call
+	 * site so every success path in ajax_install_plugin() is covered by one check.
+	 *
+	 * @param bool $is_widget_install Whether the request came from the widget's own buttons.
+	 *
 	 * @return void
 	 */
-	private function track_widget_install() {
+	private function maybe_track_widget_install( $is_widget_install ) {
+		if ( ! $is_widget_install ) {
+			return;
+		}
+
 		$activated = get_option( 'wpconsent_activated', array() );
 		$activated['recommended_last_widget_install'] = time();
 		update_option( 'wpconsent_activated', $activated );
@@ -309,6 +460,7 @@ class WPConsent_Recommended_Plugins {
 									type="button"
 									class="wpconsent-button wpconsent-button-secondary wpconsent-button-small wpconsent-button-install-plugin"
 									data-slug="<?php echo esc_attr( $key ); ?>"
+									data-source="widget"
 								>
 									<?php esc_html_e( 'Install', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 								</button>
@@ -324,16 +476,17 @@ class WPConsent_Recommended_Plugins {
 	/**
 	 * Activate a plugin and send a JSON success/error response.
 	 *
-	 * @param string $plugin_basename The plugin basename to activate.
+	 * @param string $plugin_basename   The plugin basename to activate.
+	 * @param bool   $is_widget_install Whether the request came from the widget's own buttons.
 	 *
 	 * @return void Sends JSON and terminates.
 	 */
-	private function activate_and_respond( $plugin_basename ) {
+	private function activate_and_respond( $plugin_basename, $is_widget_install ) {
 		$activated = activate_plugin( $plugin_basename );
 		if ( is_wp_error( $activated ) ) {
 			wp_send_json_error( array( 'message' => $activated->get_error_message() ) );
 		}
-		$this->track_widget_install();
+		$this->maybe_track_widget_install( $is_widget_install );
 		wp_send_json_success(
 			array(
 				'message' => esc_html__( 'Plugin activated.', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -373,6 +526,12 @@ class WPConsent_Recommended_Plugins {
 
 		$slug = isset( $_POST['slug'] ) ? sanitize_key( wp_unslash( $_POST['slug'] ) ) : '';
 
+		// Widget identity is opt-in: only the widget's own buttons send source=widget. Anything
+		// missing or unrecognised is treated as an install from elsewhere, so a new install
+		// button added anywhere in the admin cannot silently reshuffle the widget rotation.
+		$source            = isset( $_POST['source'] ) ? sanitize_key( wp_unslash( $_POST['source'] ) ) : '';
+		$is_widget_install = 'widget' === $source;
+
 		if ( ! array_key_exists( $slug, $this->get_all_plugins() ) ) {
 			wp_send_json_error(
 				array(
@@ -395,9 +554,12 @@ class WPConsent_Recommended_Plugins {
 		// Do not allow WordPress to search/download translations, as this will break JS output.
 		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
 
+		// pro_slug is optional throughout: entries for plugins with no separate pro build omit it.
+		$pro_slug = isset( $plugin_info['pro_slug'] ) ? $plugin_info['pro_slug'] : '';
+
 		// Already active (either version).
-		if ( is_plugin_active( $plugin_info['slug'] ) || is_plugin_active( $plugin_info['pro_slug'] ) ) {
-			$this->track_widget_install();
+		if ( is_plugin_active( $plugin_info['slug'] ) || ( $pro_slug && is_plugin_active( $pro_slug ) ) ) {
+			$this->maybe_track_widget_install( $is_widget_install );
 			wp_send_json_success(
 				array(
 					'message' => esc_html__( 'Plugin already active.', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -408,13 +570,13 @@ class WPConsent_Recommended_Plugins {
 		$installed_plugins = array_keys( get_plugins() );
 
 		// Pro version installed but not active — activate it.
-		if ( in_array( $plugin_info['pro_slug'], $installed_plugins, true ) ) {
-			$this->activate_and_respond( $plugin_info['pro_slug'] );
+		if ( $pro_slug && in_array( $pro_slug, $installed_plugins, true ) ) {
+			$this->activate_and_respond( $pro_slug, $is_widget_install );
 		}
 
 		// Lite version installed but not active — activate it.
 		if ( in_array( $plugin_info['slug'], $installed_plugins, true ) ) {
-			$this->activate_and_respond( $plugin_info['slug'] );
+			$this->activate_and_respond( $plugin_info['slug'], $is_widget_install );
 		}
 
 		// Not installed — download from wordpress.org and activate.
@@ -443,7 +605,7 @@ class WPConsent_Recommended_Plugins {
 			);
 		}
 
-		$this->track_widget_install();
+		$this->maybe_track_widget_install( $is_widget_install );
 		wp_send_json_success(
 			array(
 				'message' => esc_html__( 'Plugin installed and activated.', 'wpconsent-cookies-banner-privacy-suite' ),

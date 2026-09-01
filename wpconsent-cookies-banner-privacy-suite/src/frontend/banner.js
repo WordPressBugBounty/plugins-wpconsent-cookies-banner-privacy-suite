@@ -1242,10 +1242,20 @@ window.WPConsent = {
 						return;
 					}
 
+					// The category name is a <label for> so the checkbox gets an accessible
+					// name, but letting the label activate would flip consent while the
+					// accordion opens - and the animation hides that the toggle moved.
+					// Keep the association, drop the activation: only the toggle sets consent.
+					if ( e.target.closest( 'label[for^="cookie-category-"]' ) ) {
+						e.preventDefault();
+					}
+
 					this.toggleAccordion( accordion, content );
 				} );
 			}
 		} );
+
+		this.syncAccordionInertState();
 	},
 
 	toggleAccordion( accordion, content ) {
@@ -1321,6 +1331,8 @@ window.WPConsent = {
 			const isNowActive = accordion.classList.contains( 'active' );
 			currentToggle.setAttribute( 'aria-expanded', isNowActive ? 'true' : 'false' );
 		}
+
+		this.syncAccordionInertState();
 
 		// Fire accordion toggled event for extensions.
 		const nowActive = accordion.classList.contains( 'active' );
@@ -1465,25 +1477,90 @@ window.WPConsent = {
 
 		// Query all focusable elements within the container
 		const elements = Array.from( container.querySelectorAll( focusableSelectors ) )
-			// Filter out hidden elements
-			                  .filter( el => {
-				                  // Check if element and all its ancestors are visible
-				                  let currentElement = el;
-				                  while ( currentElement && currentElement !== container ) {
-					                  const style = window.getComputedStyle( currentElement );
-					                  if ( style.display === 'none' ||
-					                       style.visibility === 'hidden' ||
-					                       style.opacity === '0' ||
-					                       currentElement.disabled ||
-					                       currentElement.getAttribute( 'aria-hidden' ) === 'true' ) {
-						                  return false;
-					                  }
-					                  currentElement = currentElement.parentElement;
-				                  }
-				                  return true;
-			                  } );
+			// Filter out anything that can't actually be reached.
+			.filter( el => {
+				// Consent toggles are inputs hidden with opacity: 0 on purpose - visually
+				// hidden, still focusable - so the element's own opacity must not rule it
+				// out, otherwise there is no way to set consent from the keyboard at all.
+				// Its ancestors are still checked below, opacity included.
+				if ( el.disabled ||
+				     el.hasAttribute( 'hidden' ) ||
+				     el.getAttribute( 'aria-hidden' ) === 'true' ||
+				     el.closest( '[inert]' ) ||
+				     this.isInCollapsedAccordion( el ) ) {
+					return false;
+				}
+
+				const ownStyle = window.getComputedStyle( el );
+				if ( ownStyle.display === 'none' || ownStyle.visibility === 'hidden' ) {
+					return false;
+				}
+
+				// Check if all the ancestors up to the container are visible
+				let currentElement = el.parentElement;
+				while ( currentElement && currentElement !== container ) {
+					const style = window.getComputedStyle( currentElement );
+					if ( style.display === 'none' ||
+					     style.visibility === 'hidden' ||
+					     style.opacity === '0' ||
+					     currentElement.disabled ||
+					     currentElement.getAttribute( 'aria-hidden' ) === 'true' ) {
+						return false;
+					}
+					currentElement = currentElement.parentElement;
+				}
+				return true;
+			} );
 
 		return elements;
+	},
+
+	// Collapsed panels are hidden with max-height: 0 for the animation, not
+	// display: none, so everything inside a closed category - service toggles,
+	// their checkboxes, the description - would otherwise still take focus.
+	isInCollapsedAccordion: function ( el ) {
+		let content = el.closest( '.wpconsent-preferences-accordion-content' );
+
+		while ( content ) {
+			const item = content.closest( '.wpconsent-preferences-accordion-item' );
+
+			if ( ! item ) {
+				return false;
+			}
+
+			if ( ! item.classList.contains( 'active' ) ) {
+				return true;
+			}
+
+			// Services live inside a category panel, so keep walking outwards.
+			content = item.parentElement ? item.parentElement.closest( '.wpconsent-preferences-accordion-content' ) : null;
+		}
+
+		return false;
+	},
+
+	// Mirror the collapsed state onto the inert attribute so browsers and screen
+	// readers skip closed panels natively, the same way our focus trap does.
+	syncAccordionInertState: function () {
+		const items = this.shadowRoot?.querySelectorAll( '.wpconsent-preferences-accordion-item' );
+
+		if ( ! items ) {
+			return;
+		}
+
+		items.forEach( ( item ) => {
+			const content = item.querySelector( ':scope > .wpconsent-preferences-accordion-content' );
+
+			if ( ! content ) {
+				return;
+			}
+
+			if ( item.classList.contains( 'active' ) ) {
+				content.removeAttribute( 'inert' );
+			} else {
+				content.setAttribute( 'inert', '' );
+			}
+		} );
 	},
 
 	// Check if an element is contained within a container
