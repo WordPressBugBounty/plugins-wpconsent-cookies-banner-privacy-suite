@@ -83,12 +83,19 @@ class WPConsent_Cookie_Blocking {
 
 		$scripts_by_category = $this->find_scripts_by_category( $buffer );
 
+		// Nothing to block, so send the page out untouched instead of re-serializing it.
+		if ( empty( $scripts_by_category['scripts'] ) && empty( $scripts_by_category['iframes'] ) ) {
+			return $buffer;
+		}
+
 		foreach ( $scripts_by_category['scripts'] as $category => $scripts ) {
 			foreach ( $scripts as $script_data ) {
-				$this->modify_script_tag( $script_data['script'], $script_data['name'], $category );
+				$has_blocked_elements = ! empty( $script_data['blocked_elements'] );
+
+				$this->modify_script_tag( $script_data['script'], $script_data['name'], $category, $has_blocked_elements );
 
 				// Add placeholders for blocked elements.
-				if ( ! empty( $script_data['blocked_elements'] ) ) {
+				if ( $has_blocked_elements ) {
 					foreach ( $script_data['blocked_elements'] as $selector ) {
 						$this->add_blocked_element_placeholder( $scripts_by_category['html'], $selector, $script_data['name'], $category );
 					}
@@ -97,7 +104,7 @@ class WPConsent_Cookie_Blocking {
 		}
 		foreach ( $scripts_by_category['iframes'] as $category => $iframes ) {
 			foreach ( $iframes as $iframe ) {
-				$this->modify_iframe_tag( $iframe['iframe'], $iframe['name'], $category );
+				$this->modify_iframe_tag( $iframe['iframe'], $iframe['name'], $category, $iframe['src'] );
 			}
 		}
 		if ( empty( $scripts_by_category['html'] ) ) {
@@ -171,7 +178,7 @@ class WPConsent_Cookie_Blocking {
 		$iframes_by_category = array();
 		if ( 1 === absint( $block_content ) ) {
 			foreach ( $iframes as $iframe ) {
-				$src = $iframe->src;
+				$sources = $this->get_iframe_sources( $iframe );
 				foreach ( $all_known_scripts as $category => $services ) {
 					foreach ( $services as $service_key => $service ) {
 						if ( empty( $service['iframes'] ) ) {
@@ -181,12 +188,15 @@ class WPConsent_Cookie_Blocking {
 							continue;
 						}
 						foreach ( $service['iframes'] as $pattern ) {
-							if ( strpos( $src, $pattern ) !== false ) {
-								$iframes_by_category[ $category ][] = array(
-									'iframe' => $iframe,
-									'name'   => $service_key,
-								);
-								break;
+							foreach ( $sources as $source ) {
+								if ( strpos( $source, $pattern ) !== false ) {
+									$iframes_by_category[ $category ][] = array(
+										'iframe' => $iframe,
+										'name'   => $service_key,
+										'src'    => $source,
+									);
+									break 2;
+								}
 							}
 						}
 					}
@@ -407,8 +417,9 @@ class WPConsent_Cookie_Blocking {
 	 * @param DOMElement $script The script element.
 	 * @param string     $name The name of the known script.
 	 * @param string     $category The category of the known script.
+	 * @param bool       $is_element Whether the script belongs to a service blocked through element placeholders.
 	 */
-	private function modify_script_tag( $script, $name, $category ) {
+	private function modify_script_tag( $script, $name, $category, $is_element = false ) {
 		$src = $script->getAttribute( 'src' );
 		if ( 'essential' === $category || apply_filters( 'wpconsent_skip_script_blocking', false, $src, $name, $category, $script ) ) {
 			return;
@@ -417,7 +428,30 @@ class WPConsent_Cookie_Blocking {
 		$script->setAttribute( 'data-wpconsent-src', $src );
 		$script->setAttribute( 'data-wpconsent-name', $name );
 		$script->setAttribute( 'data-wpconsent-category', $category );
+		if ( $is_element ) {
+			// Mark scripts that are only blocked because content blocking applies to their service.
+			$script->setAttribute( 'data-wpconsent-element', '1' );
+		}
 		$script->removeAttribute( 'src' );
+	}
+
+	/**
+	 * Get the URLs an iframe can load: its src and, for lazy-loaded iframes (e.g. Thrive videos), its data-src.
+	 *
+	 * @param DOMElement $iframe The iframe element.
+	 *
+	 * @return array
+	 */
+	private function get_iframe_sources( $iframe ) {
+		$sources = array();
+		foreach ( array( 'src', 'data-src' ) as $attribute ) {
+			$value = $iframe->getAttribute( $attribute );
+			if ( is_string( $value ) && '' !== $value ) {
+				$sources[] = $value;
+			}
+		}
+
+		return $sources;
 	}
 
 	/**
@@ -426,9 +460,9 @@ class WPConsent_Cookie_Blocking {
 	 * @param DOMElement $iframe The iframe element.
 	 * @param string     $name The name of the known script.
 	 * @param string     $category The category of the iframe.
+	 * @param string     $src The matched iframe URL (from src or data-src).
 	 */
-	private function modify_iframe_tag( $iframe, $name, $category ) {
-		$src = $iframe->getAttribute( 'src' );
+	private function modify_iframe_tag( $iframe, $name, $category, $src ) {
 		if ( 'essential' === $category || apply_filters( 'wpconsent_skip_iframe_blocking', false, $src, $name, $category, $iframe ) ) {
 			return;
 		}
@@ -436,6 +470,8 @@ class WPConsent_Cookie_Blocking {
 		$iframe->setAttribute( 'data-wpconsent-name', $name );
 		$iframe->setAttribute( 'data-wpconsent-category', $category );
 		$iframe->removeAttribute( 'src' );
+		// Lazy loaders copy data-src back into src, so it has to go as well.
+		$iframe->removeAttribute( 'data-src' );
 
 		// Get the placeholder HTML from our new class.
 		$placeholder_html = $this->content_placeholder->get_placeholder_html(
@@ -486,13 +522,7 @@ class WPConsent_Cookie_Blocking {
 		$elements = $html->find( $selector );
 
 		foreach ( $elements as $element ) {
-			// Get the placeholder HTML from our iframe placeholder class.
-			$placeholder_html = $this->content_placeholder->get_placeholder_html(
-				'',
-				$name,
-				$category,
-				''
-			);
+			$placeholder_html = $this->content_placeholder->get_element_placeholder_html( $name, $category );
 
 			// Prepend the placeholder.
 			$element->outertext = $placeholder_html . $element->outertext;

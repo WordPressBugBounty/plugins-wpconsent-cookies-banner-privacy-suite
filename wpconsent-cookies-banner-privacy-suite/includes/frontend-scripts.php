@@ -38,14 +38,6 @@ function wpconsent_frontend_scripts() {
 		return;
 	}
 
-	$default_allow          = boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
-	$manual_toggle_services = boolval( wpconsent()->settings->get_option( 'manual_toggle_services', 0 ) );
-	$slugs                  = $manual_toggle_services ? wpconsent()->cookies->get_preference_slugs() : array(
-		'essential',
-		'statistics',
-		'marketing',
-	);
-
 	wp_enqueue_script( 'wpconsent-frontend-js', WPCONSENT_PLUGIN_URL . 'build/frontend.js', $asset['dependencies'], $asset['version'], true );
 
 	// Determine the correct CSS file based on RTL.
@@ -54,31 +46,50 @@ function wpconsent_frontend_scripts() {
 	wp_localize_script(
 		'wpconsent-frontend-js',
 		'wpconsent',
-		apply_filters(
-			'wpconsent_frontend_js_data',
-			array(
-				'consent_duration'           => wpconsent()->settings->get_option( 'consent_duration', 30 ),
-				'css_url'                    => WPCONSENT_PLUGIN_URL . 'build/' . $css_file,
-				'css_version'                => $asset['version'],
-				'default_allow'              => $default_allow,
-				'consent_type'               => $default_allow ? 'optout' : 'optin',
-				'manual_toggle_services'     => $manual_toggle_services,
-				'slugs'                      => $slugs,
-				'enable_consent_banner'      => wpconsent()->settings->get_option( 'enable_consent_banner', 1 ),
-				'enable_script_blocking'     => wpconsent()->settings->get_option( 'enable_script_blocking', 1 ),
-				'enable_content_blocking'    => wpconsent()->settings->get_option( 'enable_content_blocking', 0 ),
-				'enable_consent_floating'    => boolval( wpconsent()->settings->get_option( 'enable_consent_floating', 0 ) ),
-				'enable_shared_consent'      => boolval( wpconsent()->settings->get_option( 'enable_shared_consent', 0 ) ),
-				'cookie_domain'              => wpconsent()->settings->get_option( 'cookie_domain', '' ),
-				'accept_button_enabled'      => boolval( wpconsent()->settings->get_option( 'accept_button_enabled', 1 ) ),
-				'cancel_button_enabled'      => boolval( wpconsent()->settings->get_option( 'cancel_button_enabled', 1 ) ),
-				'preferences_button_enabled' => boolval( wpconsent()->settings->get_option( 'preferences_button_enabled', 1 ) ),
-				'respect_gpc'                => boolval( wpconsent()->settings->get_option( 'respect_gpc', 0 ) ),
-				'gpc_toast_message'          => wpconsent()->settings->get_option( 'gpc_toast_message', wpconsent()->strings->get_string( 'gpc_toast_message' ) ),
-				'gpc_toast_duration'         => apply_filters( 'wpconsent_gpc_toast_duration', 10000 ),
-				'gpc_toast_enabled'          => apply_filters( 'wpconsent_gpc_toast_enabled', true ),
-			)
-		)
+		apply_filters( 'wpconsent_frontend_js_data', wpconsent_frontend_js_data( $css_file, $asset['version'] ) )
+	);
+}
+
+/**
+ * Data localized to the frontend bundle as the `wpconsent` object.
+ *
+ * Shared by the Lite and Pro enqueue callbacks so new keys only have to be added once;
+ * Pro merges its own keys on top of this array.
+ *
+ * @param string $css_file    The frontend stylesheet file name inside build/.
+ * @param string $css_version The stylesheet version string.
+ *
+ * @return array
+ */
+function wpconsent_frontend_js_data( $css_file, $css_version ) {
+	$default_allow          = boolval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
+	$manual_toggle_services = boolval( wpconsent()->settings->get_option( 'manual_toggle_services', 0 ) );
+	$slugs                  = $manual_toggle_services ? wpconsent()->cookies->get_preference_slugs() : array(
+		'essential',
+		'statistics',
+		'marketing',
+	);
+
+	return array(
+		'consent_duration'           => wpconsent()->settings->get_option( 'consent_duration', 30 ),
+		'css_url'                    => WPCONSENT_PLUGIN_URL . 'build/' . $css_file,
+		'css_version'                => $css_version,
+		'default_allow'              => $default_allow,
+		'consent_type'               => $default_allow ? 'optout' : 'optin',
+		'manual_toggle_services'     => $manual_toggle_services,
+		'slugs'                      => $slugs,
+		'enable_consent_banner'      => wpconsent()->settings->get_option( 'enable_consent_banner', 1 ),
+		'enable_script_blocking'     => wpconsent()->settings->get_option( 'enable_script_blocking', 1 ),
+		'enable_content_blocking'    => wpconsent()->settings->get_option( 'enable_content_blocking', 0 ),
+		'enable_consent_floating'    => boolval( wpconsent()->settings->get_option( 'enable_consent_floating', 0 ) ),
+		'enable_shared_consent'      => boolval( wpconsent()->settings->get_option( 'enable_shared_consent', 0 ) ),
+		'cookie_domain'              => wpconsent()->settings->get_option( 'cookie_domain', '' ),
+		'accept_button_enabled'      => boolval( wpconsent()->settings->get_option( 'accept_button_enabled', 1 ) ),
+		'cancel_button_enabled'      => boolval( wpconsent()->settings->get_option( 'cancel_button_enabled', 1 ) ),
+		'preferences_button_enabled' => boolval( wpconsent()->settings->get_option( 'preferences_button_enabled', 1 ) ),
+		'respect_gpc'                => boolval( wpconsent()->settings->get_option( 'respect_gpc', 0 ) ),
+		'gpc_toast_message'          => wpconsent()->settings->get_option( 'gpc_toast_message', wpconsent()->strings->get_string( 'gpc_toast_message' ) ),
+		'gpc_toast_duration'         => absint( apply_filters( 'wpconsent_gpc_toast_duration', 10000 ) ),
 	);
 }
 
@@ -101,10 +112,25 @@ function wpconsent_google_consent_script() {
 		return;
 	}
 
+	// On Pro this is already forced to 0 when any geolocation group is opt-in (WPConsent_Geolocation::maybe_force_default_allow()).
 	$default_allow      = intval( wpconsent()->settings->get_option( 'default_allow', 0 ) );
-	$default_state      = $default_allow ? 'granted' : 'denied';
 	$url_passthrough    = (bool) wpconsent()->settings->get_option( 'gcm_url_passthrough', 0 );
 	$ads_data_redaction = (bool) wpconsent()->settings->get_option( 'gcm_ads_data_redaction', 0 );
+
+	// Consent Mode signals keyed by the WPConsent category that controls them (mirrors WPConsent.consentModeState() in banner.js).
+	$signal_categories = array(
+		'ad_storage'              => 'marketing',
+		'analytics_storage'       => 'statistics',
+		'ad_user_data'            => 'marketing',
+		'ad_personalization'      => 'marketing',
+		'personalization_storage' => 'marketing',
+	);
+
+	$always_granted = array(
+		'security_storage'      => 'granted',
+		'functionality_storage' => 'granted',
+		'wait_for_update'       => 500,
+	);
 
 	$extra_gtag = '';
 	if ( $url_passthrough ) {
@@ -112,6 +138,34 @@ function wpconsent_google_consent_script() {
 	}
 	if ( $ads_data_redaction ) {
 		$extra_gtag .= "\n\t\t\tgtag('set', 'ads_data_redaction', true);\n";
+	}
+
+	if ( $default_allow ) {
+		// Opt-out site: the default is granted, so fold in what is already known before gtag.js loads
+		// and the first hit never relies on that default: a saved decision that denies a category, or a
+		// GPC signal the frontend script has not recorded yet (checkGPC() in banner.js writes that opt-out
+		// once the page is ready). Only denials are applied here; grants still come from the frontend script.
+		$respect_gpc = wpconsent()->settings->get_option( 'respect_gpc', 0 ) ? 'true' : 'false';
+
+		$consent_js = "var consent = " . wp_json_encode( $always_granted ) . ";
+			var signals = " . wp_json_encode( $signal_categories ) . ";
+			var saved = null;
+			try {
+				var parts = ('; ' + document.cookie).split('; wpconsent_preferences=');
+				if (parts.length === 2) {
+					saved = JSON.parse(parts.pop().split(';').shift());
+				}
+			} catch (e) {}
+			if (typeof saved !== 'object') {
+				saved = null;
+			}
+			var gpcPending = {$respect_gpc} && navigator.globalPrivacyControl === true && !(saved && 'respect_gpc' in saved);
+			for (var signal in signals) {
+				consent[signal] = (gpcPending || (saved && !saved[signals[signal]])) ? 'denied' : 'granted';
+			}";
+	} else {
+		// Opt-in site: everything consent-controlled starts denied, nothing to compute client-side.
+		$consent_js = 'var consent = ' . wp_json_encode( array_merge( array_fill_keys( array_keys( $signal_categories ), 'denied' ), $always_granted ) ) . ';';
 	}
 
 	// We need to load the Google consent script earlier than other tracking scripts for it to take effect correctly.
@@ -123,16 +177,8 @@ function wpconsent_google_consent_script() {
 			// Set the developer ID.
 			gtag('set', 'developer_id.dMmRkYz', true);{$extra_gtag}
 			// Set default consent state based on plugin settings.
-			gtag('consent', 'default', {
-				'ad_storage': '{$default_state}',
-				'analytics_storage': '{$default_state}',
-				'ad_user_data': '{$default_state}',
-				'ad_personalization': '{$default_state}',
-				'personalization_storage': '{$default_state}',
-				'security_storage': 'granted',
-				'functionality_storage': 'granted',
-				'wait_for_update': 500,
-			});
+			{$consent_js}
+			gtag('consent', 'default', consent);
 		})();
 	</script>"; // phpcs:ignore
 }

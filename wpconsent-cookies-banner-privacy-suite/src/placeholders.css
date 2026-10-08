@@ -13,7 +13,8 @@ div.wpforms-container-full .wpconsent-iframe-placeholder,
 	}
 }
 
-.wp-block-embed__wrapper {
+.wp-block-embed__wrapper,
+.tve_responsive_video_container {
 	.wpconsent-iframe-placeholder {
 		position: absolute;
 		top: 0;

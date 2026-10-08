@@ -22,6 +22,8 @@
  *
  * Modified for WPConsent by removing the functionality that is not needed in the plugin context.
  * Also added prefixes to the class/function names to avoid conflicts with other plugins.
+ * The regex-based noise removal was replaced with linear delimiter scans, so a large inline
+ * block cannot exhaust pcre.backtrack_limit; see remove_tag_body_noise().
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -1413,6 +1415,12 @@ class WPConsent_Simple_HTML_DOM {
 	protected $cursor;
 	protected $parent;
 	protected $noise = array();
+	/**
+	 * Random per-document prefix for noise keys, so content on the page can't spell a key.
+	 *
+	 * @var string
+	 */
+	protected $noise_prefix = '';
 	protected $token_blank = " \t\r\n";
 	protected $token_equal = ' =/>';
 	protected $token_slash = " />\r\n\t";
@@ -1514,16 +1522,13 @@ class WPConsent_Simple_HTML_DOM {
 		$defaultSpanText = WPCONSENT_DEFAULT_SPAN_TEXT,
 		$options = 0
 	) {
-		global $debug_object;
-
 		// prepare
 		$this->prepare( $str, $lowercase, $defaultBRText, $defaultSpanText );
 
 		// Per sourceforge http://sourceforge.net/tracker/?func=detail&aid=2949097&group_id=218559&atid=1044037
 		// Script tags removal now preceeds style tag removal.
 		// strip out <script> tags
-		$this->remove_noise( "'<\s*script[^>]*[^/]>(.*?)<\s*/\s*script\s*>'is" );
-		$this->remove_noise( "'<\s*script\s*>(.*?)<\s*/\s*script\s*>'is" );
+		$this->remove_tag_body_noise( 'script' );
 
 		// strip out the \r \n's if we are told to.
 		if ( $stripRN ) {
@@ -1535,19 +1540,18 @@ class WPConsent_Simple_HTML_DOM {
 		}
 
 		// strip out cdata
-		$this->remove_noise( "'<!\[CDATA\[(.*?)\]\]>'is", true );
+		$this->remove_delimited_noise( '<![CDATA[', ']]>', true );
 		// strip out comments
-		$this->remove_noise( "'<!--(.*?)-->'is" );
+		$this->remove_delimited_noise( '<!--', '-->' );
 		// strip out <style> tags
-		$this->remove_noise( "'<\s*style[^>]*[^/]>(.*?)<\s*/\s*style\s*>'is" );
-		$this->remove_noise( "'<\s*style\s*>(.*?)<\s*/\s*style\s*>'is" );
+		$this->remove_tag_body_noise( 'style' );
 		// strip out preformatted tags
-		$this->remove_noise( "'<\s*(?:code)[^>]*>(.*?)<\s*/\s*(?:code)\s*>'is" );
+		$this->remove_tag_body_noise( 'code' );
 		// strip out server side scripts
-		$this->remove_noise( "'(<\?)(.*?)(\?>)'s", true );
+		$this->remove_delimited_noise( '<?', '?>', true );
 
 		if ( $options & WPCONSENT_HDOM_SMARTY_AS_TEXT ) { // Strip Smarty scripts
-			$this->remove_noise( "'(\{\w)(.*?)(\})'s", true );
+			$this->remove_smarty_noise();
 		}
 
 		// parsing
@@ -1621,6 +1625,7 @@ class WPConsent_Simple_HTML_DOM {
 
 		unset( $this->doc );
 		unset( $this->noise );
+		$this->noise_prefix = '';
 	}
 
 	function dump( $show_attr = true ) {
@@ -1640,6 +1645,7 @@ class WPConsent_Simple_HTML_DOM {
 		$this->pos                               = 0;
 		$this->cursor                            = 1;
 		$this->noise                             = array();
+		$this->noise_prefix                      = '___noise_' . $this->generate_noise_secret() . '_';
 		$this->nodes                             = array();
 		$this->lowercase                         = $lowercase;
 		$this->default_br_text                   = $defaultBRText;
@@ -2219,30 +2225,192 @@ class WPConsent_Simple_HTML_DOM {
 		return substr( $this->doc, $pos_old, $pos - $pos_old );
 	}
 
-	protected function remove_noise( $pattern, $remove_tag = false ) {
-		global $debug_object;
-		if ( is_object( $debug_object ) ) {
-			$debug_object->debug_log_entry( 1 );
-		}
+	/**
+	 * Shield the body of every occurrence of a tag from the parser.
+	 *
+	 * Locating a tag body is a delimiter search, not a pattern match: the body runs from the
+	 * end of the opening tag to the start of the matching closing tag. Doing it with a lazy
+	 * regex made the cost grow with the size of the body, so a single large inline block --
+	 * a page-sized JSON payload, a big inline stylesheet -- could exhaust
+	 * pcre.backtrack_limit and leave every body on the page exposed to the parser. A linear
+	 * scan has no such ceiling.
+	 *
+	 * The scan runs over a lowercased copy of the document so strpos() can do the
+	 * case-insensitive matching: before PHP 8.2, stripos() lowercases the whole haystack on
+	 * every call, which made pages with thousands of tags take seconds. strtolower() maps
+	 * byte for byte, so offsets found in the copy are valid in the original.
+	 *
+	 * @param string $tag Tag name to shield, e.g. 'script'.
+	 */
+	protected function remove_tag_body_noise( $tag ) {
+		$tag         = strtolower( $tag );
+		$haystack    = strtolower( $this->doc );
+		$open_prefix = '<' . $tag;
+		$close_token = '</' . $tag;
+		$open_len    = strlen( $open_prefix );
+		$close_len   = $open_len + 1;
+		// What may follow a tag name: the parser's own set, plus form feed, which the
+		// HTML5 tokenizer and the regex this replaces both treat as whitespace.
+		$terminators = $this->token_slash . "\f";
+		$spans       = array();
+		$offset      = 0;
 
-		$count = preg_match_all(
-			$pattern,
-			$this->doc,
-			$matches,
-			PREG_SET_ORDER | PREG_OFFSET_CAPTURE
-		);
+		while ( false !== ( $open = strpos( $haystack, $open_prefix, $offset ) ) ) {
+			$after = $open + $open_len;
 
-		for ( $i = $count - 1; $i > - 1; -- $i ) {
-			$key = '___noise___' . sprintf( '% 5d', count( $this->noise ) + 1000 );
-
-			if ( is_object( $debug_object ) ) {
-				$debug_object->debug_log( 2, 'key is: ' . $key );
+			// Make sure this is the tag itself and not a longer name starting with it.
+			if ( isset( $haystack[ $after ] ) && false === strpos( $terminators, $haystack[ $after ] ) ) {
+				$offset = $after;
+				continue;
 			}
 
-			$idx                 = ( $remove_tag ) ? 0 : 1; // 0 = entire match, 1 = submatch
-			$this->noise[ $key ] = $matches[ $i ][ $idx ][0];
-			$this->doc           = substr_replace( $this->doc, $key, $matches[ $i ][ $idx ][1], strlen( $matches[ $i ][ $idx ][0] ) );
+			$open_end = strpos( $haystack, '>', $after );
+			if ( false === $open_end ) {
+				break;
+			}
+
+			// Self closing, so there is no body to shield.
+			if ( '/' === $haystack[ $open_end - 1 ] ) {
+				$offset = $open_end + 1;
+				continue;
+			}
+
+			// Find the real closing tag. The close token only counts when a tag
+			// terminator follows it, so a longer name like '</scriptmore' does not
+			// end a '<script>' body. When no close tag exists for this occurrence,
+			// none can exist for a later one either, so the scan is done.
+			$close  = false;
+			$cursor = $open_end + 1;
+
+			while ( false !== ( $candidate = strpos( $haystack, $close_token, $cursor ) ) ) {
+				$cursor = $candidate + $close_len;
+
+				if ( ! isset( $haystack[ $cursor ] ) ) {
+					break;
+				}
+
+				if ( false !== strpos( $terminators, $haystack[ $cursor ] ) ) {
+					$close = $candidate;
+					break;
+				}
+			}
+
+			if ( false === $close ) {
+				break;
+			}
+
+			$spans[] = array( $open_end + 1, $close - $open_end - 1 );
+			$offset  = $close + $close_len;
 		}
+
+		$this->shield_noise_spans( $spans );
+	}
+
+	/**
+	 * Shield everything between a fixed pair of delimiters from the parser.
+	 *
+	 * Comments, CDATA sections and server side script blocks are delimiter searches just
+	 * like tag bodies and are scanned the same way. Both delimiters are matched
+	 * case-insensitively, as the regexes they replace were.
+	 *
+	 * @see remove_tag_body_noise() for why this is a linear scan over a lowercased copy.
+	 *
+	 * @param string $open_token         Literal opening delimiter, e.g. '<!--'.
+	 * @param string $close_token        Literal closing delimiter, e.g. '-->'.
+	 * @param bool   $include_delimiters True to shield the delimiters along with the content.
+	 */
+	protected function remove_delimited_noise( $open_token, $close_token, $include_delimiters = false ) {
+		$open_token  = strtolower( $open_token );
+		$close_token = strtolower( $close_token );
+		$open_len    = strlen( $open_token );
+		$close_len   = strlen( $close_token );
+		$lead        = $include_delimiters ? 0 : $open_len;
+		$tail        = $include_delimiters ? $close_len : 0;
+		$spans       = array();
+		$offset      = 0;
+
+		// Delimiters without letters match the same either way, so skip the copy.
+		$tokens   = $open_token . $close_token;
+		$haystack = ( strtoupper( $tokens ) === $tokens ) ? $this->doc : strtolower( $this->doc );
+
+		while ( false !== ( $open = strpos( $haystack, $open_token, $offset ) ) ) {
+			$close = strpos( $haystack, $close_token, $open + $open_len );
+
+			// An opening delimiter with no closer left; nothing further can match.
+			if ( false === $close ) {
+				break;
+			}
+
+			$start   = $open + $lead;
+			$spans[] = array( $start, $close + $tail - $start );
+			$offset  = $close + $close_len;
+		}
+
+		$this->shield_noise_spans( $spans );
+	}
+
+	/**
+	 * Shield Smarty blocks -- '{' followed by a word character, through the next '}'.
+	 *
+	 * @see remove_delimited_noise() for why this is a linear scan.
+	 */
+	protected function remove_smarty_noise() {
+		$spans  = array();
+		$offset = 0;
+
+		while ( false !== ( $open = strpos( $this->doc, '{', $offset ) ) ) {
+			$close = strpos( $this->doc, '}', $open + 2 );
+			if ( false === $close ) {
+				break;
+			}
+
+			// Only '{' followed by a word character opens a block.
+			$next = $this->doc[ $open + 1 ];
+			if ( ! ctype_alnum( $next ) && '_' !== $next ) {
+				$offset = $open + 1;
+				continue;
+			}
+
+			$spans[] = array( $open, $close - $open + 1 );
+			$offset  = $close + 1;
+		}
+
+		$this->shield_noise_spans( $spans );
+	}
+
+	/**
+	 * Replace the spans collected by a noise scan with unique noise keys.
+	 *
+	 * Rebuilds the document in one forward pass so the cost stays linear however many
+	 * spans a page has; replacing spans one at a time copied the whole document per span.
+	 *
+	 * @param array $spans Array of array( start, length ) pairs, in document order and
+	 *                     non-overlapping. Empty spans are skipped.
+	 */
+	protected function shield_noise_spans( $spans ) {
+		if ( empty( $spans ) ) {
+			return;
+		}
+
+		$doc    = '';
+		$cursor = 0;
+
+		foreach ( $spans as $span ) {
+			list( $start, $length ) = $span;
+
+			if ( $length < 1 ) {
+				continue;
+			}
+
+			$key                 = $this->noise_prefix . ( count( $this->noise ) + 1000 ) . '___';
+			$this->noise[ $key ] = substr( $this->doc, $start, $length );
+
+			$doc   .= substr( $this->doc, $cursor, $start - $cursor );
+			$doc   .= $key;
+			$cursor = $start + $length;
+		}
+
+		$this->doc = $doc . substr( $this->doc, $cursor );
 
 		// reset the length of content
 		$this->size = strlen( $this->doc );
@@ -2252,52 +2420,56 @@ class WPConsent_Simple_HTML_DOM {
 		}
 	}
 
+	/**
+	 * Put the spans stashed by the noise scans back into a piece of text.
+	 *
+	 * Only keys carrying this document's random prefix are restored; any lookalike string
+	 * that came from the page itself (e.g. a comment) is left as-is.
+	 *
+	 * @param string $text Text that may contain noise keys.
+	 *
+	 * @return string
+	 */
 	function restore_noise( $text ) {
-		global $debug_object;
-		if ( is_object( $debug_object ) ) {
-			$debug_object->debug_log_entry( 1 );
+		if ( '' === $this->noise_prefix || false === strpos( $text, $this->noise_prefix ) ) {
+			return $text;
 		}
 
-		while ( ( $pos = strpos( $text, '___noise___' ) ) !== false ) {
-			// Sometimes there is a broken piece of markup, and we don't GET the
-			// pos+11 etc... token which indicates a problem outside of us...
+		// Look up only the keys actually present in the text, so the cost follows the text
+		// rather than the size of the noise table (strtr() rebuilds its whole table per call).
+		$pattern = '/' . preg_quote( $this->noise_prefix, '/' ) . '\d+___/';
+		$noise   = $this->noise;
+		$replace = function ( $matches ) use ( $noise ) {
+			return isset( $noise[ $matches[0] ] ) ? $noise[ $matches[0] ] : $matches[0];
+		};
 
-			// todo: "___noise___1000" (or any number with four or more digits)
-			// in the DOM causes an infinite loop which could be utilized by
-			// malicious software
-			if ( strlen( $text ) > $pos + 15 ) {
-				$key = '___noise___'
-				       . $text[ $pos + 11 ]
-				       . $text[ $pos + 12 ]
-				       . $text[ $pos + 13 ]
-				       . $text[ $pos + 14 ]
-				       . $text[ $pos + 15 ];
+		// A stashed span can contain an earlier span's key (a comment around a script), so repeat until none remain.
+		do {
+			$previous = $text;
+			$text     = preg_replace_callback( $pattern, $replace, $text );
 
-				if ( is_object( $debug_object ) ) {
-					$debug_object->debug_log( 2, 'located key of: ' . $key );
-				}
-
-				if ( isset( $this->noise[ $key ] ) ) {
-					$text = substr( $text, 0, $pos )
-					        . $this->noise[ $key ]
-					        . substr( $text, $pos + 16 );
-				} else {
-					// do this to prevent an infinite loop.
-					$text = substr( $text, 0, $pos )
-					        . 'UNDEFINED NOISE FOR KEY: '
-					        . $key
-					        . substr( $text, $pos + 16 );
-				}
-			} else {
-				// There is no valid key being given back to us... We must get
-				// rid of the ___noise___ or we will have a problem.
-				$text = substr( $text, 0, $pos )
-				        . 'NO NUMERIC NOISE KEY'
-				        . substr( $text, $pos + 11 );
+			if ( null === $text ) {
+				return $previous;
 			}
-		}
+		} while ( $text !== $previous && false !== strpos( $text, $this->noise_prefix ) );
 
 		return $text;
+	}
+
+	/**
+	 * Generate the random part of this document's noise key prefix.
+	 *
+	 * Falls back to a non-cryptographic source if random_bytes() has no CSPRNG available,
+	 * so a locked-down host gets a still-unguessable key instead of a blank page.
+	 *
+	 * @return string 16 hex characters.
+	 */
+	protected function generate_noise_secret() {
+		try {
+			return bin2hex( random_bytes( 8 ) );
+		} catch ( \Exception $e ) {
+			return substr( md5( uniqid( spl_object_hash( $this ), true ) ), 0, 16 );
+		}
 	}
 
 	function search_noise( $text ) {

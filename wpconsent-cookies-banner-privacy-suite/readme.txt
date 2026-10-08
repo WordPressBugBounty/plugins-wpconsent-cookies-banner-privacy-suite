@@ -2,9 +2,9 @@
 Contributors: WPbeginner, smub, gripgrip, wpcodeteam
 Tags: cookie consent, cookie banner, gdpr, ccpa, cookie notice
 Requires at least: 5.6
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.1.9
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -267,6 +267,13 @@ All WPConsent cookie consent data, including records of consent and cookie confi
 Yes. Every text string in the cookie consent banner is translatable from the admin. WPConsent Pro adds automatic translations for multilingual WordPress sites.
 
 == Changelog ==
+
+= 1.2.0 =
+* Fix: Hardened Automatic Script Blocking against a stored XSS issue through crafted comments.
+* Fix: Visitors who send a Global Privacy Control signal, or who rejected cookies, are no longer counted as consented by Google Analytics on slower sites in opt-out mode.
+* Fix: Thrive Themes Landing Pages and Video elements now stay blocked until consent, and editing a page in Thrive Architect no longer saves WPConsent placeholders into its content.
+* Fix: Pages with very large inline scripts, such as Voxel's post forms, no longer break when Automatic Script Blocking is on.
+* Fix: Long cookie lists in the preferences panel are no longer cut off, and cookie names, descriptions and durations line up, including on phones.
 
 = 1.1.9 =
 * Fix: Improved accessibility in the preferences panel when tabbing through cookie categories and services.

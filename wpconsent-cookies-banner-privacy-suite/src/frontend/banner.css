@@ -15,6 +15,7 @@
 	--wpconsent-border: var(--wpconsent-text);
 	all: initial;
 	font-family: inherit;
+	interpolate-size: allow-keywords;
 }
 
 /* Focus styles for better accessibility */
@@ -419,6 +420,8 @@ input[type="checkbox"]:focus,
 	overflow-y: auto;
 	overflow-x: hidden;
 	min-height: 0;
+	margin-left: -4px;
+	padding-left: 4px;
 }
 
 .wpconsent-preferences-content h2 {
@@ -808,7 +811,7 @@ input[type="checkbox"]:focus,
 
 /* Only show content for directly active accordion items */
 .wpconsent-preferences-accordion-item.active > .wpconsent-preferences-accordion-content {
-    max-height: 2000px;
+    max-height: max-content;
     transition: max-height 0.3s ease-in;
 }
 
@@ -824,13 +827,39 @@ input[type="checkbox"]:focus,
 	.wpconsent-preferences-list-header,
 	.wpconsent-preferences-list-item {
 		display: grid;
-		grid-template-columns: 1fr 4fr 1fr;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 4fr) minmax(0, 1fr);
 		gap: 15px;
 		padding: 14px;
-		align-items: center;
+		align-items: start;
+		overflow-wrap: anywhere;
 		border-bottom: 1px solid #ddd;
 		margin-bottom: 0;
 		font-size: 14px;
+
+		/* Too narrow for three columns: name and duration share a line, the description goes below. */
+		@media (max-width: 767px) {
+			grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+			grid-template-areas: "name duration" "desc desc";
+			row-gap: 6px;
+
+			.cookie-name {
+				grid-area: name;
+			}
+
+			.cookie-duration {
+				grid-area: duration;
+			}
+
+			.cookie-desc {
+				grid-area: desc;
+			}
+		}
+	}
+
+	.wpconsent-preferences-list-header .cookie-desc {
+		@media (max-width: 767px) {
+			display: none;
+		}
 	}
 
 	.wpconsent-service-url {

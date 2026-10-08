@@ -77,15 +77,42 @@ class WPConsent_Content_Placeholder {
 	 * @return string The modified HTML with placeholder.
 	 */
 	public function get_placeholder_html( $iframe_html, $service_name, $category, $src ) {
-		$thumbnail_html = $this->get_thumbnail_html( $service_name, $src );
+		return $this->render_placeholder( $service_name, $category, $src, $iframe_html, '' );
+	}
 
+	/**
+	 * Get the placeholder HTML for a blocked element (reCAPTCHA and the like) that has no iframe to wrap.
+	 * The data-wpconsent-element marker lets the frontend tell it apart from an iframe placeholder.
+	 *
+	 * @param string $service_name The name of the service.
+	 * @param string $category The consent category.
+	 *
+	 * @return string The placeholder HTML.
+	 */
+	public function get_element_placeholder_html( $service_name, $category ) {
+		return $this->render_placeholder( $service_name, $category, '', '', ' data-wpconsent-element="1"' );
+	}
+
+	/**
+	 * Render the placeholder wrapper shared by iframe and element placeholders.
+	 *
+	 * @param string $service_name The name of the service.
+	 * @param string $category The consent category.
+	 * @param string $src The iframe source URL, empty for element placeholders.
+	 * @param string $inner_html The blocked markup to keep inside the wrapper, empty for element placeholders.
+	 * @param string $extra_attributes Extra attributes for the wrapper, already escaped.
+	 *
+	 * @return string
+	 */
+	private function render_placeholder( $service_name, $category, $src, $inner_html, $extra_attributes ) {
 		return sprintf(
-			'<div class="wpconsent-iframe-placeholder wpconsent-iframe-placeholder-%1$s" data-wpconsent-name="%1$s" data-wpconsent-category="%2$s">%3$s%4$s%5$s</div>',
+			'<div class="wpconsent-iframe-placeholder wpconsent-iframe-placeholder-%1$s" data-wpconsent-name="%1$s" data-wpconsent-category="%2$s"%6$s>%3$s%4$s%5$s</div>',
 			esc_attr( $service_name ),
 			esc_attr( $category ),
-			$thumbnail_html,
+			$this->get_thumbnail_html( $service_name, $src ),
 			$this->get_placeholder_button( $category ),
-			$iframe_html
+			$inner_html,
+			$extra_attributes
 		);
 	}
 
@@ -119,6 +146,11 @@ class WPConsent_Content_Placeholder {
 	 * @return string The local thumbnail URL.
 	 */
 	private function get_local_thumbnail( $service, $url = '' ) {
+
+		// The thumbnail service can't resolve protocol-relative URLs (e.g. Thrive's //www.youtube.com/embed/...).
+		if ( 0 === strpos( $url, '//' ) ) {
+			$url = 'https:' . $url;
+		}
 
 		// If the URL is not empty the filename is $service otherwise is the base64 encoded URL.
 		$filename = ! empty( $url ) ? $service . '-' . md5( $url ) . '.jpg' : $service . '.jpg';

@@ -35,15 +35,26 @@ class WPConsent_Settings {
 	 * @see get_option
 	 */
 	public function get_option( $option_name, $default = false ) {
-		$options = $this->get_options();
-		$value   = $default;
-		if ( isset( $options[ $option_name ] ) ) {
-			$value = $options[ $option_name ];
-		}
-
-		$value = apply_filters( 'wpconsent_get_option', $value, $option_name, $options );
+		$value = $this->get_base_option( $option_name, $default );
 
 		return apply_filters( "wpconsent_get_option_{$option_name}", $value, $option_name );
+	}
+
+	/**
+	 * Get an option with only the generic wpconsent_get_option filter applied, skipping the
+	 * option-specific filter. Use this for the base value of a setting that a feature such as
+	 * geolocation overrides through its option-specific filter.
+	 *
+	 * @param string $option_name The option name.
+	 * @param mixed  $default The default value (optional).
+	 *
+	 * @return mixed
+	 */
+	public function get_base_option( $option_name, $default = false ) {
+		$options = $this->get_options();
+		$value   = isset( $options[ $option_name ] ) ? $options[ $option_name ] : $default;
+
+		return apply_filters( 'wpconsent_get_option', $value, $option_name, $options );
 	}
 
 	/**

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPConsent 1.1.9\n"
+"Project-Id-Version: WPConsent 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpconsent-cookies-banner-privacy-suite\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T11:51:36+00:00\n"
+"POT-Creation-Date: 2026-10-08T11:07:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: wpconsent-cookies-banner-privacy-suite\n"
@@ -889,7 +889,7 @@ msgstr ""
 #: includes/admin/pages/class-wpconsent-admin-page-banner.php:557
 #: includes/admin/pages/class-wpconsent-admin-page-scanner.php:540
 #: includes/admin/pages/trait-wpconsent-analytics-report.php:356
-#: includes/class-wpconsent-banner.php:904
+#: includes/class-wpconsent-banner.php:909
 msgid "Cookie Settings"
 msgstr ""
 
@@ -3846,15 +3846,15 @@ msgstr ""
 
 #: includes/class-wpconsent-banner.php:271
 #: includes/class-wpconsent-banner.php:329
-#: includes/class-wpconsent-banner.php:539
+#: includes/class-wpconsent-banner.php:544
 #: includes/class-wpconsent-strings.php:36
 msgid "Close"
 msgstr ""
 
 #. translators: %s: name of the toggled preferences section (cookie policy section, category or service).
 #: includes/class-wpconsent-banner.php:424
-#: includes/class-wpconsent-banner.php:644
-#: includes/class-wpconsent-banner.php:771
+#: includes/class-wpconsent-banner.php:649
+#: includes/class-wpconsent-banner.php:776
 #, php-format
 msgid "Toggle %s"
 msgstr ""
@@ -3876,23 +3876,23 @@ msgid "You can find more information in our %s."
 msgstr ""
 
 #. translators: %1$s: Service URL label, %2$s: Service URL
-#: includes/class-wpconsent-banner.php:812
+#: includes/class-wpconsent-banner.php:817
 #, php-format
 msgid "%1$s: %2$s"
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:814
-#: includes/class-wpconsent-banner.php:881
+#: includes/class-wpconsent-banner.php:819
+#: includes/class-wpconsent-banner.php:886
 msgid "(opens in a new window)"
 msgstr ""
 
 #. translators: %1$s and %2$s add a tag used for hiding the text on small screens and %3$s is the WPConsent logo svg
-#: includes/class-wpconsent-banner.php:876
+#: includes/class-wpconsent-banner.php:881
 #, php-format
 msgid "%1$sPowered by%2$s %3$s"
 msgstr ""
 
-#: includes/class-wpconsent-banner.php:899
+#: includes/class-wpconsent-banner.php:904
 #: includes/class-wpconsent-cookies.php:380
 #: includes/class-wpconsent-cookies.php:804
 #: includes/class-wpconsent-strings.php:31
@@ -3901,14 +3901,14 @@ msgid "Cookie Preferences"
 msgstr ""
 
 #. translators: %s: The service name.
-#: includes/class-wpconsent-content-placeholder.php:109
+#: includes/class-wpconsent-content-placeholder.php:136
 #, php-format
 msgid "%s placeholder image"
 msgstr ""
 
 #. translators: %s: The category name (e.g., analytics, marketing)
-#: includes/class-wpconsent-content-placeholder.php:195
-#: includes/class-wpconsent-cookie-blocking.php:462
+#: includes/class-wpconsent-content-placeholder.php:227
+#: includes/class-wpconsent-cookie-blocking.php:498
 #, php-format
 msgid "Click here to accept %s cookies and load this content"
 msgstr ""

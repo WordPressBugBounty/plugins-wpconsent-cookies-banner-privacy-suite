@@ -554,7 +554,7 @@ function wpconsent_ajax_generate_cookie_policy() {
 	$default_cookie_policy_text = sprintf( $default_cookie_policy_text, '<a href="' . esc_url( $privacy_policy ) . '">', '</a>' );
 
 	// Let's append our shortcode.
-	$shortcode    = '<br>[wpconsent_cookie_policy]';
+	$shortcode    = '[wpconsent_cookie_policy]';
 	$page_content = '<p>' . $default_cookie_policy_text . '</p>';
 
 	// Let's check if the site is using the block editor for pages.

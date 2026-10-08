@@ -531,6 +531,11 @@ class WPConsent_Banner {
 			return;
 		}
 
+		// Skip the markup when the toast is disabled via filter; checkGPC() in banner.js honors the same flag.
+		if ( ! apply_filters( 'wpconsent_gpc_toast_enabled', true ) ) {
+			return;
+		}
+
 		$gpc_toast_message = wpconsent()->settings->get_option( 'gpc_toast_message', wpconsent()->strings->get_string( 'gpc_toast_message' ) );
 
 		echo '<div id="wpconsent-gpc-toast" class="wpconsent-toast" style="display: none;">';

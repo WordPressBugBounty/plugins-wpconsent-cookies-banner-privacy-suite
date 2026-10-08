@@ -358,12 +358,9 @@ window.WPConsent = {
 		// Apply GPC preferences - savePreferences handles all the comparison logic
 		this.savePreferences( gpcPreferences, true ); // This is automatic GPC application
 
-		// Show toast notification that GPC was honored (if enabled).
-		if ( wpconsent.gpc_toast_enabled !== false ) {
-			const toastMessage = wpconsent.gpc_toast_message || 'GPC Signal Honored';
-			const toastDuration = wpconsent.gpc_toast_duration || 10000;
-			this.showToast( toastMessage, toastDuration );
-		}
+		// Show toast notification that GPC was honored. When the toast is disabled via the
+		// wpconsent_gpc_toast_enabled filter the markup is not rendered and showToast() is a no-op.
+		this.showToast( wpconsent.gpc_toast_message || 'GPC Signal Honored', parseInt( wpconsent.gpc_toast_duration, 10 ) || 10000 );
 
 		// Disable banner
 		this.checksPassed = false;
@@ -678,6 +675,106 @@ window.WPConsent = {
 		return preferences[category] === true;
 	},
 
+	activateScript: function ( script ) {
+		const newScript = document.createElement( 'script' );
+
+		// Copy all attributes except 'type'
+		script.getAttributeNames().forEach( attr => {
+			if ( attr !== 'type' ) {
+				newScript.setAttribute( attr, script.getAttribute( attr ) );
+			}
+		} );
+
+		// Handle src attribute
+		const src = script.getAttribute( 'data-wpconsent-src' );
+		if ( src ) {
+			newScript.src = src;
+		} else {
+			newScript.text = script.text;
+		}
+
+		script.parentNode.replaceChild( newScript, script );
+	},
+
+	// Give a blocked iframe its src back and drop the blocking attributes.
+	activateIframe: function ( iframe ) {
+		const src = iframe.getAttribute( 'data-wpconsent-src' );
+		if ( src ) {
+			iframe.src = src;
+		}
+
+		iframe.removeAttribute( 'data-wpconsent-src' );
+		iframe.removeAttribute( 'data-wpconsent-name' );
+		iframe.removeAttribute( 'data-wpconsent-category' );
+	},
+
+	// Restore content that content blocking does not apply to for this visitor (geolocation group, or content
+	// blocking disabled) by unwrapping the blocked iframes and dropping the element placeholders and script
+	// blocks for every service that is not in the list. Anything other than an array keeps everything blocked,
+	// matching the server, which blocks all services when the list is not a valid array.
+	unlockContentExcept: function ( servicesToKeepBlocked ) {
+		if ( ! Array.isArray( servicesToKeepBlocked ) ) {
+			return;
+		}
+
+		const isUnlocked = serviceName => !! serviceName && servicesToKeepBlocked.indexOf( serviceName ) === -1;
+
+		document.querySelectorAll( 'iframe[data-wpconsent-src]' ).forEach( iframe => {
+			if ( ! isUnlocked( iframe.getAttribute( 'data-wpconsent-name' ) ) ) {
+				return;
+			}
+
+			this.activateIframe( iframe );
+
+			// Put the iframe back where the placeholder wrapper sits and drop the wrapper.
+			const placeholder = iframe.closest( '.wpconsent-iframe-placeholder' );
+			if ( placeholder ) {
+				placeholder.parentNode.insertBefore( iframe, placeholder );
+				placeholder.remove();
+			}
+		} );
+
+		// Element placeholders (reCAPTCHA and the like) are rendered in front of the blocked element, so they are
+		// simply removed. They carry data-wpconsent-element, but HTML cached before that marker existed does not,
+		// so recognise them by what is left after the iframe pass: a placeholder with no blocked iframe inside.
+		document.querySelectorAll( '.wpconsent-iframe-placeholder' ).forEach( placeholder => {
+			if ( placeholder.querySelector( 'iframe[data-wpconsent-src]' ) ) {
+				return;
+			}
+
+			if ( isUnlocked( placeholder.getAttribute( 'data-wpconsent-name' ) ) ) {
+				placeholder.remove();
+			}
+		} );
+
+		// Scripts for those services are only blocked because content blocking applies to them.
+		document.querySelectorAll( 'script[type="text/plain"][data-wpconsent-element]' ).forEach( script => {
+			if ( isUnlocked( script.getAttribute( 'data-wpconsent-name' ) ) ) {
+				this.activateScript( script );
+			}
+		} );
+	},
+
+	/**
+	 * Map category preferences to the Google Consent Mode signals they control.
+	 * Mirrors $signal_categories in wpconsent_google_consent_script() (includes/frontend-scripts.php).
+	 *
+	 * @param {Object} preferences Category slug => boolean.
+	 * @return {Object} Consent Mode signal => 'granted' | 'denied'.
+	 */
+	consentModeState: function ( preferences ) {
+		const marketing  = preferences.marketing ? 'granted' : 'denied';
+		const statistics = preferences.statistics ? 'granted' : 'denied';
+
+		return {
+			'ad_storage': marketing,
+			'analytics_storage': statistics,
+			'ad_user_data': marketing,
+			'ad_personalization': marketing,
+			'personalization_storage': marketing
+		};
+	},
+
 	unlockScripts: function ( preferences ) {
 		// 1. SAVE the state so late-comers (like GTM) can see it
 		this.lastPreferences = preferences;
@@ -699,24 +796,7 @@ window.WPConsent = {
 			const service = script.getAttribute( 'data-wpconsent-name' );
 
 			if ( this.shouldUnlockContent( preferences, service, category ) ) {
-				const newScript = document.createElement( 'script' );
-
-				// Copy all attributes except 'type'
-				script.getAttributeNames().forEach( attr => {
-					if ( attr !== 'type' ) {
-						newScript.setAttribute( attr, script.getAttribute( attr ) );
-					}
-				} );
-
-				// Handle src attribute
-				const src = script.getAttribute( 'data-wpconsent-src' );
-				if ( src ) {
-					newScript.src = src;
-				} else {
-					newScript.text = script.text;
-				}
-
-				script.parentNode.replaceChild( newScript, script );
+				this.activateScript( script );
 			}
 		} );
 
@@ -727,17 +807,7 @@ window.WPConsent = {
 		WPConsent.localGtag( 'set', 'developer_id.dMmRkYz', true );
 
 		// Update gtag consent state.
-		WPConsent.localGtag(
-			'consent',
-			'update',
-			{
-				'ad_storage': preferences.marketing ? 'granted' : 'denied',
-				'analytics_storage': preferences.statistics ? 'granted' : 'denied',
-				'ad_user_data': preferences.marketing ? 'granted' : 'denied',
-				'ad_personalization': preferences.marketing ? 'granted' : 'denied',
-				'personalization_storage': preferences.marketing ? 'granted' : 'denied'
-			}
-		);
+		WPConsent.localGtag( 'consent', 'update', this.consentModeState( preferences ) );
 
 		// Push event to GTM dataLayer for tag triggering.
 		window.dataLayer = window.dataLayer || [];
@@ -754,16 +824,7 @@ window.WPConsent = {
 			const service = iframe.getAttribute( 'data-wpconsent-name' );
 
 			if ( this.shouldUnlockContent( preferences, service, category ) ) {
-				// Get the src from the data attribute
-				const src = iframe.getAttribute( 'data-wpconsent-src' );
-				if ( src ) {
-					iframe.src = src;
-				}
-
-				// Remove the data attributes
-				iframe.removeAttribute( 'data-wpconsent-src' );
-				iframe.removeAttribute( 'data-wpconsent-name' );
-				iframe.removeAttribute( 'data-wpconsent-category' );
+				this.activateIframe( iframe );
 			}
 		} );
 
@@ -886,12 +947,8 @@ window.WPConsent = {
 				this.unlockIframes( allPreferences );
 			} else if ( !wpconsent.enable_content_blocking ) {
 				// Content blocking is disabled (e.g. by geolocation) but script blocking is still on.
-				// Only unlock iframes, not scripts.
-				const allPreferences = {};
-				wpconsent.slugs.forEach( slug => {
-					allPreferences[slug] = true;
-				} );
-				this.unlockIframes( allPreferences );
+				// Restore the blocked content, not the scripts that are waiting on consent.
+				this.unlockContentExcept( [] );
 			}
 		}
 

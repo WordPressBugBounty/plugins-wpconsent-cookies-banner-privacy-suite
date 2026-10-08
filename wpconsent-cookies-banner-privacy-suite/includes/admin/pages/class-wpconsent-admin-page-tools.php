@@ -837,7 +837,7 @@ class WPConsent_Admin_Page_Tools extends WPConsent_Admin_Page {
 				$default_cookie_policy_text = sprintf( $default_cookie_policy_text, '<a href="' . esc_url( $privacy_policy ) . '">', '</a>' );
 
 				// Add shortcode.
-				$shortcode    = '<br>[wpconsent_cookie_policy]';
+				$shortcode    = '[wpconsent_cookie_policy]';
 				$page_content = '<p>' . $default_cookie_policy_text . '</p>';
 
 				// Let's check if the site is using the block editor for pages.

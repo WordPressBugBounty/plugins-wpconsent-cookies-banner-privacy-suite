@@ -23,6 +23,7 @@ function wpconsent_load_compatibility_files() {
 		'bricks'                     => 'bricks.php',
 		'divi'                       => 'divi.php',
 		'avada'                      => 'avada.php',
+		'thrive'                     => 'thrive.php',
 	);
 
 	foreach ( $compatibility_files as $slug => $file ) {
