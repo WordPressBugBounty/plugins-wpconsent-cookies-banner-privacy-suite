@@ -34,6 +34,34 @@ class WPConsent_Cookies {
 	public function __construct() {
 		add_action( 'init', array( $this, 'register_post_type' ) );
 		add_action( 'init', array( $this, 'register_taxonomy' ) );
+		add_action( 'wpconsent_consent_duration_updated', array( $this, 'update_preferences_cookie_duration' ), 10, 2 );
+		// Clear after the settings are written, so a request in between can't re-cache slugs from the old value.
+		add_action( 'update_option_wpconsent_settings', array( $this, 'maybe_clear_preference_slugs' ), 10, 2 );
+		add_action( 'add_option_wpconsent_settings', array( $this, 'clear_preference_slugs' ), 10, 0 );
+	}
+
+	/**
+	 * Clear the cached preference slugs when the service toggle setting changes, as service slugs are only
+	 * included while visitors can toggle services.
+	 *
+	 * @param mixed $old_options The previously stored settings.
+	 * @param mixed $new_options The settings that were saved.
+	 *
+	 * @return void
+	 */
+	public function maybe_clear_preference_slugs( $old_options, $new_options ) {
+		if ( WPConsent_Settings::keys_changed( $new_options, $old_options, array( 'manual_toggle_services' ) ) ) {
+			$this->clear_preference_slugs();
+		}
+	}
+
+	/**
+	 * Clear the cached preference slugs, e.g. when the settings are saved for the first time.
+	 *
+	 * @return void
+	 */
+	public function clear_preference_slugs() {
+		delete_transient( 'wpconsent_preference_slugs' );
 	}
 
 	/**
@@ -814,17 +842,72 @@ class WPConsent_Cookies {
 	/**
 	 * Get the human-readable duration label for the consent cookie based on the consent_duration setting.
 	 *
+	 * The label is built in the site's default language, not the language of the admin user who happens to be saving.
+	 *
+	 * @param int|null    $days   Number of days. Defaults to the consent_duration setting.
+	 * @param string|null $locale The locale to build the label in. Defaults to the site's default language.
+	 *
 	 * @return string E.g. "30 days" or "1 day".
 	 */
-	public function get_consent_duration_label() {
-		$days = absint( wpconsent()->settings->get_option( 'consent_duration', 30 ) );
+	public function get_consent_duration_label( $days = null, $locale = null ) {
+		if ( null === $locale ) {
+			$locale = $this->get_site_locale();
+		}
+
+		if ( null === $days ) {
+			$days = wpconsent()->settings->get_option( 'consent_duration', 30 );
+		}
+
+		$days = absint( $days );
 
 		if ( empty( $days ) ) {
 			$days = 30;
 		}
 
+		// The locale switcher does not exist before setup_theme on older WordPress versions.
+		$switched = ! empty( $GLOBALS['wp_locale_switcher'] ) && switch_to_locale( $locale );
+
 		/* translators: %d: number of days the consent cookie is stored. */
-		return sprintf( _n( '%d day', '%d days', $days, 'wpconsent-cookies-banner-privacy-suite' ), $days );
+		$label = sprintf( _n( '%d day', '%d days', $days, 'wpconsent-cookies-banner-privacy-suite' ), $days );
+
+		if ( $switched ) {
+			restore_previous_locale();
+		}
+
+		return $label;
+	}
+
+	/**
+	 * Check whether a duration label is one WPConsent would have generated for the given number of days.
+	 *
+	 * Used to tell a generated label apart from one that was edited or translated by hand.
+	 *
+	 * @param string $label The stored label.
+	 * @param int    $days  The number of days the label would have been generated for.
+	 *
+	 * @return bool
+	 */
+	public function is_generated_duration_label( $label, $days ) {
+		// Older versions generated the label in the language of the saving admin, so check those too. The admin's
+		// own language goes first because it needs no locale switch.
+		$locales = array_unique( array( determine_locale(), $this->get_site_locale(), 'en_US' ) );
+
+		foreach ( $locales as $locale ) {
+			if ( $this->get_consent_duration_label( $days, $locale ) === $label ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the site's default language, unaffected by WPML/Polylang switching the admin language.
+	 *
+	 * @return string
+	 */
+	protected function get_site_locale() {
+		return isset( wpconsent()->multilanguage ) ? wpconsent()->multilanguage->get_default_locale() : get_locale();
 	}
 
 	/**
@@ -852,17 +935,55 @@ class WPConsent_Cookies {
 	/**
 	 * Update the duration label of the wpconsent_preferences cookie to match the consent_duration setting.
 	 *
+	 * A label that was edited or translated by hand is left alone. Only an empty label, or one we
+	 * generated for the previous duration, is replaced.
+	 *
+	 * Runs on the wpconsent_consent_duration_updated action.
+	 *
+	 * @param int|null $new_days      The new consent duration. Defaults to the consent_duration setting.
+	 * @param int|null $previous_days The consent duration before it changed, if known.
+	 *
 	 * @return void
 	 */
-	public function update_preferences_cookie_duration() {
+	public function update_preferences_cookie_duration( $new_days = null, $previous_days = null ) {
 		$preferences_cookie = $this->get_preferences_cookie_post();
 
 		if ( ! $preferences_cookie ) {
 			return;
 		}
 
-		update_post_meta( $preferences_cookie->ID, 'wpconsent_cookie_duration', $this->get_consent_duration_label() );
+		$this->sync_duration_label( $preferences_cookie->ID, $previous_days, $new_days );
+	}
+
+	/**
+	 * Set a cookie's duration label to match the consent duration, unless it was edited or translated by hand.
+	 *
+	 * Only an empty label, or one we generated for the previous duration, is replaced. Without a known
+	 * previous duration an existing label is left alone.
+	 *
+	 * @param int      $post_id       The cookie post ID.
+	 * @param int|null $previous_days The consent duration the current label was generated for, if known.
+	 * @param int|null $new_days      The new consent duration. Defaults to the consent_duration setting.
+	 *
+	 * @return bool Whether the label was updated.
+	 */
+	public function sync_duration_label( $post_id, $previous_days = null, $new_days = null ) {
+		$current_label = (string) get_post_meta( $post_id, 'wpconsent_cookie_duration', true );
+		$new_label     = $this->get_consent_duration_label( $new_days );
+
+		// Already up to date, which is the usual case when a save does not change the duration.
+		if ( $new_label === $current_label ) {
+			return false;
+		}
+
+		if ( '' !== $current_label && ( null === $previous_days || ! $this->is_generated_duration_label( $current_label, $previous_days ) ) ) {
+			return false;
+		}
+
+		update_post_meta( $post_id, 'wpconsent_cookie_duration', $new_label );
 
 		$this->clear_cookies_cache();
+
+		return true;
 	}
 }

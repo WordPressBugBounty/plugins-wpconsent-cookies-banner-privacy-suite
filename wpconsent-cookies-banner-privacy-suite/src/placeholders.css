@@ -13,16 +13,20 @@ div.wpforms-container-full .wpconsent-iframe-placeholder,
 	}
 }
 
-.wp-block-embed__wrapper,
-.tve_responsive_video_container {
-	.wpconsent-iframe-placeholder {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		border: 0;
-	}
+/*
+ * Stretch the placeholder to fill fixed-ratio video containers.
+ * Bricks centers its child with flex and pins the iframe with top only, so its wrapper is matched by data attribute
+ * to stay full-size after consent removes the placeholder class. Element placeholders (reCAPTCHA) keep their own size.
+ */
+.wp-block-embed__wrapper .wpconsent-iframe-placeholder,
+.tve_responsive_video_container .wpconsent-iframe-placeholder,
+.brxe-video > div[data-wpconsent-name]:not([data-wpconsent-element]) {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
 }
 
 .wpforms-form .wpconsent-iframe-thumbnail,

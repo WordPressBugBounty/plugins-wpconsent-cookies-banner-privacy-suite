@@ -474,34 +474,25 @@ class WPConsent_Recommended_Plugins {
 	}
 
 	/**
-	 * Activate a plugin and send a JSON success/error response.
+	 * Activate an installed plugin.
 	 *
-	 * @param string $plugin_basename   The plugin basename to activate.
-	 * @param bool   $is_widget_install Whether the request came from the widget's own buttons.
+	 * @param string $plugin_basename The plugin basename to activate.
 	 *
-	 * @return void Sends JSON and terminates.
+	 * @return array|WP_Error Response data, or the activation error.
 	 */
-	private function activate_and_respond( $plugin_basename, $is_widget_install ) {
+	private function activate( $plugin_basename ) {
 		$activated = activate_plugin( $plugin_basename );
 		if ( is_wp_error( $activated ) ) {
-			wp_send_json_error( array( 'message' => $activated->get_error_message() ) );
+			return $activated;
 		}
-		$this->maybe_track_widget_install( $is_widget_install );
-		wp_send_json_success(
-			array(
-				'message' => esc_html__( 'Plugin activated.', 'wpconsent-cookies-banner-privacy-suite' ),
-			)
+
+		return array(
+			'message' => esc_html__( 'Plugin activated.', 'wpconsent-cookies-banner-privacy-suite' ),
 		);
 	}
 
 	/**
 	 * AJAX handler: install and activate a recommended plugin.
-	 *
-	 * Validates the slug against the allowlist, then tries (in order):
-	 * 1. Already active — return success immediately.
-	 * 2. Pro version installed but inactive — activate it.
-	 * 3. Lite version installed but inactive — activate it.
-	 * 4. Not installed — download from wordpress.org and activate.
 	 *
 	 * @return void
 	 */
@@ -516,14 +507,6 @@ class WPConsent_Recommended_Plugins {
 			);
 		}
 
-		if ( ! wp_is_file_mod_allowed( 'install_plugins' ) ) {
-			wp_send_json_error(
-				array(
-					'message' => esc_html__( 'Plugin installation is not allowed on this site. Please ask your site administrator to install it for you.', 'wpconsent-cookies-banner-privacy-suite' ),
-				)
-			);
-		}
-
 		$slug = isset( $_POST['slug'] ) ? sanitize_key( wp_unslash( $_POST['slug'] ) ) : '';
 
 		// Widget identity is opt-in: only the widget's own buttons send source=widget. Anything
@@ -532,12 +515,39 @@ class WPConsent_Recommended_Plugins {
 		$source            = isset( $_POST['source'] ) ? sanitize_key( wp_unslash( $_POST['source'] ) ) : '';
 		$is_widget_install = 'widget' === $source;
 
-		if ( ! array_key_exists( $slug, $this->get_all_plugins() ) ) {
+		$result = $this->install_plugin( $slug );
+		if ( is_wp_error( $result ) ) {
 			wp_send_json_error(
 				array(
-					'message' => esc_html__( 'Invalid plugin.', 'wpconsent-cookies-banner-privacy-suite' ),
+					'message' => $result->get_error_message(),
 				)
 			);
+		}
+
+		$this->maybe_track_widget_install( $is_widget_install );
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Install and activate a recommended plugin.
+	 *
+	 * Validates the slug against the allowlist, then tries (in order):
+	 * 1. Already active — return success immediately.
+	 * 2. Pro version installed but inactive — activate it.
+	 * 3. Lite version installed but inactive — activate it.
+	 * 4. Not installed — download from wordpress.org and activate.
+	 *
+	 * @param string $slug The plugin key (wordpress.org directory slug).
+	 *
+	 * @return array|WP_Error Response data with a message, or an error.
+	 */
+	public function install_plugin( $slug ) {
+		if ( ! wp_is_file_mod_allowed( 'install_plugins' ) ) {
+			return new WP_Error( 'wpconsent_install_not_allowed', esc_html__( 'Plugin installation is not allowed on this site. Please ask your site administrator to install it for you.', 'wpconsent-cookies-banner-privacy-suite' ) );
+		}
+
+		if ( ! array_key_exists( $slug, $this->get_all_plugins() ) ) {
+			return new WP_Error( 'wpconsent_invalid_plugin', esc_html__( 'Invalid plugin.', 'wpconsent-cookies-banner-privacy-suite' ) );
 		}
 
 		$plugin_info = $this->get_all_plugins()[ $slug ];
@@ -559,11 +569,8 @@ class WPConsent_Recommended_Plugins {
 
 		// Already active (either version).
 		if ( is_plugin_active( $plugin_info['slug'] ) || ( $pro_slug && is_plugin_active( $pro_slug ) ) ) {
-			$this->maybe_track_widget_install( $is_widget_install );
-			wp_send_json_success(
-				array(
-					'message' => esc_html__( 'Plugin already active.', 'wpconsent-cookies-banner-privacy-suite' ),
-				)
+			return array(
+				'message' => esc_html__( 'Plugin already active.', 'wpconsent-cookies-banner-privacy-suite' ),
 			);
 		}
 
@@ -571,12 +578,12 @@ class WPConsent_Recommended_Plugins {
 
 		// Pro version installed but not active — activate it.
 		if ( $pro_slug && in_array( $pro_slug, $installed_plugins, true ) ) {
-			$this->activate_and_respond( $pro_slug, $is_widget_install );
+			return $this->activate( $pro_slug );
 		}
 
 		// Lite version installed but not active — activate it.
 		if ( in_array( $plugin_info['slug'], $installed_plugins, true ) ) {
-			$this->activate_and_respond( $plugin_info['slug'], $is_widget_install );
+			return $this->activate( $plugin_info['slug'] );
 		}
 
 		// Not installed — download from wordpress.org and activate.
@@ -589,27 +596,44 @@ class WPConsent_Recommended_Plugins {
 
 		$plugin_basename = $installer->plugin_info();
 		if ( ! $plugin_basename ) {
-			wp_send_json_error(
-				array(
-					'message' => esc_html__( 'Plugin installation failed. Please try again.', 'wpconsent-cookies-banner-privacy-suite' ),
-				)
-			);
+			return new WP_Error( 'wpconsent_install_failed', esc_html__( 'Plugin installation failed. Please try again.', 'wpconsent-cookies-banner-privacy-suite' ) );
 		}
 
 		$activated = activate_plugin( $plugin_basename );
 		if ( is_wp_error( $activated ) ) {
-			wp_send_json_error(
-				array(
-					'message' => esc_html__( 'Plugin installed but could not be activated.', 'wpconsent-cookies-banner-privacy-suite' ),
-				)
+			return new WP_Error( 'wpconsent_activation_failed', esc_html__( 'Plugin installed but could not be activated.', 'wpconsent-cookies-banner-privacy-suite' ) );
+		}
+
+		return array(
+			'message' => esc_html__( 'Plugin installed and activated.', 'wpconsent-cookies-banner-privacy-suite' ),
+		);
+	}
+
+	/**
+	 * Every recommended plugin with its install state, without changing the widget rotation.
+	 *
+	 * @return array Plugin key => array( name, description, installed, active ).
+	 */
+	public function get_plugin_list() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$list = array();
+		foreach ( $this->get_all_plugins() as $key => $plugin ) {
+			if ( ! empty( $plugin['promo_only'] ) ) {
+				continue;
+			}
+
+			$pro_slug     = isset( $plugin['pro_slug'] ) ? $plugin['pro_slug'] : '';
+			$list[ $key ] = array(
+				'name'        => $plugin['name'],
+				'description' => $plugin['description'],
+				'installed'   => $this->is_installed( $key ),
+				'active'      => is_plugin_active( $plugin['slug'] ) || ( $pro_slug && is_plugin_active( $pro_slug ) ),
 			);
 		}
 
-		$this->maybe_track_widget_install( $is_widget_install );
-		wp_send_json_success(
-			array(
-				'message' => esc_html__( 'Plugin installed and activated.', 'wpconsent-cookies-banner-privacy-suite' ),
-			)
-		);
+		return $list;
 	}
 }

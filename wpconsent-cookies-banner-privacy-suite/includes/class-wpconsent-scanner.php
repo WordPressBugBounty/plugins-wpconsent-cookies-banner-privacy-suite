@@ -143,6 +143,66 @@ class WPConsent_Scanner {
 	}
 
 	/**
+	 * Scan the homepage and every page selected for scanning, then save the combined results.
+	 *
+	 * Server-side equivalent of the admin Scan button, which scans the same pages one by one.
+	 * Results are saved only when every page was scanned without an error, so a partial scan never replaces a full one.
+	 *
+	 * @param int $time_limit Total seconds the scan may take, including waiting on the scanner (0 = no limit).
+	 *
+	 * @return array The combined scan results with a message, page counts and whether the scan is complete, or the scanner error when no page could be scanned.
+	 */
+	public function scan_site( $time_limit = 0 ) {
+		$this->aggregated_scripts  = array();
+		$this->aggregated_services = array();
+
+		$urls     = $this->get_scan_urls();
+		$started  = time();
+		$response = array();
+		$visited  = 0;
+		$scanned  = 0;
+		foreach ( $urls as $url ) {
+			$timeout = 30;
+			if ( $time_limit ) {
+				$remaining = $time_limit - ( time() - $started );
+				// Do not start a page that has too little time left to finish.
+				if ( $visited && $remaining < 5 ) {
+					break;
+				}
+				$timeout = max( 1, min( $timeout, $remaining ) );
+			}
+			++$visited;
+			$response = $this->perform_scan( $url, $timeout );
+			if ( empty( $response['error'] ) ) {
+				$this->aggregate_scan_results( $response );
+				++$scanned;
+			}
+		}
+
+		if ( 0 === $scanned ) {
+			$response['error']   = true;
+			$response['message'] = isset( $response['error_message'] ) ? $response['error_message'] : '';
+
+			return $response;
+		}
+
+		$results                    = $this->get_aggregated_results();
+		$results['services_needed'] = array_values( $results['services_needed'] );
+		$results['message']         = $this->get_message( $results );
+		$complete                   = count( $urls ) === $scanned;
+		if ( $complete ) {
+			$this->save_scan_data( $results );
+		}
+
+		// Added after saving: these describe this run, not the scan data the admin path stores.
+		$results['pages_scanned'] = $scanned;
+		$results['pages_total']   = count( $urls );
+		$results['complete']      = $complete;
+
+		return $results;
+	}
+
+	/**
 	 * Gets the URLs to scan from the manual_scan_pages.
 	 *
 	 * @return array
@@ -342,12 +402,13 @@ class WPConsent_Scanner {
 	/**
 	 * Scans the website and returns the results.
 	 *
-	 * @param string $url The URL to scan.
+	 * @param string $url     The URL to scan.
+	 * @param int    $timeout Seconds to wait for the scanner.
 	 *
 	 * @return array
 	 */
-	public function perform_scan( $url = '' ) {
-		$scan_result = $this->remote_scan( $url );
+	public function perform_scan( $url = '', $timeout = 30 ) {
+		$scan_result = $this->remote_scan( $url, $timeout );
 
 		// If we got an error from the scanner, return early with the error.
 		if ( $scan_result['error'] ) {
@@ -371,11 +432,12 @@ class WPConsent_Scanner {
 	/**
 	 * Does a remote scan of the website.
 	 *
-	 * @param string $url The URL to scan.
+	 * @param string $url     The URL to scan.
+	 * @param int    $timeout Seconds to wait for the scanner.
 	 *
 	 * @return array An array containing error status and message if applicable
 	 */
-	protected function remote_scan( $url = '' ) {
+	protected function remote_scan( $url = '', $timeout = 30 ) {
 		$result = array(
 			'error'         => false,
 			'error_message' => '',
@@ -386,7 +448,7 @@ class WPConsent_Scanner {
 			array(
 				'body'    => wp_json_encode( $this->scan_request_body( $url ) ),
 				'headers' => $this->scan_request_headers(),
-				'timeout' => 30, // Increase timeout to handle slower responses.
+				'timeout' => $timeout, // Increase timeout to handle slower responses.
 			)
 		);
 

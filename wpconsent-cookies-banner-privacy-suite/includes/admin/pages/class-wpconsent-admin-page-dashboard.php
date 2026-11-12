@@ -220,9 +220,11 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 			$scripts_count += count( $scripts );
 		}
 
-		// Cookie policy configured (10 pts).
-		$policy_page_id = (int) wpconsent()->settings->get_option( 'cookie_policy_page' );
-		$policy_exists  = $policy_page_id > 0 && 'publish' === get_post_status( $policy_page_id );
+		// Cookie policy configured (10 pts). Entitled licences generate it under Legal Documents.
+		$policy_page_id  = (int) wpconsent()->settings->get_option( 'cookie_policy_page' );
+		$policy_exists   = $policy_page_id > 0 && 'publish' === get_post_status( $policy_page_id );
+		$policy_action   = $this->get_cookie_policy_action();
+		$legal_documents = class_exists( 'WPConsent_Legal_Documents_Entitlement' ) && WPConsent_Legal_Documents_Entitlement::allowed();
 
 		// Cookie categories configured (10 pts).
 		// Count user-configured cookies, excluding the auto-created wpconsent_preferences cookie.
@@ -273,6 +275,43 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 		$has_embeddable_services = $this->has_embeddable_services();
 		$content_blocking        = (bool) wpconsent()->settings->get_option( 'enable_content_blocking' );
 
+		$policy_item = array(
+			'label'       => __( 'Cookie policy configured', 'wpconsent-cookies-banner-privacy-suite' ),
+			'points'      => 10,
+			'earned'      => $policy_exists,
+			'detail'      => $policy_exists
+				/* translators: %s: the cookie policy page title. */
+				? $this->safe_sprintf( __( 'Linked to "%s".', 'wpconsent-cookies-banner-privacy-suite' ), 'Linked to "%s".', get_the_title( $policy_page_id ) )
+				: __( 'Set a cookie policy page so visitors can learn more.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'url'         => $policy_action['url'],
+			'link_label'  => $policy_action['label'],
+			'action_type' => 'generate_policy',
+			'action_key'  => 'cookie_policy',
+		);
+		if ( $legal_documents ) {
+			// Entitled sites write both policies under Legal Documents: that card replaces the cookie-policy one.
+			// A policy counts once visitors can read it: published, on a page that is there and still shows it.
+			$published = 0;
+			$states    = class_exists( 'WPConsent_Legal_Documents_State' ) ? WPConsent_Legal_Documents_State::stored() : null;
+			foreach ( array( 'privacy_policy', 'cookie_policy' ) as $type ) {
+				if ( $states && $states->is_live( $type ) ) {
+					++$published;
+				}
+			}
+			$policy_item = array(
+				'label'       => __( 'Privacy Policy and Cookie Policy published', 'wpconsent-cookies-banner-privacy-suite' ),
+				'points'      => 10,
+				'earned'      => 2 === $published,
+				'detail'      => 2 === $published
+					? __( 'Both are published under Legal Documents.', 'wpconsent-cookies-banner-privacy-suite' )
+					: ( $published ? __( 'One of the two is published. Finish the other under Legal Documents.', 'wpconsent-cookies-banner-privacy-suite' ) : __( 'Create both from a short questionnaire and your site scan.', 'wpconsent-cookies-banner-privacy-suite' ) ),
+				'url'         => admin_url( 'admin.php?page=wpconsent-legal-documents' ),
+				'link_label'  => __( 'Legal Documents', 'wpconsent-cookies-banner-privacy-suite' ),
+				'action_type' => 'link',
+				'action_key'  => 'legal_documents',
+			);
+		}
+
 		$items = array(
 			array(
 				'label'       => __( 'Consent banner enabled', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -297,18 +336,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 				'action_type' => 'toggle',
 				'action_key'  => 'enable_script_blocking',
 			),
-			array(
-				'label'       => __( 'Cookie policy configured', 'wpconsent-cookies-banner-privacy-suite' ),
-				'points'      => 10,
-				'earned'      => $policy_exists,
-				'detail'      => $policy_exists
-					/* translators: %s: the cookie policy page title. */
-					? $this->safe_sprintf( __( 'Linked to "%s".', 'wpconsent-cookies-banner-privacy-suite' ), 'Linked to "%s".', get_the_title( $policy_page_id ) )
-					: __( 'Set a cookie policy page so visitors can learn more.', 'wpconsent-cookies-banner-privacy-suite' ),
-				'url'         => admin_url( 'admin.php?page=wpconsent-cookies' ) . '#cookie-policy-input',
-				'action_type' => 'generate_policy',
-				'action_key'  => 'cookie_policy',
-			),
+			$policy_item,
 			array(
 				'label'       => __( 'Cookie categories configured', 'wpconsent-cookies-banner-privacy-suite' ),
 				'points'      => 10,
@@ -396,6 +424,23 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 		$this->cached_basic_items = $items;
 
 		return $items;
+	}
+
+	/**
+	 * The cookie policy item's secondary link, labelled for where it goes:
+	 * the Legal Documents page, which lists the Cookie Policy with the same
+	 * generator. Entitled licences keep the "Choose page" link to the Cookies
+	 * settings until the engine ships, because their Legal Documents page is
+	 * hidden.
+	 *
+	 * @return array{url: string, label: string}
+	 */
+	protected function get_cookie_policy_action() {
+		// Every licence has a Legal Documents page: the free documents list, or the generated documents for entitled sites.
+		return array(
+			'url'   => $this->get_page_url( 'wpconsent-legal-documents' ),
+			'label' => __( 'Legal Documents', 'wpconsent-cookies-banner-privacy-suite' ),
+		);
 	}
 
 	/**
@@ -858,7 +903,7 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 								<?php esc_html_e( 'Generate page', 'wpconsent-cookies-banner-privacy-suite' ); ?>
 							</button>
 							<a href="<?php echo esc_url( $item['url'] ); ?>" class="wpconsent-score-item-action">
-								<?php esc_html_e( 'Choose page', 'wpconsent-cookies-banner-privacy-suite' ); ?> &rarr;
+								<?php echo esc_html( $item['link_label'] ); ?> &rarr;
 							</a>
 						<?php elseif ( 'configure_cookies' === $action_type ) : ?>
 							<?php if ( ! empty( $item['has_scan'] ) ) : ?>
@@ -874,6 +919,9 @@ class WPConsent_Admin_Page_Dashboard extends WPConsent_Admin_Page {
 								<?php
 								if ( $is_upsell ) {
 									esc_html_e( 'Upgrade to Pro', 'wpconsent-cookies-banner-privacy-suite' );
+								} elseif ( ! empty( $item['link_label'] ) ) {
+									// An item that names where its link goes (Legal Documents) says so instead of "Set up".
+									echo esc_html( $item['link_label'] );
 								} else {
 									esc_html_e( 'Set up', 'wpconsent-cookies-banner-privacy-suite' );
 								}

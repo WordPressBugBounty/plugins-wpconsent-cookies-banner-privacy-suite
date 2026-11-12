@@ -188,6 +188,27 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Get the Google Consent Mode wording recommendation for the Banner Content section.
+	 *
+	 * Shown when Google Consent Mode is enabled and IAB TCF is not, since TCF manages the banner message.
+	 *
+	 * @return string
+	 */
+	protected function get_google_consent_mode_content_notice() {
+		if ( ! $this->should_show_google_consent_mode_notice() ) {
+			return '';
+		}
+
+		$message = sprintf(
+			// translators: %s is the suggested banner wording, wrapped in quotes.
+			esc_html__( 'Google Consent Mode is enabled. Google asks that the first layer of your banner tell visitors that cookies and personal data may be used for analytics and personalized advertising. Suggested wording: %s', 'wpconsent-cookies-banner-privacy-suite' ),
+			'"' . esc_html( wpconsent()->banner->get_google_consent_mode_message() ) . '"'
+		);
+
+		return '<div class="wpconsent-google-banner-notice">' . $this->get_tcf_notice( $message . $this->get_google_consent_mode_notice_actions() ) . '</div>';
+	}
+
+	/**
 	 * Output the layout view.
 	 *
 	 * @return void
@@ -602,12 +623,39 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Without a published Cookie Policy page the banner's policy links point nowhere: on sites with
+	 * Legal Documents, say where to create one.
+	 */
+	protected function legal_documents_policy_hint() {
+		if ( ! class_exists( 'WPConsent_Legal_Documents_Entitlement' ) || ! WPConsent_Legal_Documents_Entitlement::allowed() ) {
+			return;
+		}
+		$page_id = (int) wpconsent()->settings->get_option( 'cookie_policy_page' );
+		if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
+			return;
+		}
+		// A Cookie Policy published under Legal Documents on a page that is there and shows it: nothing to say.
+		if ( class_exists( 'WPConsent_Legal_Documents_State' ) && WPConsent_Legal_Documents_State::stored()->is_live( 'cookie_policy' ) ) {
+			return;
+		}
+		?>
+		<div class="wpconsent-notice wpconsent-notice-info wpconsent-legal-banner-hint">
+			<p>
+				<?php esc_html_e( 'No Cookie Policy page is set, so the banner has no policy link to show.', 'wpconsent-cookies-banner-privacy-suite' ); ?>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpconsent-legal-documents' ) ); ?>"><?php esc_html_e( 'Create It Under Legal Documents', 'wpconsent-cookies-banner-privacy-suite' ); ?></a>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
 	 * Output the content view.
 	 *
 	 * @return void
 	 */
 	public function output_view_content() {
 		echo $this->get_tcf_content_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $this->get_google_consent_mode_content_notice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		$this->metabox_row(
 			esc_html__( 'Message', 'wpconsent-cookies-banner-privacy-suite' ),
@@ -688,6 +736,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			'',
 			$this->is_tcf_field_locked( 'preferences_panel_description' )
 		);
+		$this->legal_documents_policy_hint();
 		$this->metabox_row(
 			esc_html__( 'Cookie Policy Title', 'wpconsent-cookies-banner-privacy-suite' ),
 			$this->get_input_text(
@@ -819,6 +868,18 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				'cookie_table_header_duration'
 			),
 			'cookie_table_header_duration'
+		);
+
+		$this->metabox_row(
+			esc_html__( 'Learn More Link Text', 'wpconsent-cookies-banner-privacy-suite' ),
+			$this->get_input_text(
+				'cookie_policy_learn_more',
+				wpconsent()->strings->get_label( 'cookie_policy_learn_more' ),
+				/* translators: %s is a literal placeholder shown to the user; keep it unchanged. */
+				esc_html__( 'The text of the link to each service\'s website in the [wpconsent_cookie_policy] shortcode output. %s is replaced by the service name.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'cookie_policy_learn_more'
+			),
+			'cookie_policy_learn_more'
 		);
 
 		echo '</div>'; // .wpconsent-accordion-content
@@ -988,6 +1049,12 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 				$cookie_table_header_description = isset( $_POST['cookie_table_header_description'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_description'] ) ) : '';
 				$cookie_table_header_duration    = isset( $_POST['cookie_table_header_duration'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_duration'] ) ) : '';
 				$cookie_table_header_service_url = isset( $_POST['cookie_table_header_service_url'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_table_header_service_url'] ) ) : '';
+				$cookie_policy_learn_more        = isset( $_POST['cookie_policy_learn_more'] ) ? sanitize_text_field( wp_unslash( $_POST['cookie_policy_learn_more'] ) ) : '';
+
+				// Don't store the untouched default so it keeps following the active language.
+				if ( wpconsent()->strings->get_string( 'cookie_policy_learn_more' ) === $cookie_policy_learn_more ) {
+					$cookie_policy_learn_more = '';
+				}
 
 				$settings = array(
 					'banner_message'                  => $banner_message,
@@ -1013,6 +1080,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 					'cookie_table_header_description' => $cookie_table_header_description,
 					'cookie_table_header_duration'    => $cookie_table_header_duration,
 					'cookie_table_header_service_url' => $cookie_table_header_service_url,
+					'cookie_policy_learn_more'        => $cookie_policy_learn_more,
 				);
 
 				// GPC Settings.
@@ -1032,8 +1100,7 @@ class WPConsent_Admin_Page_Banner extends WPConsent_Admin_Page {
 			if ( ! empty( $settings ) ) {
 				wpconsent()->settings->bulk_update_options( $settings );
 
-				// Clear translation strings cache when settings change.
-				delete_transient( 'wpconsent_translation_strings' );
+				wpconsent_after_banner_saved();
 			}
 
 			wp_safe_redirect( $redirect );

@@ -46,6 +46,79 @@ abstract class WPConsent_Usage_Tracking {
 	const LAST_RUN = 'wpconsent_send_usage_last_run';
 
 	/**
+	 * Option name holding the incrementing usage counters.
+	 *
+	 * @since 1.2.1
+	 */
+	const COUNTERS_OPTION = 'wpconsent_usage_counters';
+
+	/**
+	 * Maximum number of distinct counter keys kept in the option.
+	 *
+	 * @since 1.2.1
+	 */
+	const COUNTERS_MAX_KEYS = 500;
+
+	/**
+	 * Increment a usage counter. Counters are cumulative and reported in the
+	 * weekly usage payload under `wpconsent_counters`. Nothing is recorded
+	 * while usage tracking is off, so opting in never sends earlier activity.
+	 *
+	 * @param string $key The counter key. Lower-cased; only [a-z0-9_.-] is kept.
+	 * @param int    $by  The amount to add.
+	 *
+	 * @return int|false The new value, or false if tracking is off, the key is empty
+	 *                   after sanitising or the option already holds the maximum number of keys.
+	 * @since 1.2.1
+	 */
+	public static function increment( $key, $by = 1 ) {
+		if ( ! self::is_tracking_enabled() ) {
+			return false;
+		}
+
+		$key = preg_replace( '/[^a-z0-9_.\-]/', '', strtolower( (string) $key ) );
+		if ( '' === $key ) {
+			return false;
+		}
+
+		$counters = self::get_counters();
+
+		if ( ! isset( $counters[ $key ] ) && count( $counters ) >= self::COUNTERS_MAX_KEYS ) {
+			return false;
+		}
+
+		$counters[ $key ] = ( isset( $counters[ $key ] ) ? (int) $counters[ $key ] : 0 ) + (int) $by;
+
+		update_option( self::COUNTERS_OPTION, $counters, false );
+
+		return $counters[ $key ];
+	}
+
+	/**
+	 * Get all usage counters.
+	 *
+	 * @return array<string,int>
+	 * @since 1.2.1
+	 */
+	public static function get_counters() {
+		$counters = get_option( self::COUNTERS_OPTION, array() );
+
+		return is_array( $counters ) ? $counters : array();
+	}
+
+	/**
+	 * Whether usage tracking is on for this site.
+	 *
+	 * @return bool False when no tracker is loaded for this request.
+	 * @since 1.2.1
+	 */
+	public static function is_tracking_enabled() {
+		$tracker = isset( wpconsent()->usage_tracking ) ? wpconsent()->usage_tracking : null;
+
+		return $tracker instanceof self && (bool) $tracker->is_enabled();
+	}
+
+	/**
 	 * Class Constructor.
 	 *
 	 * @since 1.0.0
@@ -297,6 +370,7 @@ abstract class WPConsent_Usage_Tracking {
 			'cookie_table_header_description',
 			'cookie_table_header_duration',
 			'cookie_table_header_service_url',
+			'cookie_policy_learn_more',
 
 			// Internal flags.
 			'has_auto_populated_pages',
@@ -312,6 +386,10 @@ abstract class WPConsent_Usage_Tracking {
 			'dnt_field_state_label',
 			'dnt_field_country_label',
 			'dnt_field_phone_label',
+			// Legal Documents: questionnaire answers, the business details and the licence key history stay on the site.
+			// The feature reports a summary of its own (wpconsent_legal_state).
+			'legal_documents',
+			'legal_rate_limited_until',
 		);
 
 		/**
@@ -518,6 +596,7 @@ abstract class WPConsent_Usage_Tracking {
 		$wpconsent_data['wpconsent_total_categories'] = $total_categories;
 		$wpconsent_data['wpconsent_total_services']   = $total_services;
 		$wpconsent_data['wpconsent_total_cookies']    = $total_cookies;
+		$wpconsent_data['wpconsent_counters']         = self::get_counters();
 
 		return $wpconsent_data;
 	}

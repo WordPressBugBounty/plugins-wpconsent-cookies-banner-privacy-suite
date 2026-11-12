@@ -955,4 +955,105 @@ class WPConsent_Banner {
 
 		return $text;
 	}
+
+	/**
+	 * Get the banner message Google recommends when Google Consent Mode is used without IAB TCF.
+	 *
+	 * This is a suggestion shown in the admin, not a banner setting, so it is kept out of
+	 * WPConsent_Strings to stay out of the saved defaults and the translatable banner fields.
+	 *
+	 * @return string
+	 */
+	public function get_google_consent_mode_message() {
+		return __( 'We use cookies and process personal data to make our site work, for analytics, and for ads personalization. Some of this data is shared with our partners. Open the preferences panel to see which services we use and choose what you allow.', 'wpconsent-cookies-banner-privacy-suite' );
+	}
+
+	/**
+	 * Get the service library slugs for Google products that read Google Consent Mode signals.
+	 *
+	 * @return array
+	 */
+	public function get_google_consent_mode_services() {
+		return apply_filters(
+			'wpconsent_google_consent_mode_services',
+			array(
+				'google-analytics',
+				'google-tag-manager',
+				'google-ads',
+				'google-adsense',
+				'doubleclick-google-marketing',
+			)
+		);
+	}
+
+	/**
+	 * Check whether the site should be told to use the Google recommended banner message.
+	 *
+	 * Google asks CMPs to recommend first layer wording when Consent Mode is used without
+	 * IAB TCF, since TCF sets its own banner message. Lite has no IAB TCF component.
+	 *
+	 * @return bool
+	 */
+	public function should_recommend_google_consent_mode_message() {
+		if ( ! wpconsent()->settings->get_option( 'google_consent_mode', true ) ) {
+			return false;
+		}
+
+		return ! ( isset( wpconsent()->iab_tcf ) && wpconsent()->iab_tcf->is_enabled() );
+	}
+
+	/**
+	 * Check whether the saved banner message already is the Google recommended message.
+	 *
+	 * @return bool
+	 */
+	public function has_google_consent_mode_message() {
+		$message = wpconsent()->settings->get_base_option( 'banner_message', '' );
+
+		return $this->normalize_message( $this->get_google_consent_mode_message() ) === $this->normalize_message( $message );
+	}
+
+	/**
+	 * Check whether the banner message was never changed from the plugin default.
+	 *
+	 * @return bool
+	 */
+	public function has_default_message() {
+		$message = wpconsent()->settings->get_base_option( 'banner_message', '' );
+
+		if ( empty( $message ) ) {
+			return true;
+		}
+
+		return $this->normalize_message( wpconsent()->strings->get_string( 'banner_message' ) ) === $this->normalize_message( $message );
+	}
+
+	/**
+	 * Save the Google recommended message as the banner message.
+	 *
+	 * @return string The message that was saved.
+	 */
+	public function apply_google_consent_mode_message() {
+		$message = $this->get_google_consent_mode_message();
+
+		wpconsent()->settings->update_option( 'banner_message', $message );
+
+		// Clear translation strings cache since the banner message changed.
+		delete_transient( 'wpconsent_translation_strings' );
+
+		return $message;
+	}
+
+	/**
+	 * Reduce a banner message to its plain text so editor markup does not affect comparisons.
+	 *
+	 * @param string $message The banner message.
+	 *
+	 * @return string
+	 */
+	protected function normalize_message( $message ) {
+		$message = html_entity_decode( wp_strip_all_tags( (string) $message ), ENT_QUOTES, 'UTF-8' );
+
+		return trim( preg_replace( '/\s+/u', ' ', $message ) );
+	}
 }

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WPConsent
  * Description: Improve your WordPress website privacy compliance. Custom cookie banner, website scanner, automatic script blocking, and easy cookie configuration.
- * Version:     1.2.0
+ * Version:     1.2.1
  * Author:      WPConsent
  * Author URI:  https://wpconsent.com
  * License:     GPL v2 or later
@@ -237,6 +237,13 @@ class WPConsent {
 	public $notice;
 
 	/**
+	 * Usage tracking instance, loaded in admin, AJAX and cron requests.
+	 *
+	 * @var WPConsent_Usage_Tracking_Lite
+	 */
+	public $usage_tracking;
+
+	/**
 	 * The file cache class.
 	 *
 	 * @var WPConsent_File_Cache
@@ -256,6 +263,13 @@ class WPConsent {
 	 * @var WPConsent_Privacy_Integration
 	 */
 	public $privacy_integration;
+
+	/**
+	 * The abilities registrar.
+	 *
+	 * @var WPConsent_Abilities_API
+	 */
+	public $abilities;
 
 	/**
 	 * Main instance of WPConsent.
@@ -335,8 +349,12 @@ class WPConsent {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/frontend-scripts.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-script-blocker.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/cookie-policy-shortcode.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/legal-document-shortcode.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/preferences-button-shortcode.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/helpers.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/abilities/class-wpconsent-abilities-api.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-legal-documents-entitlement.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/class-wpconsent-legal-documents-store.php';
 
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/lite/loader.php';
 		// Load compatibility.
@@ -359,7 +377,7 @@ class WPConsent {
 
 			// Load the reminders.
 			new WPConsent_Reminders();
-			new WPConsent_Usage_Tracking_Lite();
+			$this->usage_tracking = new WPConsent_Usage_Tracking_Lite();
 
 			$this->recommended_plugins = new WPConsent_Recommended_Plugins();
 		}
@@ -374,6 +392,7 @@ class WPConsent {
 		$this->cookie_blocking = new WPConsent_Cookie_Blocking();
 		$this->inspector       = new WPConsent_Inspector();
 		$this->dashboard       = new WPConsent_Dashboard();
+		$this->abilities       = new WPConsent_Abilities_API();
 	}
 }
 

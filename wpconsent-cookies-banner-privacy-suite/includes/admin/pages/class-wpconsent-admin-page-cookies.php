@@ -114,29 +114,7 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 		if ( 'advanced' === $this->view ) {
 			$enable_shared_consent = isset( $_POST['enable_shared_consent'] ) ? 1 : 0;
 
-			// Calculate cookie domain if shared consent is enabled.
-			$cookie_domain = '';
-			$hostname      = '';
-			if ( $enable_shared_consent ) {
-				$hostname = wp_parse_url( home_url(), PHP_URL_HOST );
-				if ( $hostname ) {
-					$cookie_domain = wpconsent_get_registrable_domain( $hostname );
-				}
-			}
-
-			/**
-			 * Filter the calculated cookie domain before saving.
-			 *
-			 * Allows developers to modify the cookie domain for edge cases or custom requirements.
-			 *
-			 * @param string $cookie_domain The calculated registrable domain (e.g., 'example.com').
-			 * @param string $hostname The original hostname from home_url().
-			 * @param int    $enable_shared_consent Whether shared consent is enabled (1 or 0).
-			 *
-			 * @since 1.1.0
-			 *
-			 */
-			$cookie_domain = apply_filters( 'wpconsent_cookie_domain', $cookie_domain, $hostname, $enable_shared_consent );
+			$cookie_domain = wpconsent_get_shared_cookie_domain( $enable_shared_consent );
 
 			$settings = array(
 					'clarity_consent_mode'  => isset( $_POST['clarity_consent_mode'] ) ? 1 : 0,
@@ -165,19 +143,11 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			);
 		}
 
+		$previous_duration = absint( wpconsent()->settings->get_option( 'consent_duration', 30 ) );
+
 		wpconsent()->settings->bulk_update_options( $settings );
 
-		// Keep the preferences cookie duration label in sync with the consent duration setting.
-		if ( isset( $settings['consent_duration'] ) ) {
-			wpconsent()->cookies->update_preferences_cookie_duration();
-
-			/**
-			 * Fires after the Consent Duration setting is saved so dependent cookie labels can re-sync.
-			 *
-			 * @since 1.1.7
-			 */
-			do_action( 'wpconsent_consent_duration_updated' );
-		}
+		wpconsent_after_settings_saved( $settings, $previous_duration );
 
 		wp_safe_redirect( $this->get_page_action_url() );
 		exit;
@@ -489,6 +459,8 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				$this->is_tcf_field_locked( 'google_consent_mode' )
 		);
 
+		$this->google_consent_mode_banner_notice();
+
 		$this->metabox_row(
 				esc_html__( 'URL Passthrough', 'wpconsent-cookies-banner-privacy-suite' ),
 				$this->get_checkbox_toggle(
@@ -508,6 +480,34 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 				),
 				'gcm_ads_data_redaction'
 		);
+	}
+
+	/**
+	 * Output the Google Consent Mode banner wording recommendation.
+	 *
+	 * Rendered when IAB TCF is off and the banner does not use the recommended message yet,
+	 * then shown or hidden live as the Google Consent Mode toggle changes.
+	 *
+	 * @return void
+	 */
+	public function google_consent_mode_banner_notice() {
+		if ( $this->is_iab_tcf_enabled() || wpconsent()->banner->has_google_consent_mode_message() ) {
+			return;
+		}
+
+		$notice = $this->get_tcf_notice(
+			esc_html__( 'Google recommends that your banner message mention analytics and personalized advertising, and that Google\'s privacy information is reachable from the banner. The preferences panel links to it for each Google service. Review the suggested wording in Banner Content.', 'wpconsent-cookies-banner-privacy-suite' ) . $this->get_google_consent_mode_notice_actions(
+				$this->get_page_url( 'wpconsent-banner', 'content' ),
+				esc_html__( 'Edit banner message', 'wpconsent-cookies-banner-privacy-suite' )
+			)
+		);
+		// Start hidden when Consent Mode is saved off so the notice does not flash before the toggle script runs.
+		$style = wpconsent()->settings->get_option( 'google_consent_mode', true ) ? '' : 'display: none;';
+		?>
+		<div class="wpconsent-google-banner-notice" data-show-if-id="#google_consent_mode" data-show-if-value="1" style="<?php echo esc_attr( $style ); ?>">
+			<?php echo $notice; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -1069,12 +1069,21 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			<?php endif; ?>
 		</div>
 		<div data-show-if-id="#cookie-policy-page" data-show-if-value="0" class="wpconsent-input-area-description">
-			<button class="wpconsent-button wpconsent-button-secondary wpconsent-button-icon" id="wpconsent-create-cookie-policy-page" type="button">
-				<?php
-				wpconsent_icon( 'generate' );
-				esc_html_e( 'Generate Cookie Policy Page', 'wpconsent-cookies-banner-privacy-suite' );
-				?>
-			</button>
+			<?php if ( class_exists( 'WPConsent_Legal_Documents_Entitlement' ) && WPConsent_Legal_Documents_Entitlement::allowed() ) : ?>
+				<a class="wpconsent-button wpconsent-button-secondary wpconsent-button-icon" href="<?php echo esc_url( admin_url( 'admin.php?page=wpconsent-legal-documents' ) ); ?>">
+					<?php
+					wpconsent_icon( 'generate' );
+					esc_html_e( 'Generate under Legal Documents', 'wpconsent-cookies-banner-privacy-suite' );
+					?>
+				</a>
+			<?php else : ?>
+				<button class="wpconsent-button wpconsent-button-secondary wpconsent-button-icon wpconsent-generate-cookie-policy-page" id="wpconsent-create-cookie-policy-page" type="button" data-source="cookies">
+					<?php
+					wpconsent_icon( 'generate' );
+					esc_html_e( 'Generate Cookie Policy Page', 'wpconsent-cookies-banner-privacy-suite' );
+					?>
+				</button>
+			<?php endif; ?>
 		</div>
 		<div class="wpconsent-input-area-description">
 			<?php
@@ -1085,6 +1094,19 @@ class WPConsent_Admin_Page_Cookies extends WPConsent_Admin_Page {
 			);
 			?>
 		</div>
+		<?php // Entitled sites do not see the Legal Documents page until the engine ships. ?>
+		<?php if ( ! WPConsent_Legal_Documents_Entitlement::allowed() ) : ?>
+			<div class="wpconsent-input-area-description">
+				<?php
+				printf(
+					// Translators: %1$s is the opening link tag to the Legal Documents page, %2$s is the closing tag.
+					esc_html__( 'Your Cookie Policy is also listed under %1$sLegal Documents%2$s.', 'wpconsent-cookies-banner-privacy-suite' ),
+					'<a href="' . esc_url( $this->get_page_url( 'wpconsent-legal-documents' ) ) . '">',
+					'</a>'
+				);
+				?>
+			</div>
+		<?php endif; ?>
 		<?php
 		return ob_get_clean();
 	}

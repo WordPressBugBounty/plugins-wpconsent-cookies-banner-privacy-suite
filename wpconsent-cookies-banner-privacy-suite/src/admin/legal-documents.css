@@ -1,0 +1,376 @@
+/* Legal Documents page for Lite and Basic: the documents list, with the Plus card below it. */
+.wpconsent-legal-documents {
+	/* The card: in flow under the list, 560px, one column of checks, note inside. */
+	.wpconsent-upsell-box,
+	.wpconsent-upsell-box.wpconsent-upsell-box-with-features {
+		position: static;
+		transform: none;
+		width: 560px;
+		margin: 0 auto;
+		padding: 32px 36px;
+		box-shadow: 0 2px 2px 0 #e6e9f0;
+
+		h2 {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 10px;
+			font-size: var(--wpconsent-font-size-xl);
+			font-weight: 600;
+			margin-bottom: 0;
+
+			.wpconsent-pro-pill {
+				vertical-align: middle;
+			}
+		}
+
+		.wpconsent-upsell-text {
+			max-width: none;
+
+			p {
+				font-size: var(--wpconsent-font-size-s);
+				margin: 12px 0 0;
+			}
+		}
+
+		.wpconsent-upsell-features {
+			display: block;
+			margin: 24px 0 0;
+
+			.wpconsent-upsell-feature {
+				width: auto;
+				font-size: var(--wpconsent-font-size-s);
+				margin: 0;
+				padding: 7px 0 7px 30px;
+				line-height: 1.3;
+
+				/* Filled green circle with a white check, as the prototype's StatusCheck (18px, glyph 8px). */
+				&:before {
+					top: 9px;
+					width: 18px;
+					height: 18px;
+					border-radius: 50%;
+					background-color: var(--wpconsent-notice-success-bg);
+					background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' width='8' height='8'%3E%3Cpath d='M3.37189 9.1868L0.115479 5.62355L1.25522 4.37642L3.37189 6.69253L8.74497 0.813171L9.88471 2.06031L3.37189 9.1868Z' fill='%23fff'/%3E%3C/svg%3E");
+					background-repeat: no-repeat;
+					background-position: center;
+					background-size: 8px 8px;
+				}
+			}
+		}
+
+		.wpconsent-upsell-buttons {
+			margin-top: 28px;
+		}
+
+		.wpconsent-button {
+			margin-top: 0;
+		}
+	}
+
+	.wpconsent-upsell-note {
+		color: var(--wpconsent-text-color-light-bg);
+		font-size: var(--wpconsent-font-size-xs);
+		margin: 14px 0 0;
+	}
+}
+
+/* Below the WordPress admin's tablet breakpoint the card takes the full width. */
+@media (max-width: 782px) {
+	.wpconsent-legal-documents .wpconsent-upsell-box,
+	.wpconsent-legal-documents .wpconsent-upsell-box.wpconsent-upsell-box-with-features {
+		width: auto;
+	}
+}
+
+/* ------------------------------------------------------------------------
+   Shared with the Plus overview (admin-pro), so the documents table, its card
+   and its status read the same on every licence. */
+
+/* The design's Metabox: 18px title, 20px 24px title bar, 24px body, card shadow. */
+.wpconsent-legal-box {
+	box-shadow: 0 2px 2px 0 #e6e9f0;
+	margin-bottom: 20px;
+}
+
+.wpconsent-legal-box > .wpconsent-metabox-title {
+	min-height: 0;
+	padding: 20px 24px;
+}
+
+.wpconsent-legal-box > .wpconsent-metabox-title .wpconsent-metabox-title-text {
+	color: #051f31;
+	font-size: var(--wpconsent-font-size-l);
+	letter-spacing: -0.02em;
+	padding: 0;
+}
+
+.wpconsent-legal-box > .wpconsent-metabox-title .wpconsent-metabox-title-actions {
+	padding: 0;
+}
+
+.wpconsent-legal-box > .wpconsent-metabox-content {
+	padding: 24px;
+}
+
+.wpconsent-legal-box--flush > .wpconsent-metabox-content {
+	padding: 0;
+}
+
+.wpconsent-legal-box-footer {
+	align-items: center;
+	background: var(--wpconsent-background-gray);
+	border-top: 1px solid var(--wpconsent-border-color);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+	padding: 16px 24px;
+}
+
+/* Text link that is a button or an anchor: 14px bold, no underline. */
+.wpconsent-legal-link {
+	background: none;
+	border: 0;
+	color: var(--wpconsent-color-primary);
+	cursor: pointer;
+	font-size: var(--wpconsent-font-size-s);
+	font-weight: 700;
+	padding: 0;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.wpconsent-legal-link:hover,
+.wpconsent-legal-link:focus {
+	color: var(--wpconsent-text-color-heading);
+	text-decoration: underline;
+}
+
+.wpconsent-legal-icon-button {
+	background: none;
+	border: 0;
+	cursor: pointer;
+	display: inline-flex;
+	line-height: 0;
+	padding: 4px;
+}
+
+.wpconsent-legal-icon-button svg path {
+	fill: #051f31;
+	fill-opacity: 0.6;
+}
+
+.wpconsent-legal-icon-button:hover svg path,
+.wpconsent-legal-icon-button:focus svg path {
+	fill-opacity: 1;
+}
+
+.wpconsent-legal-muted {
+	color: var(--wpconsent-text-color-light-bg);
+}
+
+
+@media screen and (max-width: 1100px) {
+	.wpconsent-legal-box > .wpconsent-metabox-content {
+		padding: 20px;
+	}
+
+	/* The flush card keeps its table edge to edge. */
+	.wpconsent-legal-box--flush > .wpconsent-metabox-content {
+		padding: 0;
+	}
+}
+
+/* Plain-text status, as the plugin's own tables show it. */
+.wpconsent-legal-status {
+	color: var(--wpconsent-text-color-light-bg);
+	font-size: var(--wpconsent-font-size-s);
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.wpconsent-legal-status--published {
+	color: #467f2b;
+}
+
+.wpconsent-legal-status--draft {
+	color: var(--wpconsent-text-color-paragraph);
+}
+
+/* Table: grey-labelled header, zebra rows, 14px 18px cells. */
+.wpconsent-legal-table-scroll {
+	overflow-x: auto;
+}
+
+/* The Plus tables keep their columns and scroll inside their card on narrow screens. */
+.wpconsent-legal-table {
+	border-collapse: collapse;
+	min-width: 760px;
+	width: 100%;
+}
+
+.wpconsent-legal-table th,
+.wpconsent-legal-table td {
+	border-bottom: 1px solid var(--wpconsent-border-color);
+	font-size: var(--wpconsent-font-size-s);
+	padding: 14px 18px;
+	text-align: start;
+	vertical-align: middle;
+}
+
+.wpconsent-legal-table th {
+	color: #051f3199;
+	font-weight: 500;
+}
+
+.wpconsent-legal-table td {
+	color: #051f31;
+}
+
+.wpconsent-legal-table tbody tr:nth-child(odd) td {
+	background: var(--wpconsent-background-gray);
+}
+
+.wpconsent-legal-table tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.wpconsent-legal-table .wpconsent-legal-col-actions {
+	text-align: end;
+	white-space: nowrap;
+}
+
+.wpconsent-legal-table .wpconsent-legal-col-actions .wpconsent-legal-icon-button + .wpconsent-legal-icon-button {
+	margin-inline-start: 4px;
+}
+
+/* Document rows. */
+.wpconsent-legal-table .wpconsent-legal-col-document {
+	font-weight: 600;
+}
+
+/* The Lite and Basic table: name with a one-line description, a lock on Plus documents, the page link. */
+.wpconsent-legal-document-name {
+	align-items: center;
+	display: inline-flex;
+	gap: 8px;
+}
+
+.wpconsent-legal-document-name svg {
+	flex: 0 0 auto;
+}
+
+.wpconsent-legal-document-description {
+	color: var(--wpconsent-text-color-light-bg);
+	display: block;
+	font-size: 13px;
+	font-weight: 400;
+	margin-top: 4px;
+}
+
+.wpconsent-legal-status--locked,
+.wpconsent-legal-status--missing {
+	color: var(--wpconsent-text-color-light-bg);
+}
+
+.wpconsent-legal-table .wpconsent-legal-col-page a {
+	color: var(--wpconsent-color-primary);
+	text-decoration: none;
+}
+
+.wpconsent-legal-table .wpconsent-legal-col-page a:hover {
+	text-decoration: underline;
+}
+
+/* A flex wrapper inside the cell, so the cell stays a table cell. The 4px gap stands in for the space between the Plus table's inline icons. */
+.wpconsent-legal-table-actions {
+	align-items: center;
+	display: flex;
+	gap: 4px;
+	justify-content: flex-end;
+}
+
+/* Buttons share the row height, so a plain one matches the generator with its icon. */
+.wpconsent-legal-table-actions .wpconsent-button {
+	align-items: center;
+	align-self: stretch;
+	display: inline-flex;
+	margin: 0;
+}
+
+/* Two buttons side by side get 8px, double the icon spacing. */
+.wpconsent-legal-table-actions .wpconsent-button + .wpconsent-button {
+	margin-inline-start: 4px;
+}
+
+/* The four-column Lite table fits its card instead of scrolling, and stacks each row below the admin's tablet breakpoint. */
+.wpconsent-legal-table.wpconsent-legal-documents-locked-table {
+	min-width: 0;
+}
+
+@media (max-width: 782px) {
+	.wpconsent-legal-documents-locked-table thead {
+		display: none;
+	}
+
+	.wpconsent-legal-documents-locked-table tr {
+		align-items: center;
+		border-bottom: 1px solid var(--wpconsent-border-color);
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		padding: 14px 18px;
+	}
+
+	.wpconsent-legal-documents-locked-table tbody tr:nth-child(odd) {
+		background: var(--wpconsent-background-gray);
+	}
+
+	.wpconsent-legal-documents-locked-table tbody tr:last-child {
+		border-bottom: 0;
+	}
+
+	.wpconsent-legal-table.wpconsent-legal-documents-locked-table td,
+	.wpconsent-legal-table.wpconsent-legal-documents-locked-table tbody tr:nth-child(odd) td {
+		background: none;
+		border: 0;
+		display: block;
+		padding: 0;
+	}
+
+	.wpconsent-legal-documents-locked-table .wpconsent-legal-col-document {
+		flex-basis: 100%;
+	}
+
+	/* The table itself gives up its table layout, so no cell's content can push it wider than the card. */
+	.wpconsent-legal-table.wpconsent-legal-documents-locked-table,
+	.wpconsent-legal-documents-locked-table tbody {
+		display: block;
+	}
+
+	/* The actions stay at the end of the row and wrap inside the card: a button that no longer fits drops to its own line. */
+	.wpconsent-legal-table.wpconsent-legal-documents-locked-table .wpconsent-legal-col-actions {
+		margin-inline-start: auto;
+		max-width: 100%;
+		white-space: normal;
+	}
+
+	/* Wrapped lines sit 8px apart; side by side, the icons and buttons keep their desktop spacing. */
+	.wpconsent-legal-documents-locked-table .wpconsent-legal-table-actions {
+		flex-wrap: wrap;
+		row-gap: 8px;
+	}
+}
+
+/* On small phones the actions take a row of their own and each button spans it. */
+@media (max-width: 480px) {
+	.wpconsent-legal-table.wpconsent-legal-documents-locked-table .wpconsent-legal-col-actions {
+		flex-basis: 100%;
+	}
+
+	.wpconsent-legal-documents-locked-table .wpconsent-legal-table-actions .wpconsent-button {
+		flex: 1 1 100%;
+		justify-content: center;
+		margin-inline-start: 0;
+	}
+}

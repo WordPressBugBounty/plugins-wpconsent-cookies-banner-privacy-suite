@@ -111,6 +111,7 @@
 			const formData = new FormData();
 			formData.append( 'action', 'wpconsent_generate_cookie_policy' );
 			formData.append( 'nonce', wpconsent.nonce );
+			formData.append( 'source', 'dashboard' );
 
 			fetch( ajaxurl, { method: 'POST', body: formData } )
 				.then( function( response ) { return response.json(); } )

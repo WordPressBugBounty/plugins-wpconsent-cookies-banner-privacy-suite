@@ -1,0 +1,60 @@
+/*
+ * Structure-only styles for generated legal documents (shortcode and block).
+ * Every selector sits in :where() so any theme rule wins.
+ */
+
+:where(.wpconsent-legal-document) {
+	margin: 20px 0;
+}
+
+:where(.wpconsent-legal-document section) {
+	margin: 0 0 24px;
+}
+
+:where(.wpconsent-legal-document section section) {
+	margin: 0 0 16px;
+}
+
+:where(.wpconsent-legal-document h2) {
+	margin: 32px 0 8px;
+}
+
+:where(.wpconsent-legal-document h3) {
+	margin: 24px 0 8px;
+}
+
+:where(.wpconsent-legal-document table) {
+	background-color: transparent;
+	border-collapse: collapse;
+	border-spacing: 0;
+	font-size: 0.9em;
+	margin: 0 0 15px;
+	width: 100%;
+}
+
+:where(.wpconsent-legal-document td),
+:where(.wpconsent-legal-document th) {
+	border: 1px solid hsla(0, 0%, 50%, 0.502);
+	line-height: 1.5;
+	padding: 10px 12px;
+	text-align: start;
+	vertical-align: top;
+}
+
+:where(.wpconsent-legal-document th) {
+	font-weight: 700;
+}
+
+:where(.wpconsent-legal-document tbody > tr:nth-child(odd) > td) {
+	background-color: hsla(0, 0%, 50%, 0.071);
+}
+
+:where(.wpconsent-legal-document section[data-source="override"]) {
+	position: relative;
+}
+
+:where(.wpconsent-legal-provenance) {
+	font-size: 0.85em;
+	margin: 24px 0 0;
+	opacity: 0.8;
+}

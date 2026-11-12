@@ -78,12 +78,32 @@ window.WPConsentOnboarding = window.WPConsentOnboarding || (
 					const list = app.servicesForm.querySelector( '.wpconsent-onboarding-selectable-list' );
 					// Let's empty the target list first.
 					list.innerHTML = '';
+					const services = [];
 					Object.values( response.data.scripts ).forEach( function ( category ) {
 						category.forEach( function ( item ) {
 							app.addItem( item, list );
+							// The name is the service library slug, the service is its display label.
+							services.push( item.name );
 						} );
 					} );
+					app.maybeUseGoogleBannerMessage( services );
 				} );
+			},
+			maybeUseGoogleBannerMessage( services ) {
+				// New sites that use a Google product get the banner message Google recommends for Consent Mode.
+				$.post(
+					ajaxurl,
+					{
+						action: 'wpconsent_onboarding_google_banner_message',
+						nonce: wpconsent.nonce,
+						services,
+					},
+					function ( response ) {
+						if ( response.success && response.data.updated && window.WPConsentGoogleBannerMessage ) {
+							window.WPConsentGoogleBannerMessage.updatePreview( response.data.banner_message );
+						}
+					}
+				);
 			},
 			addItem( item, target ) {
 				const template = app.itemTemplate;
@@ -129,6 +149,8 @@ window.WPConsentOnboarding = window.WPConsentOnboarding || (
 			handleCompleteOnboarding() {
 				$( document ).on( 'click', '.wpconsent-complete-onboarding', function ( e ) {
 					e.preventDefault();
+					// A link can name where to go once setup is complete (the Legal Documents card).
+					const next = $( this ).data( 'redirect' );
 					WPConsentConfirm.show_please_wait( wpconsent.completing_title );
 					$.post( ajaxurl, {
 						action: 'wpconsent_complete_onboarding',
@@ -136,7 +158,7 @@ window.WPConsentOnboarding = window.WPConsentOnboarding || (
 					}, function ( response ) {
 						WPConsentConfirm.close();
 						if ( response.success ) {
-							window.location.href = response.data.redirect;
+							window.location.href = next || response.data.redirect;
 						}
 					} );
 				} );

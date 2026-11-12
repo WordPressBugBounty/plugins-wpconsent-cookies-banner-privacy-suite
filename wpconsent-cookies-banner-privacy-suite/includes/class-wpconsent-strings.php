@@ -41,6 +41,8 @@ class WPConsent_Strings {
 			'cookie_table_header_description'   => __( 'Description', 'wpconsent-cookies-banner-privacy-suite' ),
 			'cookie_table_header_duration'      => __( 'Duration', 'wpconsent-cookies-banner-privacy-suite' ),
 			'cookie_table_header_service_url'   => __( 'Service URL', 'wpconsent-cookies-banner-privacy-suite' ),
+			/* translators: %s: the service name, e.g. Google Analytics. */
+			'cookie_policy_learn_more'          => __( 'Learn more about %s', 'wpconsent-cookies-banner-privacy-suite' ),
 		);
 	}
 
@@ -73,6 +75,20 @@ class WPConsent_Strings {
 		}
 
 		return $default_value;
+	}
+
+	/**
+	 * Get the saved (editable) text for a string key, falling back to the
+	 * default string when nothing is saved or the saved value is empty.
+	 *
+	 * @param string $key The string key.
+	 *
+	 * @return string
+	 */
+	public function get_label( $key ) {
+		$value = wpconsent()->settings->get_option( $key );
+
+		return ! empty( $value ) ? $value : $this->get_string( $key );
 	}
 
 	/**

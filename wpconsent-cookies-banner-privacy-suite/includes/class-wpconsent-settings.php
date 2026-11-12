@@ -71,6 +71,21 @@ class WPConsent_Settings {
 	}
 
 	/**
+	 * Forget the options loaded by this request and read them again from the database. A long request
+	 * (a publish, a translation batch, the daily check) that writes after another request saved
+	 * settings would otherwise write the copy it loaded minutes ago over them.
+	 *
+	 * @return array
+	 */
+	public function refresh() {
+		wp_cache_delete( $this->settings_key, 'options' );
+		wp_cache_delete( 'alloptions', 'options' );
+		$this->options = $this->load_options();
+
+		return $this->options;
+	}
+
+	/**
 	 * Load the options from the db.
 	 *
 	 * @return array

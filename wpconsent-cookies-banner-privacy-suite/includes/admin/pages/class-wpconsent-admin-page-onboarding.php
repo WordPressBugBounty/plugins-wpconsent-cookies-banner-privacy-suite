@@ -386,6 +386,27 @@ class WPConsent_Admin_Page_Onboarding extends WPConsent_Admin_Page {
 					<a href="<?php echo esc_url( $banner_design_url ); ?>" class="wpconsent-button wpconsent-button-text wpconsent-complete-onboarding"><?php esc_html_e( 'Further Configure Banner Styles', 'wpconsent-cookies-banner-privacy-suite' ); ?></a>
 				</div>
 			</form>
+			<?php $this->legal_documents_card(); ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * The final step's pointer to Legal Documents, for licences that include it.
+	 *
+	 * @return void
+	 */
+	public function legal_documents_card() {
+		if ( ! class_exists( 'WPConsent_Legal_Documents_Entitlement' ) || ! WPConsent_Legal_Documents_Entitlement::allowed() ) {
+			return;
+		}
+		?>
+		<div class="wpconsent-onboarding-legal-card wpconsent-metabox">
+			<div class="wpconsent-metabox-content">
+				<h3><?php esc_html_e( 'Next: Your Privacy Policy and Cookie Policy', 'wpconsent-cookies-banner-privacy-suite' ); ?></h3>
+				<p><?php esc_html_e( 'Answer a short questionnaire and publish both, written from your site scan.', 'wpconsent-cookies-banner-privacy-suite' ); ?></p>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=wpconsent-legal-documents' ) ); ?>" data-redirect="<?php echo esc_url( admin_url( 'admin.php?page=wpconsent-legal-documents' ) ); ?>" class="wpconsent-button wpconsent-button-secondary wpconsent-complete-onboarding"><?php esc_html_e( 'Create Your Documents', 'wpconsent-cookies-banner-privacy-suite' ); ?></a>
+			</div>
 		</div>
 		<?php
 	}

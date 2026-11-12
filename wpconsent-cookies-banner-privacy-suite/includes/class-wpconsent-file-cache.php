@@ -97,23 +97,32 @@ class WPConsent_File_Cache {
 			return false;
 		}
 
-		$file_expired = (int) filemtime( $file ) + $ttl < time();
+		// The file can go between the existence check and the read (another request dropped it): that is a miss, not a warning.
+		$mtime = @filemtime( $file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- A vanished file is a cache miss.
+		if ( false === $mtime ) {
+			return false;
+		}
+		$file_expired = (int) $mtime + $ttl < time();
 
 		// If TTL is 0, always return the file.
 		if ( $ttl > 0 && $file_expired && ! $expired ) {
 			return false;
 		}
 
+		$contents = @file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, WordPress.PHP.NoSilencedErrors.Discouraged -- A vanished file is a cache miss.
+		if ( false === $contents ) {
+			return false;
+		}
+
 		if ( $expired ) {
 			// If we want to check if the file is expired, we return the file and true.
 			return array(
-				'data'    => json_decode( file_get_contents( $file ), true ),
-				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				'data'    => json_decode( $contents, true ),
 				'expired' => $file_expired,
 			);
 		}
 
-		return json_decode( file_get_contents( $file ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		return json_decode( $contents, true );
 	}
 
 	/**

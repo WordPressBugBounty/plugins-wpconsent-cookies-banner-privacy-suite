@@ -58,6 +58,7 @@ class WPConsent_Admin_Page_Loader {
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-dashboard.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-banner.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-cookies.php';
+		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-legal-documents.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-scanner.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-analytics.php';
 		require_once WPCONSENT_PLUGIN_PATH . 'includes/admin/pages/class-wpconsent-admin-page-onboarding.php';
@@ -143,16 +144,18 @@ class WPConsent_Admin_Page_Loader {
 	 * @return void
 	 */
 	public function prepare_pages() {
-		$this->pages['dashboard']    = 'WPConsent_Admin_Page_Dashboard';
-		$this->pages['banner']       = 'WPConsent_Admin_Page_Banner';
-		$this->pages['scanner']      = 'WPConsent_Admin_Page_Scanner';
-		$this->pages['analytics']    = 'WPConsent_Admin_Page_Analytics';
-		$this->pages['cookies']      = 'WPConsent_Admin_Page_Cookies';
-		$this->pages['geolocation']  = 'WPConsent_Admin_Page_Geolocation';
-		$this->pages['tools']        = 'WPConsent_Admin_Page_Tools';
-		$this->pages['consent_logs'] = 'WPConsent_Admin_Page_Consent_Logs';
-		$this->pages['onboarding']   = 'WPConsent_Admin_Page_Onboarding';
-		$this->pages['do_not_track'] = 'WPConsent_Admin_Page_Do_Not_Track';
+		// Menu order: what the owner checks often, then setup in the order a new site needs it, then maintenance.
+		$this->pages['dashboard']       = 'WPConsent_Admin_Page_Dashboard';
+		$this->pages['analytics']       = 'WPConsent_Admin_Page_Analytics';
+		$this->pages['consent_logs']    = 'WPConsent_Admin_Page_Consent_Logs';
+		$this->pages['do_not_track']    = 'WPConsent_Admin_Page_Do_Not_Track';
+		$this->pages['scanner']         = 'WPConsent_Admin_Page_Scanner';
+		$this->pages['cookies']         = 'WPConsent_Admin_Page_Cookies';
+		$this->pages['banner']          = 'WPConsent_Admin_Page_Banner';
+		$this->pages['legal_documents'] = 'WPConsent_Admin_Page_Legal_Documents';
+		$this->pages['geolocation']     = 'WPConsent_Admin_Page_Geolocation';
+		$this->pages['tools']           = 'WPConsent_Admin_Page_Tools';
+		$this->pages['onboarding']      = 'WPConsent_Admin_Page_Onboarding';
 	}
 
 	/**

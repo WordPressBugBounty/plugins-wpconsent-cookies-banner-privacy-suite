@@ -827,6 +827,59 @@ abstract class WPConsent_Admin_Page {
 	}
 
 	/**
+	 * Check whether IAB TCF is enabled.
+	 *
+	 * The Lite version has no IAB TCF component, so this is always false there.
+	 *
+	 * @return bool
+	 */
+	protected function is_iab_tcf_enabled() {
+		return isset( wpconsent()->iab_tcf ) && wpconsent()->iab_tcf->is_enabled();
+	}
+
+	/**
+	 * Check whether the Google Consent Mode banner wording recommendation should be shown.
+	 *
+	 * Shown when Consent Mode is on, IAB TCF is off, and the banner does not use the recommended message yet.
+	 *
+	 * @return bool
+	 */
+	protected function should_show_google_consent_mode_notice() {
+		if ( ! wpconsent()->banner->should_recommend_google_consent_mode_message() ) {
+			return false;
+		}
+
+		return ! wpconsent()->banner->has_google_consent_mode_message();
+	}
+
+	/**
+	 * Get the actions row for the Google Consent Mode notices.
+	 *
+	 * Holds the button that saves the Google recommended banner message in one click, plus an optional link.
+	 *
+	 * @param string $link_url Optional URL for a link shown next to the button.
+	 * @param string $link_text Optional link text.
+	 *
+	 * @return string
+	 */
+	protected function get_google_consent_mode_notice_actions( $link_url = '', $link_text = '' ) {
+		$link = '';
+		if ( ! empty( $link_url ) ) {
+			$link = sprintf(
+				'<a href="%1$s">%2$s &rarr;</a>',
+				esc_url( $link_url ),
+				esc_html( $link_text )
+			);
+		}
+
+		return sprintf(
+			'<span class="wpconsent-notice-actions"><button type="button" class="wpconsent-button wpconsent-button-small wpconsent-apply-google-banner-message">%1$s</button>%2$s</span>',
+			esc_html__( 'Use suggested message', 'wpconsent-cookies-banner-privacy-suite' ),
+			$link
+		);
+	}
+
+	/**
 	 * Get a checkbox wrapped with markup to be displayed as a toggle.
 	 *
 	 * @param bool       $checked Is it checked or not.
@@ -1061,7 +1114,7 @@ abstract class WPConsent_Admin_Page {
 	 *
 	 * @return string
 	 */
-	public static function get_upsell_box( $title, $text = '', $button_1 = array(), $button_2 = array(), $features = array() ) {
+	public static function get_upsell_box( $title, $text = '', $button_1 = array(), $button_2 = array(), $features = array(), $note = '' ) {
 
 		$container_class = array(
 			'wpconsent-upsell-box',
@@ -1139,6 +1192,13 @@ abstract class WPConsent_Admin_Page {
 
 		$html .= '</div>'; // .wpconsent-upsell-buttons
 
+		if ( ! empty( $note ) ) {
+			$html .= sprintf(
+				'<p class="wpconsent-upsell-note">%s</p>',
+				wp_kses_post( $note )
+			);
+		}
+
 		$html .= '</div>';
 
 		return $html;
@@ -1176,7 +1236,7 @@ abstract class WPConsent_Admin_Page {
 		}
 		if ( ! empty( $button_settings['attributes'] ) ) {
 			foreach ( $button_settings['attributes'] as $key => $value ) {
-				$parsed_attributes .= esc_attr( $key ) . '="' . esc_attr( $value ) . '"';
+				$parsed_attributes .= esc_attr( $key ) . '="' . esc_attr( $value ) . '" ';
 			}
 		}
 

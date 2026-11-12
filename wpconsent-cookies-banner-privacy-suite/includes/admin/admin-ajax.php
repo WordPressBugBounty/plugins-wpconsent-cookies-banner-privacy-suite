@@ -20,6 +20,8 @@ add_action( 'wp_ajax_wpconsent_search_pages', 'wpconsent_ajax_search_pages' );
 add_action( 'wp_ajax_wpconsent_auto_configure', 'wpconsent_ajax_auto_configure' );
 
 add_action( 'wp_ajax_wpconsent_save_banner_layout', 'wpconsent_ajax_save_banner_layout' );
+add_action( 'wp_ajax_wpconsent_apply_google_banner_message', 'wpconsent_ajax_apply_google_banner_message' );
+add_action( 'wp_ajax_wpconsent_onboarding_google_banner_message', 'wpconsent_ajax_onboarding_google_banner_message' );
 
 add_action( 'wp_ajax_wpconsent_complete_onboarding', 'wpconsent_ajax_complete_onboarding' );
 
@@ -33,6 +35,41 @@ add_action( 'wp_ajax_wpconsent_reset_to_defaults', 'wpconsent_ajax_reset_to_defa
 add_action( 'wp_ajax_wpconsent_save_usage_tracking', 'wpconsent_ajax_save_usage_tracking' );
 
 add_action( 'wp_ajax_wpconsent_verify_ssl', 'wpconsent_ajax_verify_ssl' );
+
+add_action( 'wp_ajax_wpconsent_track_upsell_click', 'wpconsent_ajax_track_upsell_click' );
+
+/**
+ * Record a click on an upsell element so paywall probes can be measured.
+ *
+ * Increments the `upsell_click.{slug}` usage counter. Nothing else is stored.
+ * Only known slugs are counted, so the counters option cannot fill up.
+ *
+ * @return void
+ */
+function wpconsent_ajax_track_upsell_click() {
+	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error();
+	}
+
+	/**
+	 * Filter the upsell slugs whose clicks are counted.
+	 *
+	 * @param string[] $slugs The slugs set in `data-wpconsent-upsell` attributes.
+	 */
+	$allowed_slugs = (array) apply_filters( 'wpconsent_tracked_upsell_slugs', array_values( WPConsent_Legal_Documents_Entitlement::UPSELL_SLUGS ) );
+
+	$slug = isset( $_POST['slug'] ) ? sanitize_key( wp_unslash( $_POST['slug'] ) ) : '';
+
+	if ( ! in_array( $slug, $allowed_slugs, true ) ) {
+		wp_send_json_error();
+	}
+
+	WPConsent_Usage_Tracking::increment( 'upsell_click.' . $slug );
+
+	wp_send_json_success();
+}
 
 /**
  * Add a new category via AJAX.
@@ -443,25 +480,75 @@ function wpconsent_ajax_auto_configure() {
 	$services        = isset( $_POST['scanner_service'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['scanner_service'] ) ) : array();
 	$script_blocking = isset( $_POST['script_blocking'] ) ? 1 : 0;
 
-	wpconsent()->scanner->auto_configure_services( $services );
-
-	// Let's mark the scan as configured.
-	wpconsent()->scanner->mark_scan_as_configured();
-
-	// Clear cached service detection data.
-	wpconsent()->cookies->clear_cookies_cache();
-
-	// Let's update script blocking.
-	wpconsent()->settings->bulk_update_options(
-		array(
-			'enable_script_blocking' => $script_blocking,
-		)
-	);
+	wpconsent_configure_scanned_services( $services, $script_blocking );
 
 	wp_send_json_success( array(
 		'message' => esc_html__( 'Services and cookies added successfully.', 'wpconsent-cookies-banner-privacy-suite' ),
 	) );
 
+}
+
+/**
+ * Save the Google recommended banner message in one click from the Google Consent Mode notices.
+ *
+ * @return void
+ */
+function wpconsent_ajax_apply_google_banner_message() {
+	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error(
+			array(
+				'message' => esc_html__( 'You do not have permission to perform this action.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
+	$message = wpconsent()->banner->apply_google_consent_mode_message();
+
+	wp_send_json_success(
+		array(
+			'banner_message' => wp_kses_post( wpautop( $message ) ),
+			'message'        => esc_html__( 'Your banner now uses the suggested message.', 'wpconsent-cookies-banner-privacy-suite' ),
+		)
+	);
+}
+
+/**
+ * Switch a new site to the Google recommended banner message when the onboarding scan finds a Google product.
+ *
+ * Only runs before onboarding is completed and only replaces the untouched default message, so sites
+ * that are already set up keep their message and get the admin recommendation instead.
+ *
+ * @return void
+ */
+function wpconsent_ajax_onboarding_google_banner_message() {
+	check_ajax_referer( 'wpconsent_admin', 'nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error();
+	}
+
+	$services = isset( $_POST['services'] ) ? array_map( 'sanitize_text_field', wp_unslash( (array) $_POST['services'] ) ) : array();
+	$google   = array_intersect( $services, wpconsent()->banner->get_google_consent_mode_services() );
+
+	if (
+		empty( $google )
+		|| wpconsent()->settings->get_option( 'onboarding_completed' )
+		|| ! wpconsent()->banner->should_recommend_google_consent_mode_message()
+		|| ! wpconsent()->banner->has_default_message()
+	) {
+		wp_send_json_success( array( 'updated' => false ) );
+	}
+
+	$message = wpconsent()->banner->apply_google_consent_mode_message();
+
+	wp_send_json_success(
+		array(
+			'updated'        => true,
+			'banner_message' => wp_kses_post( wpautop( $message ) ),
+		)
+	);
 }
 
 /**
@@ -548,6 +635,46 @@ function wpconsent_ajax_generate_cookie_policy() {
 		);
 	}
 
+	$page_id = wpconsent_generate_cookie_policy_page();
+	if ( is_wp_error( $page_id ) ) {
+		wp_send_json_error(
+			array(
+				'title'   => esc_html__( 'Failed to generate cookie policy page.', 'wpconsent-cookies-banner-privacy-suite' ),
+				'message' => esc_html__( 'We encountered an error when generating the cookie policy page, please make sure you can create new pages and try again.', 'wpconsent-cookies-banner-privacy-suite' ),
+			)
+		);
+	}
+
+	// Phase 0 baseline for the Legal Documents feature: how often the generator is used and from where.
+	$allowed_sources = array( 'dashboard', 'cookies', 'legal_documents' );
+	$source          = isset( $_POST['source'] ) ? sanitize_key( wp_unslash( $_POST['source'] ) ) : '';
+	$source          = in_array( $source, $allowed_sources, true ) ? $source : 'unknown';
+	WPConsent_Usage_Tracking::increment( 'cookie_policy_generated' );
+	WPConsent_Usage_Tracking::increment( 'cookie_policy_generated_from.' . $source );
+
+	wp_send_json_success(
+		array(
+			'page_title' => get_the_title( $page_id ),
+			'page_id'    => $page_id,
+			'title'      => esc_html__( 'Cookie policy page generated successfully.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'message'    => esc_html__( 'Your new cookie policy page has been created and configured. The new page uses a default cookie policy text and the WPConsent shortcode to list out the cookie information as configured in the WPConsent settings. Please review the page.', 'wpconsent-cookies-banner-privacy-suite' ),
+			'link'       => get_permalink( $page_id ),
+			'view_page'  => esc_html__( 'View Page', 'wpconsent-cookies-banner-privacy-suite' ),
+		)
+	);
+}
+
+/**
+ * Create a published Cookie Policy page with the default text and the cookie list shortcode, and set it as the cookie policy page.
+ *
+ * @return int|WP_Error The new page ID, or an error when the page could not be created.
+ */
+function wpconsent_generate_cookie_policy_page() {
+	// The block editor check lives in an admin file that is not loaded outside the admin.
+	if ( ! function_exists( 'use_block_editor_for_post_type' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/post.php';
+	}
+
 	// Translators: This is a default text for the cookie policy generated by WPConsent. %1$s is the opening anchor tag, %2$s is the closing anchor tag.
 	$default_cookie_policy_text = esc_html__( 'This page provides comprehensive information about how we use cookies on our website to enhance your browsing experience, improve website performance, and deliver personalized content. Cookies are small text files that are stored on your device when you visit our site. They help us understand how visitors interact with our website, allowing us to offer a smoother and more efficient user experience. In the table below, you will find detailed information about each type of cookie we use, their purpose, and how long they remain on your device. We are committed to respecting your privacy and providing transparency about the data we collect through cookies. For more information on how we handle your personal data, please see our %1$sPrivacy Policy.%2$s', 'wpconsent-cookies-banner-privacy-suite' );
 	$privacy_policy             = get_privacy_policy_url();
@@ -577,13 +704,8 @@ function wpconsent_ajax_generate_cookie_policy() {
 			'post_type'    => 'page',
 		)
 	);
-	if ( ! $page_id ) {
-		wp_send_json_error(
-			array(
-				'title'   => esc_html__( 'Failed to generate cookie policy page.', 'wpconsent-cookies-banner-privacy-suite' ),
-				'message' => esc_html__( 'We encountered an error when generating the cookie policy page, please make sure you can create new pages and try again.', 'wpconsent-cookies-banner-privacy-suite' ),
-			)
-		);
+	if ( ! $page_id || is_wp_error( $page_id ) ) {
+		return new WP_Error( 'wpconsent_cookie_policy_failed', esc_html__( 'We encountered an error when generating the cookie policy page, please make sure you can create new pages and try again.', 'wpconsent-cookies-banner-privacy-suite' ) );
 	}
 
 	// Let's update the cookie policy page ID in the settings.
@@ -593,16 +715,7 @@ function wpconsent_ajax_generate_cookie_policy() {
 		)
 	);
 
-	wp_send_json_success(
-		array(
-			'page_title' => get_the_title( $page_id ),
-			'page_id'    => $page_id,
-			'title'      => esc_html__( 'Cookie policy page generated successfully.', 'wpconsent-cookies-banner-privacy-suite' ),
-			'message'    => esc_html__( 'Your new cookie policy page has been created and configured. The new page uses a default cookie policy text and the WPConsent shortcode to list out the cookie information as configured in the WPConsent settings. Please review the page.', 'wpconsent-cookies-banner-privacy-suite' ),
-			'link'       => get_permalink( $page_id ),
-			'view_page'  => esc_html__( 'View Page', 'wpconsent-cookies-banner-privacy-suite' ),
-		)
-	);
+	return $page_id;
 }
 
 /**
@@ -695,14 +808,23 @@ function wpconsent_ajax_reset_to_defaults() {
 		);
 	}
 
+	wpconsent_reset_to_defaults();
+
+	wp_send_json_success();
+}
+
+/**
+ * Reset the banner texts, categories, services and cookies to their defaults.
+ *
+ * @return void
+ */
+function wpconsent_reset_to_defaults() {
 	// Reset default strings.
 	$default_strings = wpconsent()->strings->get_strings();
 	wpconsent()->settings->bulk_update_options( $default_strings );
 
 	// Reset default categories and cookies.
 	wpconsent()->cookies->reset_to_defaults();
-
-	wp_send_json_success();
 }
 
 /**
@@ -768,3 +890,32 @@ function wpconsent_ajax_verify_ssl() {
 	);
 }
 
+
+/**
+ * Add the services found by a scan and mark the scan as configured.
+ *
+ * @param string[] $services        Service slugs to configure.
+ * @param int|null $script_blocking Script blocking to save (1 or 0), or null to leave it as it is.
+ *
+ * @return void
+ */
+function wpconsent_configure_scanned_services( $services, $script_blocking = null ) {
+	wpconsent()->scanner->auto_configure_services( $services );
+
+	// Let's mark the scan as configured.
+	wpconsent()->scanner->mark_scan_as_configured();
+
+	// Clear cached service detection data.
+	wpconsent()->cookies->clear_cookies_cache();
+
+	if ( null === $script_blocking ) {
+		return;
+	}
+
+	// Let's update script blocking.
+	wpconsent()->settings->bulk_update_options(
+		array(
+			'enable_script_blocking' => $script_blocking,
+		)
+	);
+}

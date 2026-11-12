@@ -191,6 +191,7 @@ window.WPConsent = {
 	hooks: {
 		beforeShowPreferences: [],
 		afterShowPreferences: [],
+		afterHidePreferences: [],
 		beforeHideBanner: [],
 		afterHideBanner: [],
 		beforeShowBanner: [],
@@ -534,6 +535,8 @@ window.WPConsent = {
 	closePreferences: function () {
 		const modal = this.shadowRoot?.querySelector( '#wpconsent-preferences-modal' );
 		if ( modal ) {
+			// Only run the hide hooks when the modal was actually open, not on repeat closes.
+			const wasOpen = 'flex' === modal.style.display;
 			modal.style.display = 'none';
 			// Remove focus trap when preferences modal is closed
 			this.removeFocusTrap();
@@ -541,6 +544,11 @@ window.WPConsent = {
 			if ( this.previouslyFocusedElement ) {
 				this.previouslyFocusedElement.focus( {preventScroll: true} );
 				this.previouslyFocusedElement = null;
+			}
+
+			if ( wasOpen ) {
+				// Run afterHidePreferences hooks for extensions.
+				this.runHooks( 'afterHidePreferences' );
 			}
 		}
 	},

@@ -352,3 +352,18 @@
 		}
 	}
 }
+
+/* Final step: the pointer to Legal Documents. */
+.wpconsent-onboarding-legal-card {
+	margin: 0 auto 40px;
+	max-width: 560px;
+	text-align: center;
+
+	h3 {
+		margin: 0 0 8px;
+	}
+
+	p {
+		margin: 0 0 16px;
+	}
+}

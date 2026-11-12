@@ -59,4 +59,20 @@ jQuery( function ( $ ) {
  	e.preventDefault();
  	WPConsentAdminNotices.show_pro_notice( wpconsent.do_not_track_delete.title, wpconsent.do_not_track_delete.text, wpconsent.do_not_track_delete.url );
  } );
+
+	// Report clicks on any upsell element that carries a slug, without changing what the click does.
+	// A middle-click opens the link in a new tab and fires auxclick instead of click, so it is counted too.
+	// sendBeacon survives same-tab navigation, which can cancel an XHR before it is sent.
+	$( document ).on( 'click auxclick', '[data-wpconsent-upsell]', function ( e ) {
+		if ( 'auxclick' === e.type && 1 !== e.button ) {
+			return;
+		}
+
+		const formData = new FormData();
+		formData.append( 'action', 'wpconsent_track_upsell_click' );
+		formData.append( 'nonce', wpconsent.nonce );
+		formData.append( 'slug', $( this ).data( 'wpconsent-upsell' ) );
+
+		navigator.sendBeacon( ajaxurl, formData );
+	} );
 } );

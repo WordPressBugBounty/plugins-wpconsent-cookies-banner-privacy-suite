@@ -4,7 +4,7 @@ Tags: cookie consent, cookie banner, gdpr, ccpa, cookie notice
 Requires at least: 5.6
 Tested up to: 7.1
 Requires PHP: 7.0
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -267,6 +267,15 @@ All WPConsent cookie consent data, including records of consent and cookie confi
 Yes. Every text string in the cookie consent banner is translatable from the admin. WPConsent Pro adds automatic translations for multilingual WordPress sites.
 
 == Changelog ==
+
+= 1.2.1 =
+* New: Manage WPConsent from AI assistants and automation tools through the WordPress Abilities API, available on WordPress 6.9 and later.
+* New: Troubleshoot Google Consent Mode with a debug report, by running WPConsent.debug() in the browser console or adding ?wpconsent_consent_debug=1 to any page URL.
+* New: When Google Consent Mode is on, WPConsent now suggests banner wording that follows Google's guidance.
+* Tweak: Improved accessibility of the "Learn more" links on the cookie policy page, which now name the service they point to.
+* Fix: Visitors' choices for custom cookie categories are now saved and remembered.
+* Fix: Improved compatibility with the Bricks Builder video element, so videos now display at full size before and after consent.
+* Fix: Changing the consent duration no longer overwrites a cookie duration label you edited or translated by hand.
 
 = 1.2.0 =
 * Fix: Hardened Automatic Script Blocking against a stored XSS issue through crafted comments.

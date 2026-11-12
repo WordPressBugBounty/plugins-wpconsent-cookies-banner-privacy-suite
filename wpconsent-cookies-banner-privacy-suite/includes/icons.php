@@ -96,10 +96,11 @@ function wpconsent_get_icon_allowed_tags() {
 		),
 		'title'    => array( 'title' => true ),
 		'path'     => array(
-			'd'         => true,
-			'fill'      => true,
-			'fill-rule' => true,
-			'clip-rule' => true,
+			'd'            => true,
+			'fill'         => true,
+			'fill-opacity' => true,
+			'fill-rule'    => true,
+			'clip-rule'    => true,
 		),
 		'circle'   => array(
 			'cx'           => true,
